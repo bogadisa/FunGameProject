@@ -3,8 +3,8 @@ package Tile;
 import Main.GamePanel;
 
 public class BackgroundManager extends TileManager {
-    String pathToTileFolder = "./tiles/background/";
-    String pathToMapsFolder = "./maps/background/";
+    String pathToTileFolder = "resources/tiles/background/";
+    String pathToMapsFolder = "resources/maps/background/";
 
     public BackgroundManager(GamePanel gp) {
         super(gp);

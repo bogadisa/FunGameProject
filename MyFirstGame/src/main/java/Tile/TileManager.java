@@ -3,7 +3,6 @@ package Tile;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,23 +41,27 @@ public class TileManager {
     protected void loadRes(String pathToTileFolder, String pathToMapsFolder) {
             getTileImages(pathToTileFolder);
             loadMaps(pathToMapsFolder);
-            // for (int i = 0; i < tile.length; i++) {
-            //     System.out.println(tile[i].name);
-            // }
+
+            System.err.println(tile[0].image);
             System.exit(0);
         }
 
     private void getTileImages(String pathToTileFolder) {
         try {
             String imgSrcStrings[] = FileUtils.getFiles(pathToTileFolder);
+            System.out.println(imgSrcStrings[0]);
+            // for (int i = 0; i < imgSrcStrings.length; i++) {
+            //     System.out.println(imgSrcStrings[i]);
+            // }
 
             int nImages = 0;
             BufferedImage imgsMatrix[][] = new BufferedImage[imgSrcStrings.length][];
             for (int i = 0; i < imgSrcStrings.length; i++) {
-                File f = new File(imgSrcStrings[i]);
-                BufferedImage src = ImageIO.read(f);
+                System.out.println(pathToTileFolder + imgSrcStrings[i]);
+                BufferedImage src = ImageIO.read(getClass().getResourceAsStream(pathToTileFolder + imgSrcStrings[i]));
 
                 imgsMatrix[i] = splitSourceImage(src, imgSrcStrings[i]);
+                System.out.println(imgsMatrix[i].length);
                 nImages += imgsMatrix[i].length;
             }
             tile = new Tile[nImages];
@@ -90,14 +93,13 @@ public class TileManager {
     public void loadMaps(String pathToMapFolder) {
         String mapPaths[] = FileUtils.getFiles(pathToMapFolder);
         for (int i = 0; i < mapPaths.length; i++) {
-            System.out.println(mapPaths[i]);
-            loadMap(mapPaths[i], i);
+            // TODO Fix pathing
+            loadMap("../maps/background/" + mapPaths[i], i);
         }
     }
 
     private void loadMap(String pathToMap, int layer) {
         try {
-
             InputStream is = getClass().getResourceAsStream(pathToMap);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
@@ -140,6 +142,7 @@ public class TileManager {
 
         while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
             mapTileType = mapTilesTypes[col][row];
+            
             tile[mapTileType].draw(g2, x, y);
             col++;
             x += gp.tileSize;
