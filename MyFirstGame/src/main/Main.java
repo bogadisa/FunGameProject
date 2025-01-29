@@ -1,4 +1,5 @@
-package main;
+package Main;
+
 import javax.swing.JFrame;
 
 public class Main {

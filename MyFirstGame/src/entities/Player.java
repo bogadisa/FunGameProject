@@ -1,4 +1,4 @@
-package entities;
+package Entities;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import main.GamePanel;
-import main.KeyHandler;
+import Main.GamePanel;
+import Main.KeyHandler;
 
 public class Player extends Entity {
     GamePanel gp;
@@ -32,15 +32,15 @@ public class Player extends Entity {
 
     public void getPlayerImage() {
         try {
-            imgSrcString = "./res/entities/player_3_3_8.png";
-            File f = new File(imgSrcString);
+            imgSrcString = "./entities/player_3_3_8.png";
+            // File f = new File(imgSrcString);
+            // src = ImageIO.read(f);
             // System.out.println(f.exists());
-            // src = ImageIO.read(getClass().getResourceAsStream(imgSrcString));
-            src = ImageIO.read(f);
+            src = ImageIO.read(getClass().getResourceAsStream(imgSrcString));
             splitSourceImage();
         } catch (IOException e) {
             System.out.println("Failed to load player sprites:");
-            System.out.print(e.getStackTrace());
+            e.printStackTrace();
         }
     }
 

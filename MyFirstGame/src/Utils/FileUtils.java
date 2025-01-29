@@ -11,7 +11,7 @@ public class FileUtils {
 
         String[] pathStrings = new String[nFiles];
         for (int i = 0; i < nFiles; i++) {
-            pathStrings[i] = files[i].getName();
+            pathStrings[i] = dirPath + files[i].getName();
         }
         return pathStrings;
     }

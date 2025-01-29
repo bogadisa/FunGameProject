@@ -1,4 +1,4 @@
-package main;
+package Main;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,7 +7,8 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
-import entities.Player;
+import Entities.Player;
+import Tile.BackgroundManager;
 
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
@@ -28,6 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     Thread gameThread;
     Player player = new Player(this, keyH);
+    BackgroundManager bgM = new BackgroundManager(this, 2);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -75,6 +77,8 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
+
+        bgM.draw(g2);
         player.draw(g2);
 
         g2.dispose();

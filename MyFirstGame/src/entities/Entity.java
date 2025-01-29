@@ -1,4 +1,4 @@
-package entities;
+package Entities;
 
 import java.awt.image.BufferedImage;
 
@@ -19,7 +19,7 @@ public class Entity {
 
     public void splitSourceImage() {
         String metadata[] = imgSrcString.split("_");
-        metadata[-1] = metadata[-1].substring(0, 1); // removing .png
+        metadata[3] = metadata[3].substring(0, 1); // removing .png
 
         int rows = Integer.parseInt(metadata[1]);
         int columns = Integer.parseInt(metadata[2]);
