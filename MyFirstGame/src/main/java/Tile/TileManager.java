@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import javax.imageio.ImageIO;
 
 import Main.GamePanel;
-import Utils.FileUtils;
 import Utils.ImageUtils;
 
 public class TileManager {
@@ -39,29 +38,22 @@ public class TileManager {
     }
 
     protected void loadRes(String pathToTileFolder, String pathToMapsFolder) {
-            getTileImages(pathToTileFolder);
-            loadMaps(pathToMapsFolder);
+        getTileImages(pathToTileFolder);
+        loadMaps(pathToMapsFolder);
 
-            System.err.println(tile[0].image);
-            System.exit(0);
-        }
+        // System.exit(0);
+    }
 
     private void getTileImages(String pathToTileFolder) {
         try {
-            String imgSrcStrings[] = FileUtils.getFiles(pathToTileFolder);
-            System.out.println(imgSrcStrings[0]);
-            // for (int i = 0; i < imgSrcStrings.length; i++) {
-            //     System.out.println(imgSrcStrings[i]);
-            // }
+            String imgSrcStrings[] = getMetadata(pathToTileFolder);
 
             int nImages = 0;
             BufferedImage imgsMatrix[][] = new BufferedImage[imgSrcStrings.length][];
             for (int i = 0; i < imgSrcStrings.length; i++) {
-                System.out.println(pathToTileFolder + imgSrcStrings[i]);
                 BufferedImage src = ImageIO.read(getClass().getResourceAsStream(pathToTileFolder + imgSrcStrings[i]));
 
                 imgsMatrix[i] = splitSourceImage(src, imgSrcStrings[i]);
-                System.out.println(imgsMatrix[i].length);
                 nImages += imgsMatrix[i].length;
             }
             tile = new Tile[nImages];
@@ -70,11 +62,14 @@ public class TileManager {
                     tile[i] = new Tile();
                     tile[i].image = imgsMatrix[i][j];
                     tile[i].name = i;
+                    // System.out.println(pathToTileFolder + imgSrcStrings[i] + "\n" +
+                    // tile[i].image);
                 }
             }
         } catch (IOException e) {
             System.out.println("Failed to load background tiles:");
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -90,11 +85,18 @@ public class TileManager {
 
     }
 
-    public void loadMaps(String pathToMapFolder) {
-        String mapPaths[] = FileUtils.getFiles(pathToMapFolder);
-        for (int i = 0; i < mapPaths.length; i++) {
-            // TODO Fix pathing
-            loadMap("../maps/background/" + mapPaths[i], i);
+    public void loadMaps(String pathToMapsFolder) {
+        try {
+            String mapPaths[] = getMetadata(pathToMapsFolder);
+
+            for (int i = 0; i < mapPaths.length; i++) {
+                loadMap(pathToMapsFolder + mapPaths[i], i);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Failed to load map:");
+            e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -110,7 +112,7 @@ public class TileManager {
                 String line = br.readLine();
                 String numbers[] = line.split(" ");
                 while (col < gp.maxScreenCol) {
-                    //  + layer != 0 ? 1 : 0 * 
+                    // + layer != 0 ? 1 : 0 *
                     int tileType = Integer.parseInt(numbers[col]);
                     mapLayeredTilesTypes[layer][col][row] = tileType;
                     col++;
@@ -123,6 +125,23 @@ public class TileManager {
             System.out.println("Failed to load map:");
             e.printStackTrace();
         }
+    }
+
+    protected String[] getMetadata(String pathToFolder) throws IOException {
+        InputStream is = getClass().getResourceAsStream(pathToFolder + "metadata.txt");
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+        int linesToRead = Integer.parseInt(br.readLine());
+        String metadata[] = new String[linesToRead];
+
+        String line;
+        for (int i = 0; i < linesToRead; i++) {
+            line = br.readLine();
+            metadata[i] = line.strip();
+        }
+        br.close();
+
+        return metadata;
     }
 
     public void draw(Graphics2D g2) {
@@ -142,8 +161,10 @@ public class TileManager {
 
         while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
             mapTileType = mapTilesTypes[col][row];
-            
-            tile[mapTileType].draw(g2, x, y);
+
+            if (mapTileType != 0) {
+                tile[mapTileType - 1].draw(g2, x, y);
+            }
             col++;
             x += gp.tileSize;
             if (col == gp.maxScreenCol) {
