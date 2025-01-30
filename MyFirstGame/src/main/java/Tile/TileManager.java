@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -14,7 +15,7 @@ import Utils.ImageUtils;
 
 public class TileManager {
     GamePanel gp;
-    Tile[] tile;
+    HashMap<String, Tile> tiles;
 
     int mapLayeredTilesTypes[][][];
     int nLayers;
@@ -48,23 +49,20 @@ public class TileManager {
         try {
             String imgSrcStrings[] = getMetadata(pathToTileFolder);
 
-            int nImages = 0;
             BufferedImage imgsMatrix[][] = new BufferedImage[imgSrcStrings.length][];
             for (int i = 0; i < imgSrcStrings.length; i++) {
                 BufferedImage src = ImageIO.read(getClass().getResourceAsStream(pathToTileFolder + imgSrcStrings[i]));
 
                 imgsMatrix[i] = splitSourceImage(src, imgSrcStrings[i]);
-                nImages += imgsMatrix[i].length;
             }
-            tile = new Tile[nImages];
+
+            tiles = new HashMap<String, Tile>();
+
+            Tile tile;
             for (int i = 0; i < imgsMatrix.length; i++) {
-                for (int j = 0; j < imgsMatrix[i].length; j++) {
-                    tile[i] = new Tile();
-                    tile[i].image = imgsMatrix[i][j];
-                    tile[i].name = i;
-                    // System.out.println(pathToTileFolder + imgSrcStrings[i] + "\n" +
-                    // tile[i].image);
-                }
+                tile = new Tile();
+                tile.addImgs(imgsMatrix[i]);
+                tiles.put(String.valueOf(i), tile);
             }
         } catch (IOException e) {
             System.out.println("Failed to load background tiles:");
@@ -163,7 +161,7 @@ public class TileManager {
             mapTileType = mapTilesTypes[col][row];
 
             if (mapTileType != 0) {
-                tile[mapTileType - 1].draw(g2, x, y);
+                tiles.get(String.valueOf(mapTileType - 1)).draw(g2, x, y, gp.tileSize);
             }
             col++;
             x += gp.tileSize;
