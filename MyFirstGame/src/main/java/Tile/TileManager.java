@@ -41,8 +41,6 @@ public class TileManager {
     protected void loadRes(String pathToTileFolder, String pathToMapsFolder) {
         getTileImages(pathToTileFolder);
         loadMaps(pathToMapsFolder);
-
-        // System.exit(0);
     }
 
     private void getTileImages(String pathToTileFolder) {
@@ -152,8 +150,12 @@ public class TileManager {
         int col = 0;
         int row = 0;
 
-        int x = 0;
-        int y = 0;
+        int worldX = gp.screenCoorX;
+        int worldY = gp.screenCoorY;
+        int offsetX = -worldX;
+        int offsetY = -worldY;
+        int x = offsetX;
+        int y = offsetY;
 
         int mapTileType;
 
@@ -164,10 +166,11 @@ public class TileManager {
                 tiles.get(String.valueOf(mapTileType - 1)).draw(g2, x, y, gp.tileSize);
             }
             col++;
+
             x += gp.tileSize;
             if (col == gp.maxScreenCol) {
                 col = 0;
-                x = 0;
+                x = offsetX;
                 row++;
                 y += gp.tileSize;
             }

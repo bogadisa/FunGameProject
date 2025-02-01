@@ -10,11 +10,10 @@ import Main.GamePanel;
 import Main.KeyHandler;
 
 public class Player extends Entity {
-    GamePanel gp;
     KeyHandler keyH;
 
     public Player(GamePanel gp, KeyHandler keyH) {
-        this.gp = gp;
+        super(gp);
         this.keyH = keyH;
 
         setDefaultValues();
@@ -22,8 +21,12 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
+        worldX = 100;
+        worldY = 100;
+        updateScreenCoor();
+
+        System.out.println(gp.screenCoorX + "," + gp.screenCoorY);
+        System.out.println(screenX + "," + screenY);
         speed = 4;
 
         direction = "down";
@@ -32,7 +35,7 @@ public class Player extends Entity {
     public void getPlayerImage() {
         try {
             imgSrcString = "./player_3_3_8.png";
-            
+
             src = ImageIO.read(getClass().getResourceAsStream(imgSrcString));
             splitSourceImage();
         } catch (IOException e) {
@@ -70,8 +73,11 @@ public class Player extends Entity {
             currentSpeed = Math.sqrt(speed);
         }
 
-        x += right * currentSpeed;
-        y += down * currentSpeed;
+        worldX += right * currentSpeed;
+        worldY += down * currentSpeed;
+        // if we want to follow the player
+        // gp.updateScreenCoor((int) (right * currentSpeed), (int) (down *
+        // currentSpeed));
 
         spriteCounter++;
         if (spriteCounter >= 6) {
@@ -84,6 +90,8 @@ public class Player extends Entity {
     }
 
     public void draw(Graphics2D g2) {
+        // TODO is this smart?
+        updateScreenCoor();
 
         BufferedImage image = null;
 
@@ -108,6 +116,6 @@ public class Player extends Entity {
                 break;
         }
 
-        g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
     }
 }

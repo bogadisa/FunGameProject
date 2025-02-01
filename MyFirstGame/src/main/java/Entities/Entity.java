@@ -2,10 +2,14 @@ package Entities;
 
 import java.awt.image.BufferedImage;
 
+import Main.GamePanel;
 import Utils.ImageUtils;
 
 public class Entity {
-    public int x, y;
+    protected GamePanel gp;
+
+    public int worldX, worldY;
+    public int screenX, screenY;
     public int speed;
 
     public String imgSrcString;
@@ -16,6 +20,15 @@ public class Entity {
     public String direction;
     public int spriteCounter = 0;
     public int spriteNumber = 0;
+
+    protected Entity(GamePanel gp) {
+        this.gp = gp;
+    }
+
+    public void updateScreenCoor() {
+        screenX = worldX - gp.screenCoorX;
+        screenY = worldY - gp.screenCoorY;
+    }
 
     public void splitSourceImage() {
         String metadata[] = imgSrcString.split("_");
