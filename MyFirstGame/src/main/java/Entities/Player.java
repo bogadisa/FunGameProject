@@ -1,6 +1,7 @@
 package Entities;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -25,9 +26,11 @@ public class Player extends Entity {
         worldY = 100;
         updateScreenCoor();
 
-        System.out.println(gp.screenCoorX + "," + gp.screenCoorY);
-        System.out.println(screenX + "," + screenY);
-        speed = 4;
+        offsetSolidAreaX = 10;
+        offsetSolidAreaY = 2;
+        solidArea = new Rectangle(offsetSolidAreaX, offsetSolidAreaY, 28, 46);
+
+        defaultSpeed = 4;
 
         direction = "down";
     }
@@ -68,16 +71,20 @@ public class Player extends Entity {
             direction = "left";
         }
 
-        double currentSpeed = speed;
+        speed = defaultSpeed;
         if (right != 0 && down != 0) {
-            currentSpeed = Math.sqrt(speed);
+            speed = (int)Math.sqrt(defaultSpeed);
         }
 
-        worldX += right * currentSpeed;
-        worldY += down * currentSpeed;
+        speedX = right * speed;
+        speedY = down * speed;
+
+        gp.collisionChecker.checkCollision(this);
+
+        worldX += speedX;
+        worldY += speedY;
         // if we want to follow the player
-        // gp.updateScreenCoor((int) (right * currentSpeed), (int) (down *
-        // currentSpeed));
+        gp.updateScreenCoor((int) (speedX), (int) (speedY));
 
         spriteCounter++;
         if (spriteCounter >= 6) {

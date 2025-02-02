@@ -23,10 +23,10 @@ public class GamePanel extends JPanel implements Runnable {
     final int screenWidth = tileSize * maxScreenCol; // 768 pixels
     final int screenHeight = tileSize * maxScreenRow; // 576 pixels
 
-    final int centerWorldCoorX = screenWidth / 2 - 1;
-    final int centerWorldCoorY = screenHeight / 2 - 1; // -1 because 0 indexing
-    // final int centerWorldCoorX = 0; // testing
-    // final int centerWorldCoorY = 0; // testing
+    // final int centerWorldCoorX = screenWidth / 2 - 1;
+    // final int centerWorldCoorY = screenHeight / 2 - 1; // -1 because 0 indexing
+    final int centerWorldCoorX = 100; // testing
+    final int centerWorldCoorY = 100; // testing
     // these need to update when panel size updates
     public int screenCoorX, screenCoorY; // the coordinates of the top left corner given in world coordinates
 
@@ -37,6 +37,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     Player player = new Player(this, keyH);
     BackgroundManager bgM = new BackgroundManager(this, 2);
+    public CollisionChecker collisionChecker = new CollisionChecker(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -51,6 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
         Dimension dim = this.getSize();
         int centerScreenX = (int) (dim.getWidth() / 2);
         int centerScreenY = (int) (dim.getHeight() / 2);
+
 
         screenCoorX = centerWorldCoorX - centerScreenX;
         screenCoorY = centerWorldCoorY - centerScreenY;

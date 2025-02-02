@@ -1,5 +1,6 @@
 package Entities;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import Main.GamePanel;
@@ -10,7 +11,14 @@ public class Entity {
 
     public int worldX, worldY;
     public int screenX, screenY;
-    public int speed;
+
+    protected int defaultSpeed;
+    protected int speed;
+    public int speedX, speedY;
+
+    public Rectangle solidArea;
+    protected int offsetSolidAreaX;
+    protected int offsetSolidAreaY;
 
     public String imgSrcString;
     public BufferedImage src;
@@ -23,6 +31,13 @@ public class Entity {
 
     protected Entity(GamePanel gp) {
         this.gp = gp;
+    }
+
+    public Rectangle getSolidRectangle() {
+        solidArea.x = worldX + offsetSolidAreaX;
+        solidArea.y = worldY + offsetSolidAreaY;
+
+        return solidArea;
     }
 
     public void updateScreenCoor() {

@@ -15,10 +15,10 @@ import Utils.ImageUtils;
 
 public class TileManager {
     GamePanel gp;
-    HashMap<String, Tile> tiles;
+    public HashMap<String, Tile> tiles;
 
-    int mapLayeredTilesTypes[][][];
-    int nLayers;
+    public int mapLayeredTilesTypes[][][];
+    public int nLayers;
 
     public String pathToTileFolder;
     public String pathToMapsFolder;
@@ -56,17 +56,20 @@ public class TileManager {
 
             tiles = new HashMap<String, Tile>();
 
-            Tile tile;
             for (int i = 0; i < imgsMatrix.length; i++) {
-                tile = new Tile();
-                tile.addImgs(imgsMatrix[i]);
-                tiles.put(String.valueOf(i), tile);
+                convertImgsToTile(imgsMatrix[i], i);
             }
         } catch (IOException e) {
             System.out.println("Failed to load background tiles:");
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    private void convertImgsToTile(BufferedImage[] imgs, int tileIndex) {
+        Tile tile = new Tile();
+        tile.addImgs(imgs);
+        tiles.put(String.valueOf(tileIndex + 1), tile);
     }
 
     private BufferedImage[] splitSourceImage(BufferedImage src, String imgSrcString) {
@@ -163,7 +166,7 @@ public class TileManager {
             mapTileType = mapTilesTypes[col][row];
 
             if (mapTileType != 0) {
-                tiles.get(String.valueOf(mapTileType - 1)).draw(g2, x, y, gp.tileSize);
+                tiles.get(String.valueOf(mapTileType)).draw(g2, x, y, gp.tileSize);
             }
             col++;
 

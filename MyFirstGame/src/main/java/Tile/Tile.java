@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 public class Tile {
 
     public BufferedImage[] images;
-    public boolean colision = false;
+    public boolean colision = true;
 
     public void addImgs(BufferedImage[] imgs) {
         images = imgs;
