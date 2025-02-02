@@ -42,4 +42,11 @@ public class ImageUtils {
 
         return imgs;
     }
+
+    public static BufferedImage resizeImage(BufferedImage image, int newWidth, int newHeight) {
+        BufferedImage scaledImage = new BufferedImage(newWidth, newHeight, image.getType());
+        Graphics2D g2 = scaledImage.createGraphics();
+        g2.drawImage(image, 0, 0, newWidth, newHeight, null);
+        return scaledImage;
+    }
 }

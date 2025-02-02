@@ -17,8 +17,9 @@ public class TileManager {
     GamePanel gp;
     public HashMap<String, Tile> tiles;
 
-    public int mapLayeredTilesTypes[][][];
+    public String mapLayeredTilesTypes[][][];
     public int nLayers;
+    int nTiles;
 
     public String pathToTileFolder;
     public String pathToMapsFolder;
@@ -27,7 +28,7 @@ public class TileManager {
         this.gp = gp;
         this.nLayers = 1;
 
-        mapLayeredTilesTypes = new int[nLayers][gp.maxScreenCol][gp.maxScreenRow];
+        mapLayeredTilesTypes = new String[nLayers][gp.maxScreenCol][gp.maxScreenRow];
     }
 
     protected TileManager(GamePanel gp, int nLayers) {
@@ -35,7 +36,7 @@ public class TileManager {
         this.gp = gp;
         this.nLayers = nLayers;
 
-        mapLayeredTilesTypes = new int[nLayers][gp.maxScreenCol][gp.maxScreenRow];
+        mapLayeredTilesTypes = new String[nLayers][gp.maxScreenCol][gp.maxScreenRow];
     }
 
     protected void loadRes(String pathToTileFolder, String pathToMapsFolder) {
@@ -52,12 +53,14 @@ public class TileManager {
                 BufferedImage src = ImageIO.read(getClass().getResourceAsStream(pathToTileFolder + imgSrcStrings[i]));
 
                 imgsMatrix[i] = splitSourceImage(src, imgSrcStrings[i]);
+                
             }
 
             tiles = new HashMap<String, Tile>();
 
             for (int i = 0; i < imgsMatrix.length; i++) {
                 convertImgsToTile(imgsMatrix[i], i);
+                nTiles++;
             }
         } catch (IOException e) {
             System.out.println("Failed to load background tiles:");
@@ -80,7 +83,12 @@ public class TileManager {
         int columns = Integer.parseInt(metadata[2]);
         int nImages = Integer.parseInt(metadata[3]);
 
-        return ImageUtils.getAllSubImages(src, rows, columns, nImages);
+        BufferedImage[] splitImgs = ImageUtils.getAllSubImages(src, rows, columns, nImages);
+        for (int i = 0; i < splitImgs.length; i++) {
+            splitImgs[i] = ImageUtils.resizeImage(splitImgs[i], gp.tileSize, gp.tileSize);
+        }
+
+        return splitImgs;
 
     }
 
@@ -112,8 +120,8 @@ public class TileManager {
                 String numbers[] = line.split(" ");
                 while (col < gp.maxScreenCol) {
                     // + layer != 0 ? 1 : 0 *
-                    int tileType = Integer.parseInt(numbers[col]);
-                    mapLayeredTilesTypes[layer][col][row] = tileType;
+                    // int tileType = Integer.parseInt(numbers[col]);
+                    mapLayeredTilesTypes[layer][col][row] = numbers[col];
                     col++;
                 }
                 col = 0;
@@ -149,7 +157,7 @@ public class TileManager {
         }
     }
 
-    private void drawLayer(Graphics2D g2, int[][] mapTilesTypes) {
+    private void drawLayer(Graphics2D g2, String[][] mapTilesTypes) {
         int col = 0;
         int row = 0;
 
@@ -160,13 +168,13 @@ public class TileManager {
         int x = offsetX;
         int y = offsetY;
 
-        int mapTileType;
+        String mapTileType;
 
         while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
             mapTileType = mapTilesTypes[col][row];
 
-            if (mapTileType != 0) {
-                tiles.get(String.valueOf(mapTileType)).draw(g2, x, y, gp.tileSize);
+            if (!mapTileType.equals("0")) {
+                tiles.get(mapTileType).draw(g2, x, y);
             }
             col++;
 

@@ -20,11 +20,11 @@ public class CollisionChecker {
             return true;
         }
         Tile tile;
-        int tileType;
+        String tileType;
         for (int i = 0; i < gp.bgM.nLayers; i++) {
             tileType = gp.bgM.mapLayeredTilesTypes[i][col][row];
-            if (tileType != 0){
-                tile = gp.bgM.tiles.get(String.valueOf(tileType));
+            if (!tileType.equals("0")){
+                tile = gp.bgM.tiles.get(tileType);
                 if (tile.colision) {
                     return true;
                 }
@@ -81,7 +81,6 @@ public class CollisionChecker {
         } 
         else if (entity.speedY > 0) {
             int distToNextRow = (botCornerRow + 1) * gp.tileSize - (y + entityHeight);
-            System.out.println(distToNextRow);
             if (entity.speedY >= distToNextRow) {
                 collisionY = checkTile(botCornerCol, botCornerRow + 1) || checkTile(topCornerCol, botCornerRow + 1);
                 if (collisionY) {

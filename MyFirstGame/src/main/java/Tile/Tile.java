@@ -13,7 +13,7 @@ public class Tile {
 
     }
 
-    public void draw(Graphics2D g2, int x, int y, int tileSize) {
-        g2.drawImage(images[0], x, y, tileSize, tileSize, null);
+    public void draw(Graphics2D g2, int x, int y) {
+        g2.drawImage(images[0], x, y, null);
     }
 }
