@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
@@ -18,8 +19,8 @@ public class TileManager {
     public HashMap<String, Tile> tiles;
 
     public String mapLayeredTilesTypes[][][];
+    public String currentMap[][];
     public int nLayers;
-    int nTiles;
 
     public String pathToTileFolder;
     public String pathToMapsFolder;
@@ -29,6 +30,7 @@ public class TileManager {
         this.nLayers = 1;
 
         mapLayeredTilesTypes = new String[nLayers][gp.maxScreenCol][gp.maxScreenRow];
+        currentMap = new String[gp.maxScreenCol][gp.maxScreenRow];
     }
 
     protected TileManager(GamePanel gp, int nLayers) {
@@ -37,6 +39,7 @@ public class TileManager {
         this.nLayers = nLayers;
 
         mapLayeredTilesTypes = new String[nLayers][gp.maxScreenCol][gp.maxScreenRow];
+        currentMap = new String[gp.maxScreenCol][gp.maxScreenRow];
     }
 
     protected void loadRes(String pathToTileFolder, String pathToMapsFolder) {
@@ -53,15 +56,17 @@ public class TileManager {
                 BufferedImage src = ImageIO.read(getClass().getResourceAsStream(pathToTileFolder + imgSrcStrings[i]));
 
                 imgsMatrix[i] = splitSourceImage(src, imgSrcStrings[i]);
-                
             }
 
             tiles = new HashMap<String, Tile>();
 
             for (int i = 0; i < imgsMatrix.length; i++) {
-                convertImgsToTile(imgsMatrix[i], i);
-                nTiles++;
+                for (int j = 0; j < imgsMatrix[i].length - 1; j++) {
+                    BufferedImage[] imgTemp = Arrays.copyOfRange(imgsMatrix[i], j, j +1);
+                    convertImgsToTile(imgTemp, j);
+                }
             }
+            // System.exit(0);
         } catch (IOException e) {
             System.out.println("Failed to load background tiles:");
             e.printStackTrace();
@@ -77,7 +82,7 @@ public class TileManager {
 
     private BufferedImage[] splitSourceImage(BufferedImage src, String imgSrcString) {
         String metadata[] = imgSrcString.split("_");
-        metadata[3] = metadata[3].substring(0, 1); // removing .png
+        metadata[3] = metadata[3].substring(0, 2); // removing .png
 
         int rows = Integer.parseInt(metadata[1]);
         int columns = Integer.parseInt(metadata[2]);
