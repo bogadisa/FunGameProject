@@ -34,12 +34,12 @@ public class BackgroundManager extends TileManager {
 
         Tile rockTile = new Tile();
         rockTile.addImgs(imgs, 10, 11);
-        rockTile.colision = true;
+        rockTile.colision = false;
         tiles.put("C-" + (tileIndex + 2), rockTile);
 
         Tile shrubTile = new Tile();
         shrubTile.addImgs(imgs, 11, 15);
-        shrubTile.colision = true;
+        shrubTile.colision = false;
         tiles.put("C-" + (tileIndex + 3), shrubTile);
 
         return tileIndex + 4;
