@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.regex.Matcher;
 
 import javax.imageio.ImageIO;
 
@@ -25,12 +26,17 @@ public class TileManager {
     public String pathToTileFolder;
     public String pathToMapsFolder;
 
+    protected TileUtil tileUtil;
+
     protected TileManager(GamePanel gp) {
         this.gp = gp;
         this.nLayers = 1;
 
         mapLayeredTilesTypes = new String[nLayers][gp.maxScreenCol][gp.maxScreenRow];
         currentMap = new String[gp.maxScreenCol][gp.maxScreenRow];
+
+        tiles = new HashMap<String, Tile>();
+        tileUtil = new TileUtil(tiles);
     }
 
     protected TileManager(GamePanel gp, int nLayers) {
@@ -40,6 +46,9 @@ public class TileManager {
 
         mapLayeredTilesTypes = new String[nLayers][gp.maxScreenCol][gp.maxScreenRow];
         currentMap = new String[gp.maxScreenCol][gp.maxScreenRow];
+
+        tiles = new HashMap<String, Tile>();
+        tileUtil = new TileUtil(tiles);
     }
 
     protected void loadRes(String pathToTileFolder, String pathToMapsFolder) {
@@ -58,13 +67,13 @@ public class TileManager {
                 imgsMatrix[i] = splitSourceImage(src, imgSrcStrings[i]);
             }
 
-            tiles = new HashMap<String, Tile>();
-
+            int tileIndex = 1;
             for (int i = 0; i < imgsMatrix.length; i++) {
-                for (int j = 0; j < imgsMatrix[i].length - 1; j++) {
-                    BufferedImage[] imgTemp = Arrays.copyOfRange(imgsMatrix[i], j, j +1);
-                    convertImgsToTile(imgTemp, j);
-                }
+                tileIndex = convertImgsToTile(imgsMatrix[i], tileIndex);
+                // for (int j = 0; j < imgsMatrix[i].length - 1; j++) {
+                // BufferedImage[] imgTemp = Arrays.copyOfRange(imgsMatrix[i], j, j + 1);
+                // convertImgsToTile(imgTemp, j);
+                // }
             }
             // System.exit(0);
         } catch (IOException e) {
@@ -74,10 +83,12 @@ public class TileManager {
         }
     }
 
-    private void convertImgsToTile(BufferedImage[] imgs, int tileIndex) {
+    public int convertImgsToTile(BufferedImage[] imgs, int tileIndex) {
         Tile tile = new Tile();
         tile.addImgs(imgs);
-        tiles.put(String.valueOf(tileIndex + 1), tile);
+        tiles.put(String.valueOf(tileIndex), tile);
+
+        return tileIndex + 1;
     }
 
     private BufferedImage[] splitSourceImage(BufferedImage src, String imgSrcString) {
@@ -173,13 +184,17 @@ public class TileManager {
         int x = offsetX;
         int y = offsetY;
 
-        String mapTileType;
+        String mapTileMD;
+        Matcher matchedMD;
+        Tile tile;
 
         while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
-            mapTileType = mapTilesTypes[col][row];
+            mapTileMD = mapTilesTypes[col][row];
 
-            if (!mapTileType.equals("0")) {
-                tiles.get(mapTileType).draw(g2, x, y);
+            if (!mapTileMD.equals("0")) {
+                matchedMD = tileUtil.readMapMD(mapTileMD);
+                tile = tiles.get(matchedMD.group("key"));
+                tile.draw(g2, x, y, Integer.parseInt(matchedMD.group("var")));
             }
             col++;
 

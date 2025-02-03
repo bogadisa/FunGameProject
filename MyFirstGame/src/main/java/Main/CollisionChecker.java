@@ -1,15 +1,19 @@
 package Main;
 
 import java.awt.Rectangle;
+import java.util.regex.Matcher;
 
 import Entities.Entity;
 import Tile.Tile;
+import Tile.TileUtil;
 
 public class CollisionChecker {
     GamePanel gp;
+    TileUtil tileUtil;
 
     public CollisionChecker(GamePanel gp) {
         this.gp = gp;
+        tileUtil = new TileUtil(gp.bgM.tiles);
     }
 
     private boolean checkTile(int col, int row) {
@@ -20,16 +24,18 @@ public class CollisionChecker {
             return true;
         }
         Tile tile;
-        String tileType;
+        String mapTileMD;
+        Matcher matchedMD;
         for (int i = 0; i < gp.bgM.nLayers; i++) {
-            tileType = gp.bgM.mapLayeredTilesTypes[i][col][row];
-            if (!tileType.equals("0")){
-                tile = gp.bgM.tiles.get(tileType);
+            mapTileMD = gp.bgM.mapLayeredTilesTypes[i][col][row];
+            if (!mapTileMD.equals("0")) {
+                matchedMD = tileUtil.readMapMD(mapTileMD);
+                tile = gp.bgM.tiles.get(matchedMD.group("key"));
                 if (tile.colision) {
                     return true;
                 }
             }
-            
+
         }
         return false;
     }
@@ -41,10 +47,10 @@ public class CollisionChecker {
         int y = solidArea.y;
         int entityHeight = solidArea.height;
 
-        int topCornerCol = (int)(x / gp.tileSize);
-        int topCornerRow = (int)(y / gp.tileSize);
-        int botCornerCol = (int)((x + entityWidth) / gp.tileSize);
-        int botCornerRow = (int)((y + entityHeight) / gp.tileSize);
+        int topCornerCol = (int) (x / gp.tileSize);
+        int topCornerRow = (int) (y / gp.tileSize);
+        int botCornerCol = (int) ((x + entityWidth) / gp.tileSize);
+        int botCornerRow = (int) ((y + entityHeight) / gp.tileSize);
 
         boolean collisionX = false;
         if (entity.speedX < 0) {
@@ -57,10 +63,9 @@ public class CollisionChecker {
                 }
             }
 
-        } 
-        else if (entity.speedX > 0) {
+        } else if (entity.speedX > 0) {
             int distToNextCol = (botCornerCol + 1) * gp.tileSize - (x + entityWidth);
-            
+
             if (entity.speedX >= distToNextCol) {
                 collisionX = checkTile(botCornerCol + 1, botCornerRow) || checkTile(botCornerCol + 1, topCornerRow);
                 if (collisionX) {
@@ -78,8 +83,7 @@ public class CollisionChecker {
                 }
             }
 
-        } 
-        else if (entity.speedY > 0) {
+        } else if (entity.speedY > 0) {
             int distToNextRow = (botCornerRow + 1) * gp.tileSize - (y + entityHeight);
             if (entity.speedY >= distToNextRow) {
                 collisionY = checkTile(botCornerCol, botCornerRow + 1) || checkTile(topCornerCol, botCornerRow + 1);

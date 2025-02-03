@@ -30,7 +30,7 @@ public class Player extends Entity {
         offsetSolidAreaY = 2;
         solidArea = new Rectangle(offsetSolidAreaX, offsetSolidAreaY, 28, 46);
 
-        defaultSpeed = 4;
+        defaultSpeed = 10;
 
         direction = "down";
     }
@@ -73,7 +73,7 @@ public class Player extends Entity {
 
         speed = defaultSpeed;
         if (right != 0 && down != 0) {
-            speed = (int)Math.sqrt(defaultSpeed);
+            speed = (int) Math.sqrt(defaultSpeed);
         }
 
         speedX = right * speed;

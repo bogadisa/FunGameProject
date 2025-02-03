@@ -53,7 +53,6 @@ public class GamePanel extends JPanel implements Runnable {
         int centerScreenX = (int) (dim.getWidth() / 2);
         int centerScreenY = (int) (dim.getHeight() / 2);
 
-
         screenCoorX = centerWorldCoorX - centerScreenX;
         screenCoorY = centerWorldCoorY - centerScreenY;
     }
