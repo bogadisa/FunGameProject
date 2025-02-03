@@ -64,6 +64,18 @@ public class TileUtil {
     }
 
     /**
+     * Only for intial map data, converts to current map data format
+     * 
+     * @param tileKey ABCDX-Y-Z format
+     * @return A-Y-Z formatted key
+     */
+    public String getFormattedKey(String tileKey) {
+        Matcher matcher = readTileMD(tileKey);
+
+        return matcher.group("A") + "-" + matcher.group("Y") + "-" + matcher.group("Z");
+    }
+
+    /**
      * Reads the meta data of both tiles and decides how to combine them
      * 
      * @param tileImg1  The image with higher priority
@@ -71,19 +83,28 @@ public class TileUtil {
      * @param tileImg2  The image with lower priority
      * @param metadata2
      */
-    public void compareTiles(BufferedImage tileImg1, String metadata1, Tile tile2) {
+    public String compareTiles(BufferedImage tileImg1, String metadata1, BufferedImage tileImg2) {
         Matcher matcher = readTileMD(metadata1);
 
         if (matcher.group("D").equals("O")) {
-            return;
+            return "";
         }
 
         BufferedImage newImg = new BufferedImage(tileImg1.getWidth(), tileImg1.getHeight(), tileImg1.getType());
         Graphics2D g2 = newImg.createGraphics();
         g2.drawImage(tileImg1, 0, 0, null);
+        g2.drawImage(tileImg2, 0, 0, null);
+
+        BufferedImage imgs[] = { newImg };
 
         Tile tile = new Tile();
-        // tile.images = new Array[1] {newImg};
+        tile.images = imgs;
+
+        String tileKey = String.valueOf(tiles.size());
+
+        tiles.put(tileKey, tile);
+
+        return tileKey;
 
     }
 }

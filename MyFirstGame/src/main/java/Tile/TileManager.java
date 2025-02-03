@@ -17,7 +17,7 @@ import Utils.ImageUtils;
 
 public class TileManager {
     GamePanel gp;
-    public HashMap<String, Tile> tiles;
+    public HashMap<String, Tile> tiles = new HashMap<String, Tile>();
 
     public String mapLayeredTilesTypes[][][];
     public String currentMap[][];
@@ -70,12 +70,7 @@ public class TileManager {
             int tileIndex = 1;
             for (int i = 0; i < imgsMatrix.length; i++) {
                 tileIndex = convertImgsToTile(imgsMatrix[i], tileIndex);
-                // for (int j = 0; j < imgsMatrix[i].length - 1; j++) {
-                // BufferedImage[] imgTemp = Arrays.copyOfRange(imgsMatrix[i], j, j + 1);
-                // convertImgsToTile(imgTemp, j);
-                // }
             }
-            // System.exit(0);
         } catch (IOException e) {
             System.out.println("Failed to load background tiles:");
             e.printStackTrace();
@@ -147,6 +142,17 @@ public class TileManager {
         } catch (Exception e) {
             System.out.println("Failed to load map:");
             e.printStackTrace();
+        }
+    }
+
+    private void createCurMap() {
+        int col = 0;
+        int row = 0;
+        while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
+
+            for (int i = 0; i < mapLayeredTilesTypes.length; i++) {
+
+            }
         }
     }
 
