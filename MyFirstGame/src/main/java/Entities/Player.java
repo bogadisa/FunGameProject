@@ -22,8 +22,8 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
-        worldX = 100;
-        worldY = 100;
+        worldX = (int) (0.5 * gp.worldWidth);
+        worldY = (int) (0.5 * gp.worldHeight);
         updateScreenCoor();
 
         offsetSolidAreaX = 10;
