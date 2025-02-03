@@ -41,8 +41,8 @@ public class Entity {
     }
 
     public void updateScreenCoor() {
-        screenX = worldX - gp.screenCoorX;
-        screenY = worldY - gp.screenCoorY;
+        screenX = worldX - gp.camera.coorX;
+        screenY = worldY - gp.camera.coorY;
     }
 
     public void splitSourceImage() {

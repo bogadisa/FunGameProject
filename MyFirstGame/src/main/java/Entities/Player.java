@@ -23,8 +23,10 @@ public class Player extends Entity {
 
     public void setDefaultValues() {
         worldX = (int) (0.5 * gp.worldWidth);
-        worldY = (int) (0.5 * gp.worldHeight);
-        updateScreenCoor();
+        worldY = (int) (0.5 * gp.worldHeight) + 191;
+
+        screenX = (int) (0.5 * gp.screenWidth);
+        screenY = (int) (0.5 * gp.screenHeight);
 
         offsetSolidAreaX = 10;
         offsetSolidAreaY = 2;
@@ -84,7 +86,7 @@ public class Player extends Entity {
         worldX += speedX;
         worldY += speedY;
         // if we want to follow the player
-        gp.updateScreenCoor((int) (speedX), (int) (speedY));
+        gp.camera.updateScreenCoor((int) (speedX), (int) (speedY));
 
         spriteCounter++;
         if (spriteCounter >= 6) {

@@ -20,15 +20,12 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxScreenCol = 32;
     public final int maxScreenRow = 18;
 
-    final int screenWidth = tileSize * maxScreenCol;
-    final int halfScreenWidth = screenWidth / 2;
-    final int screenHeight = tileSize * maxScreenRow;
-    final int halfScreenHeight = screenHeight / 2;
+    public final int screenWidth = tileSize * maxScreenCol;
+    public final int screenHeight = tileSize * maxScreenRow;
 
     final public int worldWidth = tileSize * maxScreenCol;
     final public int worldHeight = tileSize * maxScreenRow;
     // these need to update when panel size updates
-    public int screenCoorX, screenCoorY; // the coordinates of the top left corner given in world coordinates
 
     final int FPS = 24;
 
@@ -36,6 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     Thread gameThread;
     Player player = new Player(this, keyH);
+    public Camera camera = new Camera(this, player);
     BackgroundManager bgM = new BackgroundManager(this, 2);
     public CollisionChecker collisionChecker = new CollisionChecker(this);
 
@@ -48,26 +46,12 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
     }
 
-    private void setScreenCoor() {
-        screenCoorX = (int) (player.screenX - 0.5 * this.getWidth()); // -1 because 0 indexing;
-        screenCoorY = (int) (player.screenY - 0.5 * this.getHeight());
-    }
-
-    public void updateScreenCoor(int deltaX, int deltaY) {
-        if (player.worldX >= 0.5 * this.getWidth() && (player.worldX + this.getWidth()) <= worldWidth) {
-            screenCoorX += deltaX;
-        }
-        if (player.worldY >= 0.5 * this.getHeight() && (player.worldY + this.getHeight()) <= worldWidth) {
-            screenCoorY += deltaY;
-        }
-    }
-
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
 
         // Needs to be set after panel is started
-        setScreenCoor();
+        camera.setCameraCoor();
 
     }
 
@@ -116,6 +100,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void drawDebugTool(Graphics2D g2) {
         g2.setColor(Color.white);
-        g2.drawString("(" + player.worldX + ", " + player.worldY + ")", this.getWidth() - 150, 50);
+        g2.drawString("Player: (" + player.worldX + ", " + player.worldY + ")", this.getWidth() - 150, 50);
+        g2.drawString("Camera: (" + camera.coorX + ", " + camera.coorY + ")", this.getWidth() - 150, 75);
     }
 }

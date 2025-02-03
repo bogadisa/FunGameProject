@@ -183,8 +183,8 @@ public class TileManager {
         int col = 0;
         int row = 0;
 
-        int worldX = gp.screenCoorX;
-        int worldY = gp.screenCoorY;
+        int worldX = gp.camera.coorX;
+        int worldY = gp.camera.coorY;
         int offsetX = -worldX;
         int offsetY = -worldY;
         int x = offsetX;
