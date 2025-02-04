@@ -40,7 +40,7 @@ public class CollisionChecker {
         return false;
     }
 
-    public boolean checkRowCollision(Entity entity, int x, int y, int topCornerCol, int topCornerRow, int botCornerCol,
+    public boolean checkXCollision(Entity entity, int x, int y, int topCornerCol, int topCornerRow, int botCornerCol,
             int botCornerRow) {
         Rectangle solidArea = entity.getSolidRectangle();
         int entityWidth = solidArea.width;
@@ -68,7 +68,7 @@ public class CollisionChecker {
         return collision;
     }
 
-    public boolean checkRowCollision(Entity entity) {
+    public boolean checkXCollision(Entity entity) {
         Rectangle solidArea = entity.getSolidRectangle();
         int x = solidArea.x;
         int entityWidth = solidArea.width;
@@ -80,26 +80,27 @@ public class CollisionChecker {
         int botCornerCol = (int) ((x + entityWidth) / gp.tileSize);
         int botCornerRow = (int) ((y + entityHeight) / gp.tileSize);
 
-        return checkRowCollision(entity, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
+        return checkXCollision(entity, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
     }
 
-    public boolean checkColCollision(Entity entity, int x, int y, int topCornerCol, int topCornerRow, int botCornerCol,
+    public boolean checkYCollision(Entity entity, int speedY, int x, int y, int topCornerCol, int topCornerRow,
+            int botCornerCol,
             int botCornerRow) {
         Rectangle solidArea = entity.getSolidRectangle();
         int entityHeight = solidArea.height;
         boolean collision = false;
-        if (entity.speedY < 0) {
+        if (speedY < 0) {
             int distToNextRow = (topCornerRow) * gp.tileSize - y;
-            if (entity.speedY <= distToNextRow) {
+            if (speedY <= distToNextRow) {
                 collision = checkTile(topCornerCol, topCornerRow - 1) || checkTile(botCornerCol, topCornerRow - 1);
                 if (collision) {
                     entity.speedY = distToNextRow + 1;
                 }
             }
 
-        } else if (entity.speedY > 0) {
+        } else if (speedY > 0) {
             int distToNextRow = (botCornerRow + 1) * gp.tileSize - (y + entityHeight);
-            if (entity.speedY >= distToNextRow) {
+            if (speedY >= distToNextRow) {
                 collision = checkTile(botCornerCol, botCornerRow + 1) || checkTile(topCornerCol, botCornerRow + 1);
                 if (collision) {
                     entity.speedY = distToNextRow - 1;
@@ -109,7 +110,7 @@ public class CollisionChecker {
         return collision;
     }
 
-    public boolean checkColCollision(Entity entity) {
+    public boolean checkYCollision(Entity entity, int speedY) {
         Rectangle solidArea = entity.getSolidRectangle();
         int x = solidArea.x;
         int entityWidth = solidArea.width;
@@ -121,7 +122,14 @@ public class CollisionChecker {
         int botCornerCol = (int) ((x + entityWidth) / gp.tileSize);
         int botCornerRow = (int) ((y + entityHeight) / gp.tileSize);
 
-        return checkColCollision(entity, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
+        return checkYCollision(entity, speedY, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
+
+    }
+
+    public boolean checkYCollision(Entity entity) {
+        int entitySpeedY = entity.speedY;
+
+        return checkYCollision(entity, entitySpeedY);
     }
 
     public void checkCollision(Entity entity) {
@@ -131,12 +139,15 @@ public class CollisionChecker {
         int y = solidArea.y;
         int entityHeight = solidArea.height;
 
+        int entitySpeedY = entity.speedY;
+
         int topCornerCol = (int) (x / gp.tileSize);
         int topCornerRow = (int) (y / gp.tileSize);
         int botCornerCol = (int) ((x + entityWidth) / gp.tileSize);
         int botCornerRow = (int) ((y + entityHeight) / gp.tileSize);
 
-        checkRowCollision(entity, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
-        checkColCollision(entity, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
+        checkXCollision(entity, x, y, topCornerCol, topCornerRow, botCornerCol, botCornerRow);
+        checkYCollision(entity, entitySpeedY, x, y, topCornerCol, topCornerRow, botCornerCol,
+                botCornerRow);
     }
 }

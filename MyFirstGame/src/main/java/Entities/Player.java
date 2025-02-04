@@ -50,8 +50,10 @@ public class Player extends Entity {
     }
 
     public void update() {
+        calcGravity();
 
         if (!keyH.pressed) {
+            resolveUpwardMomentum();
             return;
         }
 
@@ -72,6 +74,9 @@ public class Player extends Entity {
             right = -1;
             direction = "left";
         }
+        if (keyH.spacePressed && onGround) {
+            upwardMomentum += 20;
+        }
 
         speed = defaultSpeed;
         if (right != 0 && down != 0) {
@@ -85,6 +90,7 @@ public class Player extends Entity {
 
         worldX += speedX;
         worldY += speedY;
+        resolveUpwardMomentum();
         // if we want to follow the player
         gp.camera.updateScreenCoor((int) (speedX), (int) (speedY));
 

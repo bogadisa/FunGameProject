@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
     public boolean upPressed, downPressed, leftPressed, rightPressed, pressed;
     public boolean showDebugTool = false;
+    public boolean spacePressed;
     private boolean ctrlPressed;
 
     @Override
@@ -16,27 +17,34 @@ public class KeyHandler implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_CONTROL) {
-            ctrlPressed = true;
-        }
-        if (code == KeyEvent.VK_P && ctrlPressed) {
-            showDebugTool = !showDebugTool;
-        }
-        if (code == KeyEvent.VK_W) {
-            upPressed = true;
-            pressed = true;
-        }
-        if (code == KeyEvent.VK_S) {
-            downPressed = true;
-            pressed = true;
-        }
-        if (code == KeyEvent.VK_A) {
-            leftPressed = true;
-            pressed = true;
-        }
-        if (code == KeyEvent.VK_D) {
-            rightPressed = true;
-            pressed = true;
+        if (ctrlPressed) {
+            if (code == KeyEvent.VK_P) {
+                showDebugTool = !showDebugTool;
+            }
+        } else {
+            if (code == KeyEvent.VK_CONTROL) {
+                ctrlPressed = true;
+            }
+            if (code == KeyEvent.VK_W) {
+                upPressed = true;
+                pressed = true;
+            }
+            if (code == KeyEvent.VK_S) {
+                downPressed = true;
+                pressed = true;
+            }
+            if (code == KeyEvent.VK_A) {
+                leftPressed = true;
+                pressed = true;
+            }
+            if (code == KeyEvent.VK_D) {
+                rightPressed = true;
+                pressed = true;
+            }
+            if (code == KeyEvent.VK_SPACE) {
+                spacePressed = true;
+                pressed = true;
+            }
         }
     }
 
@@ -60,8 +68,11 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D) {
             rightPressed = false;
         }
+        if (code == KeyEvent.VK_SPACE) {
+            spacePressed = false;
+        }
 
-        if (!upPressed && !downPressed && !leftPressed && !rightPressed) {
+        if (!upPressed && !downPressed && !leftPressed && !rightPressed && !spacePressed) {
             pressed = false;
         }
     }

@@ -16,6 +16,9 @@ public class Entity {
     protected int speed;
     public int speedX, speedY;
 
+    protected int upwardMomentum = 0;
+    protected boolean onGround;
+
     public Rectangle solidArea;
     protected int offsetSolidAreaX;
     protected int offsetSolidAreaY;
@@ -38,6 +41,29 @@ public class Entity {
         solidArea.y = worldY + offsetSolidAreaY;
 
         return solidArea;
+    }
+
+    protected void calcGravity() {
+        int gravity = 5;
+        speedY = gravity;
+
+        onGround = gp.collisionChecker.checkYCollision(this, gravity);
+        if (!onGround) {
+            upwardMomentum -= gravity;
+        } else if (gravity > speedY) {
+            upwardMomentum -= speedY;
+        }
+    }
+
+    protected void resolveUpwardMomentum() {
+        speedY = -upwardMomentum;
+        boolean yCollision = gp.collisionChecker.checkYCollision(this);
+        if (!yCollision) {
+            worldY += speedY;
+        } else {
+            upwardMomentum = 0;
+        }
+
     }
 
     public void updateScreenCoor() {
