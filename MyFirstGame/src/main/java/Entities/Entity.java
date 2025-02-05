@@ -10,7 +10,7 @@ public class Entity {
     protected GamePanel gp;
 
     public int worldX, worldY;
-    protected int screenX, screenY;
+    public int screenX, screenY;
 
     protected int defaultSpeed;
     protected int speed;
@@ -65,7 +65,7 @@ public class Entity {
         if (downwardMomentum != updatedDownwardMomentum) {
             downwardMomentum = 0;
         }
-        worldY += updatedDownwardMomentum;
+        speedY += updatedDownwardMomentum;
 
     }
 

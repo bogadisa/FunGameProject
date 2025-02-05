@@ -18,17 +18,19 @@ public class Camera {
     }
 
     public void setCameraCoor() {
-        Rectangle solidArea = player.getSolidRectangle();
-        int playerX = solidArea.x;
-        int playerY = solidArea.y;
-        coorX = (int) (playerX - 0.5 * gp.getWidth());
-        coorY = (int) (playerY - 0.5 * gp.getHeight()) - defaultYOffset;
+        coorX = (int) (player.screenX - 0.5 * gp.getWidth());
+        coorY = (int) (player.screenY - 0.5 * gp.getHeight());
     }
 
     public void updateScreenCoor(int deltaX, int deltaY) {
         int screenWidth = gp.getWidth();
         int screenHeight = gp.getHeight();
-        if (player.worldX >= 0.5 * screenWidth && (player.worldX + screenWidth) <= gp.worldWidth) {
+        Rectangle solidArea = player.getSolidRectangle();
+        int playerX = solidArea.x;
+        int playerY = solidArea.y;
+        int playerWidth = solidArea.width;
+        int playerHeight = solidArea.height;
+        if (playerX >= 0.5 * screenWidth && (playerX + playerWidth + 0.5*screenWidth) <= gp.worldWidth) {
             if (deltaX < 0) {
                 if (coorX < -deltaX){
                     coorX = 0;
@@ -43,7 +45,7 @@ public class Camera {
                 }
             }
         }
-        if (player.worldY >= 0.5 * (screenHeight - defaultYOffset) && (player.worldY + screenHeight) <= gp.worldHeight) {
+        if ((playerY) >= 0.5 * (screenHeight) && (playerY + playerHeight + 0.5*screenHeight + 191) <= gp.worldHeight) {
             if (deltaY < 0) {
                 if (coorY < -deltaY){
                     coorY = 0;

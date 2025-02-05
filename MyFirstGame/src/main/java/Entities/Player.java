@@ -63,46 +63,58 @@ public class Player extends Entity {
     }
 
     public void update() {
-        if (!godMode) {
-            calcGravity();
-        }
         godMode = keyH.playerGodMode;
         collisionEnabled = keyH.playerCollision;
 
-        if (!keyH.pressed) {
-            resolveUpwardMomentum();
-            return;
+        
+        if (!godMode) {
+            calcGravity();
         }
 
-        int right = 0;
-        int down = 0;
+        if (keyH.pressed) {
+            int right = 0;
+            int down = 0;
+    
+            if (keyH.upPressed) {
+                down = -1;
+                direction = "up";
+            } else if (keyH.downPressed) {
+                down = 1;
+                direction = "down";
+            }
+            if (keyH.rightPressed) {
+                right = 1;
+                direction = "right";
+            } else if (keyH.leftPressed) {
+                right = -1;
+                direction = "left";
+            }
+            if (keyH.spacePressed && onGround) {
+                downwardMomentum -= 20;
+            }
+    
+            speed = defaultSpeed;
+            if (right != 0 && down != 0) {
+                speed = (int) Math.sqrt(defaultSpeed);
+            }
+    
+            speedX = right * speed;
+            speedY = down * speed;
 
-        if (keyH.upPressed) {
-            down = -1;
-            direction = "up";
-        } else if (keyH.downPressed) {
-            down = 1;
-            direction = "down";
-        }
-        if (keyH.rightPressed) {
-            right = 1;
-            direction = "right";
-        } else if (keyH.leftPressed) {
-            right = -1;
-            direction = "left";
-        }
-        if (keyH.spacePressed && onGround) {
-            downwardMomentum -= 20;
+            spriteCounter++;
+            if (spriteCounter >= 6) {
+                spriteNumber++;
+                if (spriteNumber == up.length) {
+                    spriteNumber = 0;
+                }
+                spriteCounter = 0;
+            }
+        } else {
+            speedX = 0;
+            speedY = 0;
         }
 
-        speed = defaultSpeed;
-        if (right != 0 && down != 0) {
-            speed = (int) Math.sqrt(defaultSpeed);
-        }
-
-        speedX = right * speed;
-        speedY = down * speed;
-
+        resolveUpwardMomentum();
         if (collisionEnabled) {
             int updatedSpeed[] = gp.collisionChecker.getCollisionSafeSpeeds(this);
             speedX = updatedSpeed[0];
@@ -112,17 +124,9 @@ public class Player extends Entity {
 
         worldX += speedX;
         worldY += speedY;
-        resolveUpwardMomentum();
         // if we want to follow the player
 
-        spriteCounter++;
-        if (spriteCounter >= 6) {
-            spriteNumber++;
-            if (spriteNumber == up.length) {
-                spriteNumber = 0;
-            }
-            spriteCounter = 0;
-        }
+        
     }
 
     public void draw(Graphics2D g2) {
