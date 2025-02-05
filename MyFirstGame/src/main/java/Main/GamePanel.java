@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     Player player = new Player(this, keyH);
     public Camera camera = new Camera(this, player);
-    BackgroundManager bgM = new BackgroundManager(this, 2);
+    public BackgroundManager bgM = new BackgroundManager(this, 2);
     public CollisionChecker collisionChecker = new CollisionChecker(this);
 
     public GamePanel() {
@@ -94,13 +94,19 @@ public class GamePanel extends JPanel implements Runnable {
         if (keyH.showDebugTool) {
             drawDebugTool(g2);
         }
+        if (keyH.playerGodMode) {
+            player.drawGodModeOverview(g2);
+        }
 
         g2.dispose();
     }
 
     public void drawDebugTool(Graphics2D g2) {
         g2.setColor(Color.white);
-        g2.drawString("Player: (" + player.worldX + ", " + player.worldY + ")", this.getWidth() - 150, 50);
-        g2.drawString("Camera: (" + camera.coorX + ", " + camera.coorY + ")", this.getWidth() - 150, 75);
+        g2.drawString("Camera: (" + camera.coorX + ", " + camera.coorY + ")", 50, 50);
+        g2.drawString("Player: " + player.getPositionAsString(), 50, 75);
+        if (!keyH.playerGodMode) {
+            g2.drawString("Player god mode enabled: " + keyH.playerGodMode, 50, 100);
+        }
     }
 }

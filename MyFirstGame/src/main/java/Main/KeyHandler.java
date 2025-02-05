@@ -5,9 +5,13 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
     public boolean upPressed, downPressed, leftPressed, rightPressed, pressed;
-    public boolean showDebugTool = false;
     public boolean spacePressed;
     private boolean ctrlPressed;
+
+    
+    public boolean showDebugTool = false;
+    public boolean playerGodMode = false;
+    public boolean playerCollision = true;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -20,6 +24,15 @@ public class KeyHandler implements KeyListener {
         if (ctrlPressed) {
             if (code == KeyEvent.VK_P) {
                 showDebugTool = !showDebugTool;
+            }
+            if (code == KeyEvent.VK_G) {
+                playerGodMode = !playerGodMode;
+                if (!playerGodMode) {
+                    playerCollision = true;
+                }
+            }
+            if (code == KeyEvent.VK_H && playerGodMode) {
+                playerCollision = !playerCollision;
             }
         } else {
             if (code == KeyEvent.VK_CONTROL) {

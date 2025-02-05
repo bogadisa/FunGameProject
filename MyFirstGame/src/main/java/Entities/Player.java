@@ -1,5 +1,6 @@
 package Entities;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,10 @@ import Main.KeyHandler;
 
 public class Player extends Entity {
     KeyHandler keyH;
+    public int defaultYOffset = 191;
+
+    public boolean godMode = false;
+    public boolean collisionEnabled = true;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
@@ -23,7 +28,7 @@ public class Player extends Entity {
 
     public void setDefaultValues() {
         worldX = (int) (0.5 * gp.worldWidth);
-        worldY = (int) (0.5 * gp.worldHeight) + 191;
+        worldY = (int) (0.5 * gp.worldHeight) + defaultYOffset;
 
         screenX = (int) (0.5 * gp.screenWidth);
         screenY = (int) (0.5 * gp.screenHeight);
@@ -31,10 +36,18 @@ public class Player extends Entity {
         offsetSolidAreaX = 10;
         offsetSolidAreaY = 2;
         solidArea = new Rectangle(offsetSolidAreaX, offsetSolidAreaY, 28, 46);
+        
 
         defaultSpeed = 10;
 
         direction = "down";
+    }
+
+    public void drawGodModeOverview(Graphics2D g2) {
+        g2.setColor(Color.white);
+        g2.drawString("Player god mode enabled: " + keyH.playerGodMode, 50, 100);
+        g2.drawString("Collision enabled: " + keyH.playerCollision, 60, 125);
+
     }
 
     public void getPlayerImage() {
@@ -50,7 +63,11 @@ public class Player extends Entity {
     }
 
     public void update() {
-        calcGravity();
+        if (!godMode) {
+            calcGravity();
+        }
+        godMode = keyH.playerGodMode;
+        collisionEnabled = keyH.playerCollision;
 
         if (!keyH.pressed) {
             resolveUpwardMomentum();
@@ -75,7 +92,7 @@ public class Player extends Entity {
             direction = "left";
         }
         if (keyH.spacePressed && onGround) {
-            upwardMomentum += 20;
+            downwardMomentum -= 20;
         }
 
         speed = defaultSpeed;
@@ -86,13 +103,17 @@ public class Player extends Entity {
         speedX = right * speed;
         speedY = down * speed;
 
-        gp.collisionChecker.checkCollision(this);
+        if (collisionEnabled) {
+            int updatedSpeed[] = gp.collisionChecker.getCollisionSafeSpeeds(this);
+            speedX = updatedSpeed[0];
+            speedY = updatedSpeed[1];
+        }
+        gp.camera.updateScreenCoor((int) (speedX), (int) (speedY));
 
         worldX += speedX;
         worldY += speedY;
         resolveUpwardMomentum();
         // if we want to follow the player
-        gp.camera.updateScreenCoor((int) (speedX), (int) (speedY));
 
         spriteCounter++;
         if (spriteCounter >= 6) {

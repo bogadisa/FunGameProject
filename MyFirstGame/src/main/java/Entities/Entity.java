@@ -10,13 +10,13 @@ public class Entity {
     protected GamePanel gp;
 
     public int worldX, worldY;
-    public int screenX, screenY;
+    protected int screenX, screenY;
 
     protected int defaultSpeed;
     protected int speed;
     public int speedX, speedY;
 
-    protected int upwardMomentum = 0;
+    protected int downwardMomentum = 0;
     protected boolean onGround;
 
     public Rectangle solidArea;
@@ -42,33 +42,36 @@ public class Entity {
 
         return solidArea;
     }
+    
+    public String getPositionAsString() {
+        Rectangle solidArea = getSolidRectangle();
+        return "(" + solidArea.x + ", " + solidArea.y + ")";
+    }
 
     protected void calcGravity() {
         int gravity = 5;
-        speedY = gravity;
 
-        onGround = gp.collisionChecker.checkYCollision(this, gravity);
-        if (!onGround) {
-            upwardMomentum -= gravity;
-        } else if (gravity > speedY) {
-            upwardMomentum -= speedY;
+        int updatedGravity = gp.collisionChecker.getCollisionSafeSpeedY(this, gravity);
+        if (updatedGravity < gravity) {
+            onGround = true;
+        } else {
+            onGround = false;
         }
+        downwardMomentum += updatedGravity;
     }
 
     protected void resolveUpwardMomentum() {
-        speedY = -upwardMomentum;
-        boolean yCollision = gp.collisionChecker.checkYCollision(this);
-        if (!yCollision) {
-            worldY += speedY;
-        } else {
-            upwardMomentum = 0;
+        int updatedDownwardMomentum = gp.collisionChecker.getCollisionSafeSpeedY(this, downwardMomentum);
+        if (downwardMomentum != updatedDownwardMomentum) {
+            downwardMomentum = 0;
         }
+        worldY += updatedDownwardMomentum;
 
     }
 
     public void updateScreenCoor() {
-        screenX = worldX - gp.camera.coorX;
-        screenY = worldY - gp.camera.coorY;
+        screenX = worldX - gp.camera.coorX + offsetSolidAreaX;
+        screenY = worldY - gp.camera.coorY + offsetSolidAreaY;
     }
 
     public void splitSourceImage() {
