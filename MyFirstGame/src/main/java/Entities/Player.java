@@ -36,7 +36,6 @@ public class Player extends Entity {
         offsetSolidAreaX = 10;
         offsetSolidAreaY = 2;
         solidArea = new Rectangle(offsetSolidAreaX, offsetSolidAreaY, 28, 46);
-        
 
         defaultSpeed = 10;
 
@@ -66,7 +65,6 @@ public class Player extends Entity {
         godMode = keyH.playerGodMode;
         collisionEnabled = keyH.playerCollision;
 
-        
         if (!godMode) {
             calcGravity();
         }
@@ -74,7 +72,7 @@ public class Player extends Entity {
         if (keyH.pressed) {
             int right = 0;
             int down = 0;
-    
+
             if (keyH.upPressed) {
                 down = -1;
                 direction = "up";
@@ -92,17 +90,17 @@ public class Player extends Entity {
             if (keyH.spacePressed && onGround) {
                 downwardMomentum -= 20;
             }
-    
+
             speed = defaultSpeed;
             if (right != 0 && down != 0) {
                 speed = (int) Math.sqrt(defaultSpeed);
             }
-    
+
             speedX = right * speed;
             speedY = down * speed;
 
             spriteCounter++;
-            if (spriteCounter >= 6) {
+            if (spriteCounter >= 3) {
                 spriteNumber++;
                 if (spriteNumber == up.length) {
                     spriteNumber = 0;
@@ -126,7 +124,6 @@ public class Player extends Entity {
         worldY += speedY;
         // if we want to follow the player
 
-        
     }
 
     public void draw(Graphics2D g2) {
