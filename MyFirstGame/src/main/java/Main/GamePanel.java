@@ -7,6 +7,11 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
+import org.lwjgl.glfw.*;
+import org.lwjgl.opengl.GL;
+
+import static org.lwjgl.glfw.GLFW.*;
+
 import Entities.Player;
 import Tile.BackgroundManager;
 
@@ -38,6 +43,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Camera camera = new Camera(this, player);
     public BackgroundManager bgM = new BackgroundManager(this, 2);
     public CollisionChecker collisionChecker = new CollisionChecker(this);
+    public Shaders shader;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -59,11 +65,16 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
+        glfwMakeContextCurrent(this);
+        GL.createCapabilities(true);
+        shader = new Shaders();
+        shader.init();
         time.startLoop();
         while (gameThread != null) {
             time.increment();
 
             if (time.readyToDraw()) {
+                shader.update();
                 update();
                 repaint();
                 time.update();
@@ -81,6 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2 = (Graphics2D) g;
 
+        shader.update();
         bgM.draw(g2);
         player.draw(g2);
 
