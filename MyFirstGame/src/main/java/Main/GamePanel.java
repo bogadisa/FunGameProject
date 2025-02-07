@@ -33,7 +33,8 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyH = new KeyHandler();
 
     Thread gameThread;
-    Player player = new Player(this, keyH);
+    Time time = new Time(targetFPS);
+    Player player = new Player(this, time, keyH);
     public Camera camera = new Camera(this, player);
     public BackgroundManager bgM = new BackgroundManager(this, 2);
     public CollisionChecker collisionChecker = new CollisionChecker(this);
@@ -58,32 +59,14 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / targetFPS;
-        double delta = 0;
-
-        long lastTime = System.nanoTime();
-        long lastDrawTime = System.nanoTime();
-        long currentTime;
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+        time.startLoop();
         while (gameThread != null) {
-            currentTime = System.nanoTime();
+            time.increment();
 
-            delta += (currentTime - lastTime) / drawInterval;
-
-            lastTime = currentTime;
-
-            if (delta >= 1) {
-                actualFPS = targetFPS * (currentTime - lastDrawTime) / drawInterval;
+            if (time.readyToDraw()) {
                 update();
                 repaint();
-                lastDrawTime = System.nanoTime();
-                delta--;
+                time.update();
             }
 
         }
@@ -113,7 +96,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void drawDebugTool(Graphics2D g2) {
         g2.setColor(Color.white);
-        g2.drawString("FPS: " + actualFPS, 5, 15);
+        g2.drawString("FPS: " + time.actualFPS, 5, 15);
         g2.drawString("Camera: (" + camera.coorX + ", " + camera.coorY + ")", 50, 50);
         g2.drawString("Player: " + player.getPositionAsString(), 50, 75);
         if (!keyH.playerGodMode) {

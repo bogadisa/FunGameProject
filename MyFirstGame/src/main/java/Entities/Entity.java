@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import Main.GamePanel;
+import Main.Time;
 import Utils.ImageUtils;
 
 public class Entity {
@@ -32,8 +33,11 @@ public class Entity {
     public int spriteCounter = 0;
     public int spriteNumber = 0;
 
-    protected Entity(GamePanel gp) {
+    protected Time time;
+
+    protected Entity(GamePanel gp, Time time) {
         this.gp = gp;
+        this.time = time;
     }
 
     public Rectangle getSolidRectangle() {
@@ -57,7 +61,7 @@ public class Entity {
         } else {
             onGround = false;
         }
-        downwardMomentum += updatedGravity;
+        downwardMomentum += updatedGravity * time.delta;
     }
 
     protected void resolveUpwardMomentum() {
@@ -65,7 +69,7 @@ public class Entity {
         if (downwardMomentum != updatedDownwardMomentum) {
             downwardMomentum = 0;
         }
-        speedY += updatedDownwardMomentum;
+        speedY += updatedDownwardMomentum * time.delta;
 
     }
 

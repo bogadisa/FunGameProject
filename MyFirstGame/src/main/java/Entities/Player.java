@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import Main.GamePanel;
 import Main.KeyHandler;
+import Main.Time;
 
 public class Player extends Entity {
     KeyHandler keyH;
@@ -18,8 +19,8 @@ public class Player extends Entity {
     public boolean godMode = false;
     public boolean collisionEnabled = true;
 
-    public Player(GamePanel gp, KeyHandler keyH) {
-        super(gp);
+    public Player(GamePanel gp, Time time, KeyHandler keyH) {
+        super(gp, time);
         this.keyH = keyH;
 
         setDefaultValues();
@@ -120,8 +121,8 @@ public class Player extends Entity {
         }
         gp.camera.updateScreenCoor((int) (speedX), (int) (speedY));
 
-        worldX += speedX;
-        worldY += speedY;
+        worldX += (int)(speedX*time.delta);
+        worldY += (int)(speedY*time.delta);
         // if we want to follow the player
 
     }
