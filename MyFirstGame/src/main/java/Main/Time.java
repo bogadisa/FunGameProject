@@ -4,8 +4,8 @@ public class Time {
     int targetFPS;
     public double actualFPS;
 
-    long lastTime;  
-    long lastDrawTime;  
+    long lastTime;
+    long lastDrawTime;
     long currentTime;
     double drawInterval;
 

@@ -1,28 +1,16 @@
-package Main;
+package secondEngine;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL20;
 
-
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Shaders {
+
     private String vertexShaderSrc = "#version 330 core\n" +
             "layout (location=0) in vec3 aPos;\n" +
             "layout (location=1) in vec4 aColor;\n" +
@@ -34,6 +22,7 @@ public class Shaders {
             "    fColor = aColor;\n" +
             "    gl_Position = vec4(aPos, 1.0);\n" +
             "}";
+
     private String fragmentShaderSrc = "#version 330 core\n" +
             "\n" +
             "in vec4 fColor;\n" +
@@ -44,27 +33,35 @@ public class Shaders {
             "{\n" +
             "    color = fColor;\n" +
             "}";
+
     private int vertexID, fragmentID, shaderProgram;
 
     private float[] vertexArray = {
-        // position               // color
-         0.5f, -0.5f, 0.0f,       1.0f, 0.0f, 0.0f, 1.0f, // Bottom right 0
-        -0.5f,  0.5f, 0.0f,       0.0f, 1.0f, 0.0f, 1.0f, // Top left     1
-         0.5f,  0.5f, 0.0f ,      1.0f, 0.0f, 1.0f, 1.0f, // Top right    2
-        -0.5f, -0.5f, 0.0f,       1.0f, 1.0f, 0.0f, 1.0f, // Bottom left  3
+            // position // color
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Bottom right 0
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // Top left 1
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top right 2
+            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, // Bottom left 3
     };
+
     // IMPORTANT: Must be in counter-clockwise order
     private int[] elementArray = {
             /*
-                    x        x
-                    x        x
+             * x x
+             * 
+             * 
+             * x x
              */
             2, 1, 0, // Top right triangle
             0, 1, 3 // bottom left triangle
     };
 
     private int vaoID, vboID, eboID;
-    
+
+    public Shaders() {
+
+    }
+
     public void init() {
         // ============================================================
         // Compile and link shaders
@@ -74,6 +71,7 @@ public class Shaders {
         // Pass the shader source to the GPU
         glShaderSource(vertexID, vertexShaderSrc);
         glCompileShader(vertexID);
+
         // Check for errors in compilation
         int success = glGetShaderi(vertexID, GL_COMPILE_STATUS);
         if (success == GL_FALSE) {
@@ -88,6 +86,7 @@ public class Shaders {
         // Pass the shader source to the GPU
         glShaderSource(fragmentID, fragmentShaderSrc);
         glCompileShader(fragmentID);
+
         // Check for errors in compilation
         success = glGetShaderi(fragmentID, GL_COMPILE_STATUS);
         if (success == GL_FALSE) {
@@ -103,7 +102,7 @@ public class Shaders {
         glAttachShader(shaderProgram, fragmentID);
         glLinkProgram(shaderProgram);
 
-        success = glGetProgrami(shaderProgram, GL_COMPILE_STATUS);
+        success = glGetProgrami(shaderProgram, GL_LINK_STATUS);
         if (success == GL_FALSE) {
             int len = glGetProgrami(shaderProgram, GL_INFO_LOG_LENGTH); // needed because gl uses C
             System.out.println("ERROR: 'defaultShader.glsl'\n\tLinking of shaders failed.");
@@ -127,9 +126,9 @@ public class Shaders {
         glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
 
         // Create the indecies and upload
-
         IntBuffer elementBuffer = BufferUtils.createIntBuffer(elementArray.length);
         elementBuffer.put(elementArray).flip();
+
         eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_STATIC_DRAW);
@@ -141,6 +140,7 @@ public class Shaders {
         int vertexSizeBytes = (positionsSize + colorSize) * floatSizeBytes;
         glVertexAttribPointer(0, positionsSize, GL_FLOAT, false, vertexSizeBytes, 0);
         glEnableVertexAttribArray(0); // the index refers to location, as specified in shader
+
         glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes, positionsSize * floatSizeBytes);
         glEnableVertexAttribArray(1);
     }
@@ -155,13 +155,14 @@ public class Shaders {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 
-        glDrawElements(GL_TRIANGLES,elementArray.length, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, elementArray.length, GL_UNSIGNED_INT, 0);
 
         // Unbind everything
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
 
         glBindVertexArray(0);
+
         glUseProgram(0);
 
     }
