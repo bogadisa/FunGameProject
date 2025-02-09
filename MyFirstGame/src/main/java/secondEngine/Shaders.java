@@ -1,25 +1,49 @@
 package secondEngine;
 
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 
 import secondEngine.renderer.Shader;
+import secondEngine.renderer.Texture;
 
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
 
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Shaders {
-    private int vertexID, fragmentID, shaderProgram;
-
+    // private float[] vertexArray = {
+    //         // position // color
+    //         50.0f, -0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Bottom right 0
+    //         -0.0f, 50.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // Top left 1
+    //         50.0f, 50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top right 2
+    //         -0.0f, -0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, // Bottom left 3
+    // };
     private float[] vertexArray = {
-            // position // color
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Bottom right 0
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // Top left 1
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top right 2
-            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, // Bottom left 3
+            // position // color // UV coordinates
+            50.0f, -0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1, 1,// Bottom right 0
+            -0.0f, 50.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0, 0,// Top left 1
+            50.0f, 50.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1, 0,// Top right 2
+            -0.0f, -0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0, 1,// Bottom left 3
     };
 
     // IMPORTANT: Must be in counter-clockwise order
@@ -34,16 +58,24 @@ public class Shaders {
             0, 1, 3 // bottom left triangle
     };
 
+    // VAO: Vertex Array Objects, VBO: Vertex Buffer Objects
     private int vaoID, vboID, eboID;
 
     private Shader defaultShader;
 
+    private Camera camera;
+
+    public Texture testTexture;
+
     public Shaders() {
-        defaultShader = new Shader("../../shaders/default.glsl");
+
     }
 
     public void init() {
-        defaultShader.compileAndLink();
+        this.camera = new Camera(new Vector2f(-480, -270));
+        this.defaultShader = new Shader("../../shaders/default.glsl");
+        this.defaultShader.compileAndLink();
+        this.testTexture = new Texture("resources/icons/heart.png");
         // ============================================================
         // Generate VAO, VBO, and EBO buffer objects, and send to GPU
         // ============================================================
@@ -70,31 +102,57 @@ public class Shaders {
         // Add the vertex attribute pointers
         int positionsSize = 3;
         int colorSize = 4;
-        int floatSizeBytes = Float.SIZE / 8;
-        int vertexSizeBytes = (positionsSize + colorSize) * floatSizeBytes;
+        int uvSize = 2;
+        int vertexSizeBytes = (positionsSize + colorSize + uvSize) * Float.BYTES;
+        
+        // Layout location 0
         glVertexAttribPointer(0, positionsSize, GL_FLOAT, false, vertexSizeBytes, 0);
         glEnableVertexAttribArray(0); // the index refers to location, as specified in shader
 
-        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes, positionsSize * floatSizeBytes);
+        // Layout location 1
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes, positionsSize * Float.BYTES);
         glEnableVertexAttribArray(1);
+        
+        // Layout location 2
+        glVertexAttribPointer(2, uvSize, GL_FLOAT, false, vertexSizeBytes, (positionsSize + colorSize) * Float.BYTES);
+        glEnableVertexAttribArray(2);
+
+        // makes alpha blend with background
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
     }
 
     public void update() {
+        camera.position.x -= 0.4 * Time.getDelta()* 3;
+        camera.position.y -= 0.20 * Time.getDelta() * 3;
         // Bind shader program
         defaultShader.use();
+
+        // Upload texture to shader
+        defaultShader.uploadTexture("TEX_SAMPLER", 0);
+        glActiveTexture(GL_TEXTURE0);
+        testTexture.bind();
+
+        defaultShader.uploadMat4f("uProjection", camera.getProjectionMatrix());
+        defaultShader.uploadMat4f("uView", camera.getViewMatrix());
         // Bind the VAO that we're using
         glBindVertexArray(vaoID);
 
         // Enable the vertex attribute pointers
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
+        // dont need?
+        // glEnableVertexAttribArray(0);
+        // glEnableVertexAttribArray(1);
 
         glDrawElements(GL_TRIANGLES, elementArray.length, GL_UNSIGNED_INT, 0);
 
         // Unbind everything
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+        // dont need?
+        // glDisableVertexAttribArray(0);
+        // glDisableVertexAttribArray(1);
 
+        testTexture.unbind();
         glBindVertexArray(0);
 
         defaultShader.detatch();

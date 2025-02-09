@@ -19,7 +19,6 @@ public class Time {
     public void startLoop() {
         lastTime = System.nanoTime();
         lastDrawTime = System.nanoTime();
-
     }
 
     public void increment() {
@@ -38,4 +37,5 @@ public class Time {
     public boolean readyToDraw() {
         return delta >= 1;
     }
+    
 }

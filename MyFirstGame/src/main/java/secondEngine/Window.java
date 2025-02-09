@@ -9,8 +9,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import Main.Time;
-
 public class Window {
     int width, height;
 
@@ -21,8 +19,6 @@ public class Window {
     static Window window = null;
 
     private float r, g, b, a;
-
-    public Time time;
 
     static Shaders shader;
 
@@ -36,7 +32,6 @@ public class Window {
         a = 0;
 
         this.title = "Fun game!";
-        this.time = new Time(24);
     }
 
     static public Window get() {
@@ -47,8 +42,6 @@ public class Window {
     }
 
     public void run() {
-        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
-
         init();
         loop();
 
@@ -107,7 +100,7 @@ public class Window {
     }
 
     public void loop() {
-        time.startLoop();
+        Time.startLoop();
         int width[] = new int[1];
         int height[] = new int[1];
         // double x, y;
@@ -139,16 +132,16 @@ public class Window {
             glClearColor(1, 1, 1, 1);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            if (time.readyToDraw()) {
+            if (Time.readyToDraw()) {
                 // update();
                 // repaint();
                 shader.update();
-                time.update();
+                Time.update();
             }
             shader.update();
             glfwSwapBuffers(glfwWindow);
 
-            // time.increment();
+            Time.increment();
 
         }
     }
