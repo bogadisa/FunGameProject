@@ -5,24 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 
 import secondEngine.renderer.Shader;
 
-import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-
-import Utils.FileUtils;
 
 public class Shader {
     private int shaderProgramID;
@@ -38,7 +31,7 @@ public class Shader {
         try {
             InputStream is = getClass().getResourceAsStream(filepath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-    
+
             String line = br.readLine();
             String type = line.split(" ")[1];
 
@@ -55,7 +48,7 @@ public class Shader {
                     }
                 }
             }
-    
+
         } catch (IOException e) {
             // TODO: handle exception
             e.printStackTrace();
@@ -78,7 +71,7 @@ public class Shader {
         int success = glGetShaderi(vertexID, GL_COMPILE_STATUS);
         if (success == GL_FALSE) {
             int len = glGetShaderi(vertexID, GL_INFO_LOG_LENGTH); // needed because gl uses C
-            System.out.println("ERROR: '"+ filepath +"'\'\n\tVertex shader compilation failed.");
+            System.out.println("ERROR: '" + filepath + "'\'\n\tVertex shader compilation failed.");
             System.out.println(glGetShaderInfoLog(vertexID, len));
             assert false : "";
         }
@@ -93,11 +86,10 @@ public class Shader {
         success = glGetShaderi(fragmentID, GL_COMPILE_STATUS);
         if (success == GL_FALSE) {
             int len = glGetShaderi(fragmentID, GL_INFO_LOG_LENGTH); // needed because gl uses C
-            System.out.println("ERROR: '"+ filepath +"'\'\n\tFragment shader compilation failed.");
+            System.out.println("ERROR: '" + filepath + "'\'\n\tFragment shader compilation failed.");
             System.out.println(glGetShaderInfoLog(fragmentID, len));
             assert false : "";
         }
-        
 
         // Link shaders and check for errors
         shaderProgramID = glCreateProgram();
@@ -108,7 +100,7 @@ public class Shader {
         success = glGetProgrami(shaderProgramID, GL_LINK_STATUS);
         if (success == GL_FALSE) {
             int len = glGetProgrami(shaderProgramID, GL_INFO_LOG_LENGTH); // needed because gl uses C
-            System.out.println("ERROR: '"+ filepath +"'\n\tLinking of shaders failed.");
+            System.out.println("ERROR: '" + filepath + "'\n\tLinking of shaders failed.");
             System.out.println(glGetProgramInfoLog(shaderProgramID, len));
             assert false : "";
         }
@@ -144,7 +136,6 @@ public class Shader {
         mat3.get(matBuffer);
         glUniformMatrix3fv(varLocation, false, matBuffer);
     }
-
 
     public void uploadVec4f(String varName, Vector4f vec) {
         use();

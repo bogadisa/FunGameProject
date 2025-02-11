@@ -1,6 +1,5 @@
 package secondEngine;
 
-import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -20,7 +19,7 @@ public class Window {
 
     private float r, g, b, a;
 
-    static Shaders shader;
+    static GameScene shader;
 
     private Window() {
         this.width = 1920;
@@ -95,51 +94,24 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        shader = new Shaders();
+        shader = new GameScene();
         shader.init();
     }
 
     public void loop() {
         Time.startLoop();
-        int width[] = new int[1];
-        int height[] = new int[1];
-        // double x, y;
-        float rgba[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        int i = 0;
-        int j = 1;
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
-
-            // glfwGetWindowSize(glfwWindow, width, height);
-            // rgba[i] = MouseListener.getX() / width[0];
-            // rgba[j] = MouseListener.getY() / height[0];
-
-            // x = (MouseListener.getX() - 0.5 * width[0]) / width[0];
-            // y = (MouseListener.getY() - 0.5 * height[0]) / height[0];
-            // if (x < 0) {
-            // r = (float) -x;
-            // } else {
-            // g = (float) x;
-            // }
-            // if (y < 0) {
-            // b = (float) -y;
-            // } else {
-            // a = (float) y;
-            // }
-
-            // glClearColor(rgba[0], rgba[1], rgba[2], rgba[3]);
-            glClearColor(1, 1, 1, 1);
-            glClear(GL_COLOR_BUFFER_BIT);
-
             if (Time.readyToDraw()) {
+                glClearColor(1, 1, 1, 1);
+                glClear(GL_COLOR_BUFFER_BIT);
                 // update();
                 // repaint();
                 shader.update();
                 Time.update();
+                glfwSwapBuffers(glfwWindow);
             }
-            shader.update();
-            glfwSwapBuffers(glfwWindow);
 
             Time.increment();
 
