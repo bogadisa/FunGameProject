@@ -19,7 +19,7 @@ public class Window {
 
     private float r, g, b, a;
 
-    static GameScene shader;
+    static GameScene scene;
 
     private Window() {
         this.width = 1920;
@@ -94,8 +94,8 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        shader = new GameScene();
-        shader.init();
+        scene = new GameScene();
+        scene.init();
     }
 
     public void loop() {
@@ -108,7 +108,7 @@ public class Window {
                 glClear(GL_COLOR_BUFFER_BIT);
                 // update();
                 // repaint();
-                shader.update();
+                scene.update();
                 Time.update();
                 glfwSwapBuffers(glfwWindow);
             }
@@ -116,5 +116,9 @@ public class Window {
             Time.increment();
 
         }
+    }
+
+    public static GameScene getScene() {
+        return Window.scene;
     }
 }

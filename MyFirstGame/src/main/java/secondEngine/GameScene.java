@@ -52,7 +52,7 @@ public class GameScene extends Scene {
 
     private Shader defaultShader;
 
-    private Camera camera;
+    public Camera camera;
 
     public Texture testTexture;
 
