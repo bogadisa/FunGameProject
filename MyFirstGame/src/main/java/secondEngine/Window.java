@@ -121,7 +121,7 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        Window.changeScene(1);
+        Window.changeScene(0);
     }
 
     public void loop() {

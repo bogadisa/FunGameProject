@@ -144,6 +144,7 @@ public class BatchRenderer {
     }
 
     public void addSprite(SpriteRenderer spr) {
+        // TODO add overflow sprites to another batch renderer
         if (hasRoom) {
             int index = this.numSprites;
             this.sprites[index] = spr;

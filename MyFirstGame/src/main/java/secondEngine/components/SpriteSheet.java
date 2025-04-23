@@ -5,49 +5,37 @@ import java.util.List;
 
 import org.joml.Vector2f;
 
+import secondEngine.Component;
 import secondEngine.renderer.Texture;
+import secondEngine.util.AssetPool;
 
 public class SpriteSheet {
     private Texture texture;
     private List<Sprite> sprites;
 
-    public SpriteSheet(Texture texture) {
-        this.sprites = new ArrayList<>();
-
-        this.texture = texture;
-
-        this.sprites.add(new Sprite(texture));
-    }
-
-    public SpriteSheet(Texture texture, int spriteWidth, int spriteHeight, int numSprites, int spacing) {
-        this.sprites = new ArrayList<>();
-
-        this.texture = texture;
-
-        loadSpriteSheet(texture, spriteWidth, spriteHeight, numSprites, spacing);
-    }
-
     public SpriteSheet(String filepath) {
         this.sprites = new ArrayList<>();
 
-        this.texture = new Texture(filepath);
+        this.texture = AssetPool.getTexture(filepath);
 
-        String metadata[] = filepath.split("_");
-        metadata[3] = metadata[3].substring(0, 2); // removing .png
+        String metadata[] = filepath.substring(0, filepath.length() - 4).split("_");
 
         int spriteWidth = Integer.parseInt(metadata[1]);
         int spriteHeight = Integer.parseInt(metadata[2]);
         int numSprites = Integer.parseInt(metadata[3]);
 
-        loadSpriteSheet(this.texture, numSprites, spriteWidth, spriteHeight, 0);
+        loadSpriteSheet(this.texture, spriteWidth, spriteHeight, numSprites, 0);
     }
 
     private void loadSpriteSheet(Texture texture, int spriteWidth, int spriteHeight, int numSprites, int spacing) {
+        // System.out.println(spriteWidth + "" + spriteHeight + "" + numSprites);
+        // System.exit(0);
 
         int i = 0;
         int currentX = 0;
         int currentY = 0;
         while (i < numSprites) {
+            System.out.println(i);
             float topY = currentY + spriteHeight;
             float rightX = currentX + spriteWidth;
             float leftX = currentX;
@@ -60,7 +48,9 @@ public class SpriteSheet {
                     new Vector2f(leftX, topY)
             };
 
-            this.sprites.add(new Sprite(this.texture, currentTexCoords));
+            Sprite sprite = new Sprite(this.texture, currentTexCoords);
+            this.sprites.add(sprite);
+            i++;
 
             currentX += spriteWidth + spacing;
             if (currentX >= texture.getWidth()) {
@@ -71,7 +61,6 @@ public class SpriteSheet {
     }
 
     public Sprite getSprite(int index) {
-        return this.sprites.get(index);
+        return sprites.get(index);
     }
-
 }

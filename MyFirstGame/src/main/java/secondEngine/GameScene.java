@@ -15,15 +15,6 @@ public class GameScene extends Scene {
 
     public void init() {
         this.camera = new Camera(new Vector2f());
-
-        GameObject obj1 = new GameObject("Obj 1", new Transform(new Vector3f(100, 100, 0), new Vector3f(256, 256, 1)));
-        obj1.addComponent(new SpriteRenderer(AssetPool.getTexture("entities/testImage.png")));
-        this.addGameObjectToScene(obj1);
-        
-        GameObject obj2 = new GameObject("Obj 2", new Transform(new Vector3f(400, 100, 0), new Vector3f(256, 256, 1)));
-        obj2.addComponent(new SpriteRenderer(AssetPool.getTexture("icons/heart.png")));
-        this.addGameObjectToScene(obj2);
-
         loadResources();
     }
 
