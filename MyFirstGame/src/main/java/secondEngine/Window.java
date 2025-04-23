@@ -3,10 +3,14 @@ package secondEngine;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
+import secondEngine.util.Time;
+
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+
+import org.lwjgl.Version;
 
 public class Window {
     int width, height;
@@ -19,7 +23,7 @@ public class Window {
 
     private float r, g, b, a;
 
-    static GameScene scene;
+    private static Scene currentScene = null;
 
     private Window() {
         this.width = 1920;
@@ -28,7 +32,7 @@ public class Window {
         r = 0;
         g = 0;
         b = 0;
-        a = 0;
+        a = 1;
 
         this.title = "Fun game!";
     }
@@ -40,7 +44,30 @@ public class Window {
         return Window.window;
     }
 
+    public static void changeScene(int newScene) {
+        switch (newScene) {
+            case 0:
+                currentScene = new EditorScene();
+                currentScene.init();
+                currentScene.start();
+                break;
+            case 1:
+                currentScene = new GameScene();
+                currentScene.init();
+                currentScene.start();
+                break;
+            default:
+                assert false : "Unknown scene '" + newScene + "'";
+                break;
+        }
+    }
+    
+    public static Scene getScene() {
+        return Window.currentScene;
+    }
+
     public void run() {
+        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
         init();
         loop();
 
@@ -94,8 +121,7 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        scene = new GameScene();
-        scene.init();
+        Window.changeScene(1);
     }
 
     public void loop() {
@@ -104,11 +130,10 @@ public class Window {
             // Poll events
             glfwPollEvents();
             if (Time.readyToDraw()) {
-                glClearColor(1, 1, 1, 1);
+                glClearColor(r, g, b, a);
                 glClear(GL_COLOR_BUFFER_BIT);
-                // update();
-                // repaint();
-                scene.update();
+                
+                currentScene.update();
                 Time.update();
                 glfwSwapBuffers(glfwWindow);
             }
@@ -116,9 +141,5 @@ public class Window {
             Time.increment();
 
         }
-    }
-
-    public static GameScene getScene() {
-        return Window.scene;
     }
 }

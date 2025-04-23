@@ -1,12 +1,47 @@
 package secondEngine;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import secondEngine.renderer.Renderer;
+
 public abstract class Scene {
+    protected Renderer renderer = new Renderer();
+
+    protected List<GameObject> gameObjects = new ArrayList<>();
+
+    protected Camera camera = null;
     protected float[] vertexArray;
     protected int[] elementArray;
 
+    private boolean isRunning = false;
+
     public abstract void init();
 
+    public void start() {
+        for (GameObject go: gameObjects) {
+            go.start();
+            this.renderer.add(go);
+        }
+
+        isRunning = true;
+    }
+
+    public void addGameObjectToScene(GameObject go) {
+        if (!isRunning) {
+            gameObjects.add(go);
+        } else {
+            gameObjects.add(go);
+            go.start();
+            this.renderer.add(go);
+        }
+    }
+
     public abstract void update();
+
+    public Camera camera() {
+        return this.camera;
+    }
 
     protected void createVertices(int screenWidth, int screenHeight, int quadWidth, int quadHeight) {
         int nCols = (int) (screenWidth / quadWidth);

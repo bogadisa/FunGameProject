@@ -1,4 +1,4 @@
-package secondEngine;
+package secondEngine.util;
 
 public class Time {
     private static Time instance = null;
