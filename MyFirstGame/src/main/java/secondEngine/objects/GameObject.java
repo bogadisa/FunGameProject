@@ -1,11 +1,15 @@
-package secondEngine;
+package secondEngine.objects;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import secondEngine.Component;
+import secondEngine.components.Transform;
+
 public class GameObject {
 
     private String name;
+
     private List<Component> components;
     public Transform transform;
 
@@ -52,6 +56,14 @@ public class GameObject {
     public void addComponent(Component c) {
         this.components.add(c);
         c.gameObject = this;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void update(float dt) {

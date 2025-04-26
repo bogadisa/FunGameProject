@@ -1,10 +1,13 @@
-package secondEngine;
+package secondEngine.scenes;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import secondEngine.Camera;
 import secondEngine.components.SpriteRenderer;
-import secondEngine.components.SpriteSheet;
+import secondEngine.components.Transform;
+import secondEngine.components.helpers.SpriteSheet;
+import secondEngine.objects.GameObject;
 import secondEngine.util.AssetPool;
 import secondEngine.util.Time;
 
@@ -40,8 +43,8 @@ public class EditorScene extends Scene{
         for (GameObject go: this.gameObjects) {
             go.update(dt);
         }
-        camera.position.x -= 0.4 * dt * 3;
-        camera.position.y -= 0.20 * dt * 3;
+        // camera.position.x -= 0.4 * dt * 3;
+        // camera.position.y -= 0.20 * dt * 3;
 
         this.renderer.render();
     }

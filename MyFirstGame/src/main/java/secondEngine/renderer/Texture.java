@@ -8,11 +8,18 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import secondEngine.util.AssetPool;
+
 public class Texture {
-    public String filepath;
+    private String filepath;
     private int texID;
 
     private int width, height;
+
+    public Texture() {
+        this("resources/textures/default.png");
+        AssetPool.addTexture(this.filepath, this);
+    }
 
     public Texture(String filepath) {
         this.filepath = filepath;
@@ -72,5 +79,13 @@ public class Texture {
     }
     public int getHeight() {
         return this.height;
+    }
+
+    public String getFilepath() {
+        return filepath;
+    }
+
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
     }
 }

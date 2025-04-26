@@ -1,6 +1,8 @@
 package secondEngine.renderer;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -18,21 +20,19 @@ import secondEngine.util.AssetPool;
 public class BatchRenderer {
     // Vertex
     // ======
-    // Pos                      Color                       tex coords      tex id      UV
-    // float, float, float      float, float, float, float  float, float    float       float, float
+    // Pos                      Color                       tex coords      tex id
+    // float, float, float      float, float, float, float  float, float    float
     private final int POS_SIZE = 3;
     private final int COLOR_SIZE = 4;
     private final int TEX_COORDS_SIZE = 2;
     private final int TEX_ID_SIZE = 1;
-    private final int UV_SIZE = 2;
 
     private final int POS_OFFSET = 0;
     private final int COLOR_OFFSET = POS_OFFSET + POS_SIZE * Float.BYTES;
     private final int TEX_COORDS_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
     private final int TEX_ID_OFFSET = TEX_COORDS_OFFSET + TEX_COORDS_SIZE * Float.BYTES;
-    private final int UV_OFFSET = TEX_ID_OFFSET + TEX_ID_SIZE * Float.BYTES;
 
-    private final int VERTEX_SIZE = POS_SIZE + COLOR_SIZE + TEX_COORDS_SIZE + TEX_ID_SIZE + UV_SIZE;
+    private final int VERTEX_SIZE = POS_SIZE + COLOR_SIZE + TEX_COORDS_SIZE + TEX_ID_SIZE;
     
     private final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
     
@@ -55,7 +55,8 @@ public class BatchRenderer {
 
         
         // 4 vertices quads
-        vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
+        this.vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
+        // this.previousVert = new float[maxBatchSize * 4 * VERTEX_SIZE];
 
         this.numSprites = 0;
         this.hasRoom = true;
@@ -90,16 +91,23 @@ public class BatchRenderer {
 
         glVertexAttribPointer(3, TEX_ID_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, TEX_ID_OFFSET);
         glEnableVertexAttribArray(3);
-
-        glVertexAttribPointer(4, UV_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, UV_OFFSET);
-        glEnableVertexAttribArray(4);
-
     }
 
     public void render() {
-        // FOR now, we will rebuffer all data every frame
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        boolean rebufferData = false;
+        for (int i=0; i < numSprites; i++) {
+            SpriteRenderer sprite = sprites[i];
+            if (sprite.isDirty()) {
+                loadVertexProperties(i);
+                sprite.setClean();
+                rebufferData = true;
+            }
+        }
+        if (rebufferData) {
+            // FOR now, we will rebuffer all data every time something is dirty
+            glBindBuffer(GL_ARRAY_BUFFER, vboID);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        }
 
         // Bind shader program
         shader.use();
@@ -118,8 +126,8 @@ public class BatchRenderer {
 
         // Enable the vertex attribute pointers
         // dont need?
-        // glEnableVertexAttribArray(0);
-        // glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
         // glEnableVertexAttribArray(2);
         // glEnableVertexAttribArray(3);
         // glEnableVertexAttribArray(4);
@@ -127,8 +135,8 @@ public class BatchRenderer {
         glDrawElements(GL_TRIANGLES, this.numSprites * 6, GL_UNSIGNED_INT, 0);
         // Unbind everything
         // dont need?
-        // glDisableVertexAttribArray(0);
-        // glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
         // glDisableVertexAttribArray(2);
         // glDisableVertexAttribArray(3);
         // glDisableVertexAttribArray(4);
@@ -169,7 +177,9 @@ public class BatchRenderer {
     public void loadVertexProperties(int index) {
         SpriteRenderer sprite = this.sprites[index];
 
+        // Find offset within array (4 vertices per sprite)
         int offset = index * 4 * VERTEX_SIZE;
+
         Vector4f color = sprite.getColor();
         Vector2f[] texCoords = sprite.getTexCoords();
 
@@ -245,5 +255,13 @@ public class BatchRenderer {
 
     public boolean hasRoom() {
         return this.hasRoom;
+    }
+
+    public boolean hasTextureRoom() {
+        return this.textures.size() < this.texSlots.length;
+    }
+
+    public boolean hasTexture(Texture tex) {
+        return this.textures.contains(tex);
     }
 }

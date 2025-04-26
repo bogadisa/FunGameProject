@@ -3,6 +3,11 @@ package secondEngine;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
+import secondEngine.listeners.KeyListener;
+import secondEngine.listeners.MouseListener;
+import secondEngine.scenes.EditorScene;
+import secondEngine.scenes.GameScene;
+import secondEngine.scenes.Scene;
 import secondEngine.util.Time;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -121,7 +126,7 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        Window.changeScene(0);
+        Window.changeScene(1);
     }
 
     public void loop() {

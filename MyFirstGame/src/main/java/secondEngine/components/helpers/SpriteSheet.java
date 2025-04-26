@@ -1,14 +1,17 @@
-package secondEngine.components;
+package secondEngine.components.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Vector2f;
 
-import secondEngine.Component;
+import secondEngine.components.Sprite;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 
+    /** 
+     * Stores the sprite sheet texture, and a list of individual sprites 
+    */
 public class SpriteSheet {
     private Texture texture;
     private List<Sprite> sprites;

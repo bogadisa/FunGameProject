@@ -1,8 +1,11 @@
-package secondEngine;
+package secondEngine.scenes;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import secondEngine.Camera;
+import secondEngine.components.Transform;
+import secondEngine.objects.GameObject;
 import secondEngine.renderer.Renderer;
 
 public abstract class Scene {
@@ -118,40 +121,12 @@ public abstract class Scene {
             curX = 0;
             curY += quadHeight;
         }
+    }
+    public GameObject createGameObject(String name) {
+        GameObject go = new GameObject(name);
 
-        // int curX = 0;
-        // int curY = 0;
-        // int i = 0;
-        // int u = 0;
-        // int v = 1;
-        // while (curY <= screenHeight) {
-        // while (curX <= screenWidth) {
-        // vertexArray[i] = (float) curX;
-        // vertexArray[i + 1] = (float) curY;
-        // vertexArray[i + 2] = 0.0f;
-        // vertexArray[i + 3] = 0.0f;
-        // vertexArray[i + 4] = 0.0f;
-        // vertexArray[i + 5] = 0.0f;
-        // vertexArray[i + 6] = 0.0f;
-        // vertexArray[i + 7] = (float) u;
-        // vertexArray[i + 8] = (float) v;
-
-        // curX += quadWidth;
-        // i += 9;
-
-        // u++;
-        // if (u > 1) {
-        // u = 0;
-        // }
-        // }
-        // curX = 0;
-        // curY += quadHeight;
-
-        // v++;
-        // if (v > 1) {
-        // v = 0;
-        // }
-
-        // }
+        go.addComponent(new Transform());
+        go.transform = go.getComponent(Transform.class);
+        return go;
     }
 }

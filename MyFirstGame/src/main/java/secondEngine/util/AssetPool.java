@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import secondEngine.components.SpriteSheet;
+import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.renderer.Shader;
 import secondEngine.renderer.Texture;
 
@@ -25,13 +25,19 @@ public class AssetPool {
             return shader;
         }
     }
+    public static void addTexture(String resourceName, Texture texture) {
+        File file = new File(resourceName);
+        if (!AssetPool.textures.containsKey(file.getAbsolutePath())) {
+            AssetPool.textures.put(file.getAbsolutePath(), texture);
+        }
+    }
 
     public static Texture getTexture(String resourceName) {
         File file = new File(resourceName);
         if (AssetPool.textures.containsKey(file.getAbsolutePath())) {
             return AssetPool.textures.get(file.getAbsolutePath());
         } else {
-            Texture texture = new Texture("resources/" + resourceName);
+            Texture texture = new Texture("resources/textures/" + resourceName);
             AssetPool.textures.put(file.getAbsolutePath(), texture);
             return texture;
         }

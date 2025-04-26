@@ -3,8 +3,8 @@ package secondEngine.renderer;
 import java.util.ArrayList;
 import java.util.List;
 
-import secondEngine.GameObject;
 import secondEngine.components.SpriteRenderer;
+import secondEngine.objects.GameObject;
 
 public class Renderer {
     private final int MAX_BATCH_SIZE = 1000;
@@ -25,9 +25,12 @@ public class Renderer {
         boolean added = false;
         for (BatchRenderer batch: batches) {
             if (batch.hasRoom()) {
-                batch.addSprite(sprite);
-                added = true;
-                break;
+                Texture tex = sprite.getTexture();
+                if (tex == null || batch.hasTextureRoom() || batch.hasTexture(tex)){
+                    batch.addSprite(sprite);
+                    added = true;
+                    break;
+                }
             }
         }
         if (!added) {
