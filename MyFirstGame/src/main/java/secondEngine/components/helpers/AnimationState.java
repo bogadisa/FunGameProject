@@ -11,7 +11,7 @@ public class AnimationState {
     public List<Frame> animationFrames = new ArrayList<>();
 
     private static Sprite defaultSprite = new Sprite();
-    private float time = 0.0f;
+    private transient float time = 0.0f;
     private transient int currentSprite = 0;
     private boolean doesLoop = false;
 

@@ -23,11 +23,19 @@ public class EditorScene extends Scene{
         // SpriteSheet spriteSheet = AssetPool.getSpriteSheet("entities/player_3_3_9.png");
 
         GameObject obj1 = new GameObject("Obj 1", new Transform(new Vector3f(100, 100, -2), new Vector3f(256, 256, 1)));
-        obj1.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("entities/blendImage1.png"))));
+        Sprite spr1 = new Sprite();
+        spr1.setTexture(AssetPool.getTexture("entities/blendImage1.png"));
+        SpriteRenderer sprRend1 = new SpriteRenderer();
+        sprRend1.setSprite(spr1);
+        obj1.addComponent(sprRend1);
         this.addGameObjectToScene(obj1);
 
         GameObject obj2 = new GameObject("Obj 2", new Transform(new Vector3f(300, 100, -1), new Vector3f(256, 256, 1)));
-        obj2.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("entities/blendImage2.png"))));
+        Sprite spr2 = new Sprite();
+        spr2.setTexture(AssetPool.getTexture("entities/blendImage2.png"));
+        SpriteRenderer sprRend2 = new SpriteRenderer();
+        sprRend2.setSprite(spr2);
+        obj2.addComponent(sprRend2);
         this.addGameObjectToScene(obj2);
 
     }

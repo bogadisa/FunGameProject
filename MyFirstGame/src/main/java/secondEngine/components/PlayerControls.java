@@ -7,14 +7,11 @@ import secondEngine.Component;
 import secondEngine.listeners.KeyListener;
 
 public class PlayerControls extends Component{
-    float timeSinceLastTrigger = 0.0f;
-    boolean runUp = true;
-    boolean runDown = true;
 
-    float playerWidth;
+    private transient float playerWidth;
     
 
-    StateMachine stateMachine;
+    private transient StateMachine stateMachine;
 
     @Override
     public void start() {
@@ -54,10 +51,5 @@ public class PlayerControls extends Component{
 
         this.gameObject.transform.position.x +=  0.4 * dt * 5 * xDirection;
         this.gameObject.transform.position.y +=  0.4 * dt * 5 * yDirection;
-        
-
-        timeSinceLastTrigger += dt;
-
-
     }
 }

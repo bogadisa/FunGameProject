@@ -127,11 +127,12 @@ public class Window {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        Window.changeScene(0);
+        Window.changeScene(1);
     }
 
     public void loop() {
         Time.startLoop();
+        Window.getScene().load();
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
@@ -147,5 +148,6 @@ public class Window {
             Time.increment();
 
         }
+        Window.getScene().saveExit();
     }
 }

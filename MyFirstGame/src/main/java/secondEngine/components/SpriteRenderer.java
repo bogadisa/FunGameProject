@@ -10,27 +10,26 @@ import org.joml.Vector4f;
  * Stores information about how a sprite is rendered
  */
 public class SpriteRenderer extends Component {
-    private Vector4f color;
-    private Sprite sprite;
+    private Vector4f color = new Vector4f(1, 1, 1, 1);
+    private Sprite sprite = null;
 
-    private Transform lastTransform;
+    private transient Transform lastTransform;
 
-    private boolean isDirty = false;
+    private transient boolean isDirty = true;
 
-    public SpriteRenderer(Vector4f color) {
-        this.color = color;
-        this.sprite = null;
-    }
+    // public SpriteRenderer(Vector4f color) {
+    //     this.color = color;
+    //     this.sprite = null;
+    // }
 
-    public SpriteRenderer(Sprite sprite) {
-        this.sprite = sprite;
-        this.color = new Vector4f(1, 1, 1, 1);
-    }
+    // public SpriteRenderer(Sprite sprite) {
+    //     this.sprite = sprite;
+    //     this.color = new Vector4f(1, 1, 1, 1);
+    // }
 
     @Override
     public void start() {
         lastTransform = gameObject.transform.copy();
-        isDirty = true;
     }
 
     @Override
@@ -44,25 +43,29 @@ public class SpriteRenderer extends Component {
     public Vector4f getColor() {
         return this.color;
     }
-    public void setColor(Vector4f color) {
+    public SpriteRenderer setColor(Vector4f color) {
         if (!this.color.equals(color)) {
             this.isDirty = true;
             this.color = color;
         }
+        
+        return this;
     }
 
-    public void setTexture(Texture texture) {
+    public SpriteRenderer setTexture(Texture texture) {
         this.sprite.setTexture(texture);
         this.isDirty = true;
+        return this;
     }
 
     public Texture getTexture() {
         return this.sprite.getTexture();
     }
     
-    public void setSprite(Sprite sprite) {
+    public SpriteRenderer setSprite(Sprite sprite) {
         this.sprite = sprite;
         this.isDirty = true;
+        return this;
     }
 
     public Vector2f[] getTexCoords() {

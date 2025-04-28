@@ -35,8 +35,6 @@ public class StateMachine extends Component {
     private List<AnimationState> states = new ArrayList<>();
     private transient AnimationState currentState = null;
 
-    private SpriteRenderer prevSprite;
-
     private String defaultStateTitle = "";
 
     public void refreshTextures() {
@@ -113,7 +111,6 @@ public class StateMachine extends Component {
         if (currentState != null) {
             currentState.update(dt);
             SpriteRenderer sprite = gameObject.getComponent(SpriteRenderer.class);
-            prevSprite = sprite;
             if (sprite != null) {
                 sprite.setSprite(currentState.getCurrentSprite());
                 // TODO Why do we need to set texture when the sprite already contains the texture?

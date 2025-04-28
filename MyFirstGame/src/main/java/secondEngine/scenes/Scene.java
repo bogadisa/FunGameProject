@@ -1,12 +1,22 @@
 package secondEngine.scenes;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import secondEngine.Camera;
+import secondEngine.Component;
 import secondEngine.components.Transform;
 import secondEngine.objects.GameObject;
 import secondEngine.renderer.Renderer;
+import secondEngine.util.ComponentDeserializer;
+import secondEngine.util.GameObjectDeserializer;
 
 public abstract class Scene {
     protected Renderer renderer = new Renderer();
@@ -18,6 +28,8 @@ public abstract class Scene {
     protected int[] elementArray;
 
     private boolean isRunning = false;
+
+    private boolean sceneIsLoaded = false;
 
     public abstract void init();
 
@@ -128,5 +140,50 @@ public abstract class Scene {
         go.addComponent(new Transform());
         go.transform = go.getComponent(Transform.class);
         return go;
+    }
+
+    public boolean isLoaded() {
+        return this.sceneIsLoaded;
+    }
+
+    public void load() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Component.class, new ComponentDeserializer())
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
+                .enableComplexMapKeySerialization()
+                .create();
+
+        String inFile = "";
+        try {
+            inFile = new String(Files.readAllBytes(Paths.get("test.json")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (!inFile.equals("")) {
+            GameObject[] objs = gson.fromJson(inFile, GameObject[].class);
+            for (int i=0; i < objs.length; i++) {
+                addGameObjectToScene(objs[i]);
+            }
+            this.sceneIsLoaded = true;
+        }
+    }
+
+    public void saveExit() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Component.class, new ComponentDeserializer())
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
+                .enableComplexMapKeySerialization()
+                .create();
+
+        try {
+            FileWriter writer = new FileWriter("test.json");
+            writer.write(gson.toJson(this.gameObjects));
+            writer.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -10,8 +10,8 @@ public class SpriteObject {
         spriteObj.transform.scale.x = sizeX;
         spriteObj.transform.scale.y = sizeY;
 
-        SpriteRenderer renderer = new SpriteRenderer(sprite);
-        renderer.setSprite(sprite);
+        SpriteRenderer renderer = new SpriteRenderer()
+                                        .setSprite(sprite);
         spriteObj.addComponent(renderer);
 
         return spriteObj;

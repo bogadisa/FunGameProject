@@ -11,22 +11,26 @@ import org.lwjgl.BufferUtils;
 import secondEngine.util.AssetPool;
 
 public class Texture {
-    private String filepath;
+    private String filepath = "resources/textures/default.png";
     private int texID;
+
+    private transient boolean isInitialized;
 
     private int width, height;
 
-    public Texture() {
-        this("resources/textures/default.png");
+    public void init() {
+        init(this.filepath);
         AssetPool.addTexture(this.filepath, this);
+
     }
 
-    public Texture(String filepath) {
+
+    public void init(String filepath) {
         this.filepath = filepath;
 
         // Generate texture in GPU
-        texID = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, texID);
+        this.texID = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, this.texID);
 
         // Set texture parameters
         // repeat image in both directions (S and T)
@@ -64,6 +68,8 @@ public class Texture {
         }
         // The image has been uploaded, so we can free it in memory
         stbi_image_free(image);
+
+        isInitialized = true;
     }
 
     public void bind() {
@@ -72,6 +78,10 @@ public class Texture {
 
     public void unbind() {
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
     }
 
     public int getWidth() {

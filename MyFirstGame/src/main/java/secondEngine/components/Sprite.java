@@ -8,42 +8,39 @@ import secondEngine.renderer.Texture;
  *  Stores a sprite sheet texture and uv-coordinates of the sprite on the sprite sheet 
  */
 public class Sprite {
-    private Texture texture;
-    private Vector2f[] texCoords;
-    public Sprite(Texture texture) {
-        this.texture = texture;
-        Vector2f texCoords[] = {
-            new Vector2f(1.0f, 1.0f),
-            new Vector2f(0.0f, 0.0f),
-            new Vector2f(1.0f, 0.0f),
-            new Vector2f(0.0f, 1.0f)
-        };
-        this.texCoords = texCoords;
-    }
+    private Texture texture = new Texture();
+    // private Vector2f[] texCoords = {
+    //     new Vector2f(1.0f, 1.0f),
+    //     new Vector2f(0.0f, 0.0f),
+    //     new Vector2f(1.0f, 0.0f),
+    //     new Vector2f(0.0f, 1.0f)
+    // };
+    private Vector2f[] texCoords = {
+        new Vector2f(1.0f, 0.0f),
+        new Vector2f(1.0f, 1.0f),
+        new Vector2f(0.0f, 1.0f),
+        new Vector2f(0.0f, 0.0f)
+    };
 
-    public Sprite(Texture texture, Vector2f[] texCoords) {
-        /* texCoords = {top right, bottom left, bottom right, top left} */
+    public Sprite setTexture(Texture texture) {
         this.texture = texture;
-        this.texCoords = texCoords;
-    }
-
-    public Sprite() {
-        this.texture = new Texture();
-        Vector2f texCoords[] = {
-            new Vector2f(1.0f, 1.0f),
-            new Vector2f(0.0f, 0.0f),
-            new Vector2f(1.0f, 0.0f),
-            new Vector2f(0.0f, 1.0f)
-        };
-        this.texCoords = texCoords;
-    }
-
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+        
+        if (!this.texture.isInitialized()) {
+            this.texture.init();
+        }
+        return this;
     }
 
     public Texture getTexture() {
+        if (!this.texture.isInitialized()) {
+            this.texture.init();
+        }
         return this.texture;
+    }
+
+    public Sprite setTexCoords(Vector2f[] texCoords) {
+        this.texCoords = texCoords;
+        return this;
     }
 
     public Vector2f[] getTexCoords() {

@@ -4,7 +4,7 @@ import secondEngine.objects.GameObject;
 
 public abstract class Component {
 
-    public GameObject gameObject = null;
+    public transient GameObject gameObject = null;
 
     public abstract void start();
 
