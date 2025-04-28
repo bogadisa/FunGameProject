@@ -52,7 +52,7 @@ public class Player extends Entity {
 
     public void getPlayerImage() {
         try {
-            imgSrcString = "./player_3_3_8.png";
+            imgSrcString = "./player_3_3_9.png";
 
             src = ImageIO.read(getClass().getResourceAsStream(imgSrcString));
             splitSourceImage();

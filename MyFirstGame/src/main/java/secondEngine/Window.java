@@ -5,9 +5,7 @@ import org.lwjgl.opengl.GL;
 
 import secondEngine.listeners.KeyListener;
 import secondEngine.listeners.MouseListener;
-import secondEngine.scenes.EditorScene;
-import secondEngine.scenes.GameScene;
-import secondEngine.scenes.Scene;
+import secondEngine.scenes.*;
 import secondEngine.util.Time;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -34,9 +32,9 @@ public class Window {
         this.width = 1920;
         this.height = 1080;
 
-        r = 0;
-        g = 0;
-        b = 0;
+        r = 1;
+        g = 1;
+        b = 1;
         a = 1;
 
         this.title = "Fun game!";
@@ -126,7 +124,10 @@ public class Window {
         // bindings available for use.
         GL.createCapabilities();
 
-        Window.changeScene(1);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        Window.changeScene(0);
     }
 
     public void loop() {

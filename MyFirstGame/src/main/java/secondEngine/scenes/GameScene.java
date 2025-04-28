@@ -25,7 +25,7 @@ public class GameScene extends Scene {
         AssetPool.getShader("/shaders/default.glsl");
 
         
-        AssetPool.addSpriteSheet("entities/player_3_3_8.png");
+        AssetPool.addSpriteSheet("entities/player_3_3_9.png");
     }
 
     public void update() {

@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import secondEngine.Camera;
+import secondEngine.components.Sprite;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.components.Transform;
 import secondEngine.components.helpers.SpriteSheet;
@@ -19,14 +20,14 @@ public class EditorScene extends Scene{
 
         this.camera = new Camera(new Vector2f());
 
-        SpriteSheet spriteSheet = AssetPool.getSpriteSheet("entities/player_3_3_8.png");
+        // SpriteSheet spriteSheet = AssetPool.getSpriteSheet("entities/player_3_3_9.png");
 
-        GameObject obj1 = new GameObject("Obj 1", new Transform(new Vector3f(100, 100, 0), new Vector3f(256, 256, 1)));
-        obj1.addComponent(new SpriteRenderer(spriteSheet.getSprite(0)));
+        GameObject obj1 = new GameObject("Obj 1", new Transform(new Vector3f(100, 100, -2), new Vector3f(256, 256, 1)));
+        obj1.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("entities/blendImage1.png"))));
         this.addGameObjectToScene(obj1);
 
-        GameObject obj2 = new GameObject("Obj 2", new Transform(new Vector3f(400, 400, 0), new Vector3f(256, 256, 1)));
-        obj1.addComponent(new SpriteRenderer(spriteSheet.getSprite(1)));
+        GameObject obj2 = new GameObject("Obj 2", new Transform(new Vector3f(300, 100, -1), new Vector3f(256, 256, 1)));
+        obj2.addComponent(new SpriteRenderer(new Sprite(AssetPool.getTexture("entities/blendImage2.png"))));
         this.addGameObjectToScene(obj2);
 
     }
@@ -34,7 +35,7 @@ public class EditorScene extends Scene{
     private void loadResources() {
         AssetPool.getShader("/shaders/default.glsl");
 
-        AssetPool.addSpriteSheet("entities/player_3_3_8.png");
+        // AssetPool.addSpriteSheet("entities/player_3_3_9.png");
     }
     
     @Override

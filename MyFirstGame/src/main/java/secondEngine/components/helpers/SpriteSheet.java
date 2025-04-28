@@ -39,8 +39,8 @@ public class SpriteSheet {
         for (int i = 0; i < numSprites; i++) {
             float topY = (currentY + spriteHeight) / (float) texture.getHeight();
             float rightX = (currentX + spriteWidth) / (float) texture.getWidth();
-            float leftX = currentX / (float) texture.getHeight();
-            float bottomY = currentY / (float) texture.getWidth();
+            float leftX = currentX / (float) texture.getWidth();
+            float bottomY = currentY / (float) texture.getHeight();
             // TODO potential source of wrong image orientation
             Vector2f currentTexCoords[] = {
                     new Vector2f(rightX, topY),
