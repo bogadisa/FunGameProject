@@ -1,6 +1,7 @@
 package secondEngine.renderer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import secondEngine.components.SpriteRenderer;
@@ -16,15 +17,16 @@ public class Renderer {
 
     public void add(GameObject go) {
         SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
+        int zIndex = (int)go.transform.position.z;
         if (spr != null) {
-            add(spr);
+            add(spr, zIndex);
         }
     }
     
-    private void add(SpriteRenderer sprite) {
+    private void add(SpriteRenderer sprite, int zIndex) {
         boolean added = false;
         for (BatchRenderer batch: batches) {
-            if (batch.hasRoom()) {
+            if (batch.hasRoom() && batch.getzIndex() == zIndex) {
                 Texture tex = sprite.getTexture();
                 if (tex == null || batch.hasTextureRoom() || batch.hasTexture(tex)){
                     batch.addSprite(sprite);
@@ -34,10 +36,11 @@ public class Renderer {
             }
         }
         if (!added) {
-            BatchRenderer newBatch = new BatchRenderer(MAX_BATCH_SIZE);
+            BatchRenderer newBatch = new BatchRenderer(MAX_BATCH_SIZE, zIndex);
             newBatch.start();
             batches.add(newBatch);
             newBatch.addSprite(sprite);
+            Collections.sort(batches);
         }
     }
 

@@ -17,7 +17,7 @@ import secondEngine.Window;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.util.AssetPool;
 
-public class BatchRenderer {
+public class BatchRenderer implements Comparable<BatchRenderer>{
     // Vertex
     // ======
     // Pos                      Color                       tex coords      tex id
@@ -39,6 +39,8 @@ public class BatchRenderer {
     private SpriteRenderer[] sprites;
     private int numSprites;
     private boolean hasRoom;
+    private int zIndex;
+
     private float[] vertices;
     private int[] texSlots = {0, 1, 2, 3, 4, 5, 6, 7};
 
@@ -48,7 +50,7 @@ public class BatchRenderer {
     private int maxBatchSize;
     private Shader shader;
 
-    public BatchRenderer(int maxBatchSize) {
+    public BatchRenderer(int maxBatchSize, int zIndex) {
         shader = AssetPool.getShader("/shaders/default.glsl");
         this.sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
@@ -60,6 +62,7 @@ public class BatchRenderer {
 
         this.numSprites = 0;
         this.hasRoom = true;
+        this.zIndex = zIndex;
         this.textures = new ArrayList<>();
     }
 
@@ -256,6 +259,10 @@ public class BatchRenderer {
     public boolean hasRoom() {
         return this.hasRoom;
     }
+    
+    public int getzIndex() {
+        return this.zIndex;
+    }
 
     public boolean hasTextureRoom() {
         return this.textures.size() < this.texSlots.length;
@@ -263,5 +270,10 @@ public class BatchRenderer {
 
     public boolean hasTexture(Texture tex) {
         return this.textures.contains(tex);
+    }
+
+    @Override
+    public int compareTo(BatchRenderer o) {
+        return Integer.compare(this.zIndex, o.getzIndex());
     }
 }
