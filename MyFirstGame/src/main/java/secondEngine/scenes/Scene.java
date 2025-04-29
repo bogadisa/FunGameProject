@@ -12,6 +12,7 @@ import com.google.gson.GsonBuilder;
 
 import secondEngine.Camera;
 import secondEngine.Component;
+import secondEngine.components.StateMachine;
 import secondEngine.components.Transform;
 import secondEngine.objects.GameObject;
 import secondEngine.renderer.Renderer;
@@ -170,7 +171,7 @@ public abstract class Scene {
         }
     }
 
-    public void saveExit() {
+    public void save() {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(Component.class, new ComponentDeserializer())

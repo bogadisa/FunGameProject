@@ -25,16 +25,16 @@ public class Sprite {
     public Sprite setTexture(Texture texture) {
         this.texture = texture;
         
-        if (!this.texture.isInitialized()) {
-            this.texture.init();
-        }
+        // if (!this.texture.isInitialized()) {
+        //     this.texture.init(texture.getFilepath());
+        // }
         return this;
     }
 
     public Texture getTexture() {
-        if (!this.texture.isInitialized()) {
-            this.texture.init();
-        }
+        // if (!this.texture.isInitialized()) {
+        //     this.texture.init(texture.getFilepath());
+        // }
         return this.texture;
     }
 

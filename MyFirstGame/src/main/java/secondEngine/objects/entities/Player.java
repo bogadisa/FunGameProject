@@ -14,9 +14,10 @@ public class Player{
         GameObject player = SpriteObject.generate(playerSprites.getSprite(0), 32, 64);
         player.setName("Player");
 
+        float defaultFrameTime = 5.0f;
+
         AnimationState runDown = new AnimationState();
         runDown.title = "Run Down";
-        float defaultFrameTime = 5.0f;
         runDown.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         runDown.addFrame(playerSprites.getSprite(1), defaultFrameTime);
         runDown.addFrame(playerSprites.getSprite(0), defaultFrameTime);
@@ -45,14 +46,8 @@ public class Player{
         idling.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         idling.setLoop(false);
 
-        
-        // AnimationState runRight = new AnimationState();
-        // runRight.title = "Run Right";
-        // runRight.addFrame(playerSprites.getSprite(6), defaultFrameTime);
-        // runRight.addFrame(playerSprites.getSprite(7), defaultFrameTime);
-        // runRight.setLoop(true);
-
         StateMachine stateMachine = new StateMachine();
+
         stateMachine.addState(runDown);
         stateMachine.addState(runUp);
         stateMachine.addState(runSideways);

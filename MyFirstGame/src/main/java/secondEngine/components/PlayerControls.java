@@ -1,12 +1,11 @@
 package secondEngine.components;
 
-import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.*;
 
 import secondEngine.Component;
 import secondEngine.listeners.KeyListener;
 
-public class PlayerControls extends Component{
+public class PlayerControls extends Component {
 
     private transient float playerWidth;
     
@@ -15,7 +14,7 @@ public class PlayerControls extends Component{
 
     @Override
     public void start() {
-        this.gameObject.transform.position.set(new Vector3f(100, 100, 0));
+        // this.gameObject.transform.position.set(new Vector3f(100, 100, 0));
         this.stateMachine = this.gameObject.getComponent(StateMachine.class);
 
         this.playerWidth = this.gameObject.transform.scale.x;
@@ -48,7 +47,6 @@ public class PlayerControls extends Component{
         } else {
             this.stateMachine.trigger("idle");
         }
-
         this.gameObject.transform.position.x +=  0.4 * dt * 5 * xDirection;
         this.gameObject.transform.position.y +=  0.4 * dt * 5 * yDirection;
     }

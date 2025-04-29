@@ -2,6 +2,7 @@ package secondEngine.components;
 
 import secondEngine.Component;
 import secondEngine.renderer.Texture;
+import secondEngine.util.AssetPool;
 
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -29,7 +30,10 @@ public class SpriteRenderer extends Component {
 
     @Override
     public void start() {
-        lastTransform = gameObject.transform.copy();
+        if (this.sprite.getTexture() != null) {
+            this.sprite.setTexture(AssetPool.getTexture(this.sprite.getTexture().getFilepath()));
+        }
+        this.lastTransform = gameObject.transform.copy();
     }
 
     @Override

@@ -11,21 +11,11 @@ public class GameObject {
     private String name;
 
     private List<Component> components;
-    public Transform transform;
+    public transient Transform transform;
 
     public GameObject(String name) {
-        init(name, new ArrayList<>(), new Transform());
-    }
-
-    public GameObject(String name, Transform transform) {
-        init(name, new ArrayList<>(), transform);
-    }
-
-    private void init(String name, List<Component> components, Transform transform) {
         this.name = name;
-        this.components = components;
-        this.transform = transform;
-
+        this.components = new ArrayList<>();
     }
 
     public <T extends Component> T getComponent(Class<T> componentClass) {
@@ -56,6 +46,10 @@ public class GameObject {
     public void addComponent(Component c) {
         this.components.add(c);
         c.gameObject = this;
+
+        if (c.getClass().equals(Transform.class)) {
+            this.transform = (Transform)c;
+        }
     }
     
     public String getName() {

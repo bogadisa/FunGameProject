@@ -12,17 +12,11 @@ import secondEngine.util.AssetPool;
 
 public class Texture {
     private String filepath = "resources/textures/default.png";
-    private int texID;
+    private transient int texID;
 
     private transient boolean isInitialized;
 
     private int width, height;
-
-    public void init() {
-        init(this.filepath);
-        AssetPool.addTexture(this.filepath, this);
-
-    }
 
 
     public void init(String filepath) {

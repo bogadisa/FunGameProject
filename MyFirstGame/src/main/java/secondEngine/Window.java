@@ -51,11 +51,13 @@ public class Window {
         switch (newScene) {
             case 0:
                 currentScene = new EditorScene();
+                currentScene.load();
                 currentScene.init();
                 currentScene.start();
                 break;
             case 1:
                 currentScene = new GameScene();
+                currentScene.load();
                 currentScene.init();
                 currentScene.start();
                 break;
@@ -132,7 +134,6 @@ public class Window {
 
     public void loop() {
         Time.startLoop();
-        Window.getScene().load();
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
@@ -148,6 +149,6 @@ public class Window {
             Time.increment();
 
         }
-        Window.getScene().saveExit();
+        Window.getScene().save();
     }
 }
