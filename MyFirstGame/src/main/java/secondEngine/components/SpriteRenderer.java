@@ -18,15 +18,8 @@ public class SpriteRenderer extends Component {
 
     private transient boolean isDirty = true;
 
-    // public SpriteRenderer(Vector4f color) {
-    //     this.color = color;
-    //     this.sprite = null;
-    // }
-
-    // public SpriteRenderer(Sprite sprite) {
-    //     this.sprite = sprite;
-    //     this.color = new Vector4f(1, 1, 1, 1);
-    // }
+    private transient CompositeSpriteRenderer compositeSpriteRenderer = null;
+    private transient int compositeIndex;
 
     @Override
     public void start() {
@@ -41,6 +34,12 @@ public class SpriteRenderer extends Component {
         if (!this.lastTransform.equals(gameObject.transform) ) {
             gameObject.transform.copy(lastTransform);
             isDirty = true;
+        }
+    }
+
+    public void refreshTexture() {
+        if (this.sprite.getTexture() != null) {
+            this.sprite.setTexture(AssetPool.getTexture(this.sprite.getTexture().getFilepath()));
         }
     }
 
@@ -72,6 +71,14 @@ public class SpriteRenderer extends Component {
         return this;
     }
 
+    public Transform getTransform() {
+        if (this.compositeSpriteRenderer != null) {
+            return this.compositeSpriteRenderer.getTransform(compositeIndex);
+        }
+
+        return this.gameObject.transform;
+    }
+
     public Vector2f[] getTexCoords() {
         return this.sprite.getTexCoords();
     }
@@ -86,5 +93,11 @@ public class SpriteRenderer extends Component {
 
     public void setClean() {
         this.isDirty = false;
+    }
+
+    public void setCompositeRenderer(CompositeSpriteRenderer compSprite, int index) {
+        this.gameObject = compSprite.gameObject;
+        compositeSpriteRenderer = compSprite;
+        compositeIndex = index;
     }
 }

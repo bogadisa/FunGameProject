@@ -15,6 +15,7 @@ import org.joml.Vector4f;
 
 import secondEngine.Window;
 import secondEngine.components.SpriteRenderer;
+import secondEngine.components.Transform;
 import secondEngine.util.AssetPool;
 
 public class BatchRenderer implements Comparable<BatchRenderer>{
@@ -179,6 +180,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
 
     public void loadVertexProperties(int index) {
         SpriteRenderer sprite = this.sprites[index];
+        Transform transform = sprite.getTransform();
 
         // Find offset within array (4 vertices per sprite)
         int offset = index * 4 * VERTEX_SIZE;
@@ -210,9 +212,9 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
                 yAdd = 1.0f;
             }
             // Load position
-            vertices[offset] = sprite.gameObject.transform.position.x + xAdd*sprite.gameObject.transform.scale.x;
-            vertices[offset + 1] = sprite.gameObject.transform.position.y + yAdd*sprite.gameObject.transform.scale.y;
-            vertices[offset + 2] = sprite.gameObject.transform.position.z;
+            vertices[offset] = transform.position.x + xAdd*transform.scale.x;
+            vertices[offset + 1] = transform.position.y + yAdd*transform.scale.y;
+            vertices[offset + 2] = transform.position.z;
 
             // Load color
             vertices[offset + 3] = color.x;
