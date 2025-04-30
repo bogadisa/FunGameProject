@@ -59,6 +59,7 @@ public class StateMachine extends Component {
 
     public void addState(AnimationState state) {
         this.states.add(state);
+        state.refreshTextures();
     }
 
     public void addState(String from, String to, String onTrigger) {
