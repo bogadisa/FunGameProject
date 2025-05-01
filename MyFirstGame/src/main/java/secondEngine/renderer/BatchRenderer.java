@@ -10,6 +10,7 @@ import static org.lwjgl.opengl.GL30.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -197,24 +198,41 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
                     break;
                 }
             }
+        } 
+
+        boolean isRotated = transform.rotation != 0.0f;
+        Matrix4f transformMatrix = new Matrix4f().identity();
+        if (isRotated) {
+            transformMatrix.translate(transform.position);
+            transformMatrix.rotate((float)Math.toRadians(transform.rotation),
+                    0, 0, 1);
+            transformMatrix.scale(transform.scale);
         }
 
         
-        float xAdd = 1.0f;
-        float yAdd = 1.0f;
-        // 1,1, 1,0, 0,0, 0,1
-        for (int i=0; i < 4; i++){
+        float xAdd = 0.5f;
+        float yAdd = 0.5f;
+        for (int i=0; i < 4; i++) {
             if (i == 1) {
-                yAdd = 0.0f;
+                yAdd = -0.5f;
             } else if (i == 2) {
-                xAdd = 0.0f;
+                xAdd = -0.5f;
             } else if (i == 3) {
-                yAdd = 1.0f;
+                yAdd = 0.5f;
             }
+
+            // May be a source of z trouble
+            Vector4f currentPos = new Vector4f(transform.position.x + (xAdd * transform.scale.x),
+                    transform.position.y + (yAdd * transform.scale.y),
+                    transform.position.z, 1);
+            if (isRotated) {
+                currentPos = new Vector4f(xAdd, yAdd, 1, 1).mul(transformMatrix);
+            }
+
             // Load position
-            vertices[offset] = transform.position.x + xAdd*transform.scale.x;
-            vertices[offset + 1] = transform.position.y + yAdd*transform.scale.y;
-            vertices[offset + 2] = transform.position.z;
+            vertices[offset] = currentPos.x;
+            vertices[offset + 1] = currentPos.y;
+            vertices[offset + 2] = currentPos.z;
 
             // Load color
             vertices[offset + 3] = color.x;

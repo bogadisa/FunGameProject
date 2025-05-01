@@ -75,6 +75,7 @@ public class Player{
         player.addComponent(stateMachine);
 
         PlayerControls controls = new PlayerControls();
+        controls.setPlayerWidth(player.transform.scale.x);
         player.addComponent(controls);
 
         return player;
