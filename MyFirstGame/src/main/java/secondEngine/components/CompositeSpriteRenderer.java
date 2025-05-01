@@ -6,28 +6,25 @@ import java.util.List;
 import org.joml.Vector3f;
 
 import secondEngine.Component;
+import secondEngine.components.helpers.CompositeSpritePiece;
 
 public class CompositeSpriteRenderer extends Component {
-    private List<SpriteRenderer> sprites;
-    private List<Vector3f> offsets;
-    private List<Float> rotations;
+    private List<CompositeSpritePiece> spritePieces;
 
     private int numSprites;
 
     public CompositeSpriteRenderer init() {
-        sprites = new ArrayList<>();
-        offsets = new ArrayList<>();
-        rotations = new ArrayList<>();
+        spritePieces = new ArrayList<>();
         return this;
     }
 
     @Override
     public void start() {
         int index = 0;
-        for (SpriteRenderer sprite: sprites) {
-            sprite.setCompositeRenderer(this, index);
+        for (CompositeSpritePiece spritePiece: spritePieces) {
+            spritePiece.spriteRenderer.setCompositeRenderer(this, index);
 
-            sprite.start();
+            spritePiece.spriteRenderer.start();
 
             index++;
         }
@@ -35,8 +32,8 @@ public class CompositeSpriteRenderer extends Component {
 
     @Override
     public void update(float dt) {
-        for (SpriteRenderer sprite: sprites) {
-            sprite.update(dt);
+        for (CompositeSpritePiece spritePiece: spritePieces) {
+            spritePiece.spriteRenderer.update(dt);
         }
     }
 
@@ -45,35 +42,49 @@ public class CompositeSpriteRenderer extends Component {
     }
 
     public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset) {
-        return addSpriteRenderer(spr, offset, 0);
+        return addSpriteRenderer(spr, offset, 0, false);
     }
     public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, float rotation) {
-        return addSpriteRenderer(spr, new Vector3f(0, 0, 0), rotation);
+        return addSpriteRenderer(spr, new Vector3f(0, 0, 0), rotation, false);
+    }
+
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset, boolean flip) {
+        return addSpriteRenderer(spr, offset, 0, flip);
     }
 
     public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset, float rotation) {
-        sprites.add(spr);
-        offsets.add(offset);
-        rotations.add(rotation);
+        return addSpriteRenderer(spr, offset, rotation, false);
+    }
+
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset, float rotation, boolean flip) {
+        CompositeSpritePiece piece = new CompositeSpritePiece(spr);
+        piece.offset = offset;
+        piece.rotation = rotation;
+        piece.flip = flip;
+        spritePieces.add(piece);
         spr.setCompositeRenderer(this, numSprites);
         numSprites++;
         return this;
     }
 
     public SpriteRenderer getSpriteRenderer(int index) {
-        return sprites.get(index);
+        return spritePieces.get(index).spriteRenderer;
     }
 
     public Transform getTransform(int index) {
-        Transform actualPosition = gameObject.transform.copy();
-        actualPosition.position.add(offsets.get(index));
-        actualPosition.rotation = rotations.get(index);
-        return actualPosition;
+        Transform transform = gameObject.transform.copy();
+        CompositeSpritePiece piece = spritePieces.get(index);
+        transform.position.add(piece.offset);
+        transform.rotation = piece.rotation;
+        if (piece.flip) {
+            transform.scale.x = -transform.scale.x;
+        }
+        return transform;
     }
 
     public void refreshTextures() {
-        for (SpriteRenderer sprite: sprites) {
-            sprite.refreshTexture();
+        for (CompositeSpritePiece spritePiece: spritePieces) {
+            spritePiece.spriteRenderer.refreshTexture();
         }
     }
 

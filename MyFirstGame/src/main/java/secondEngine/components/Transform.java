@@ -10,22 +10,8 @@ public class Transform extends Component {
     public Vector3f scale = new Vector3f();
     public float rotation = 0.0f;
 
-    // public Transform() {
-    //     init(new Vector3f(), new Vector3f());
-    // }
-
-    // public Transform(Vector3f position) {
-    //     init(position, new Vector3f());
-    // }
-
-    // public Transform(Vector3f position, Vector3f scale) {
-    //     init(position, scale);
-    // }
-
     public Transform init(Vector3f position, Vector3f scale) {
-        this.position = position;
-        this.scale = scale;
-        return this;
+        return init(position, scale, 0.0f);
 
     }
 
