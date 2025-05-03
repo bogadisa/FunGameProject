@@ -4,6 +4,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import secondEngine.Camera;
+import secondEngine.Config;
+import secondEngine.Config.UIconfig;
 import secondEngine.Window;
 import secondEngine.components.CompositeSpriteRenderer;
 import secondEngine.components.Sprite;
@@ -23,6 +25,8 @@ public class GameScene extends Scene {
     }
 
     public void init() {
+        Config.getUIconfig();
+        int scale = UIconfig.getScale();
         loadResources();
 
         this.camera = new Camera(new Vector2f());
@@ -39,12 +43,13 @@ public class GameScene extends Scene {
                 .addSpriteRenderer(new SpriteRenderer().setSprite(new Sprite()))
                 .addSpriteRenderer(new SpriteRenderer().setSprite(new Sprite()), new Vector3f(64, 0, -2), 60);
         obj.addComponent(compSprite);
-        obj.addComponent(new Transform().init(new Vector3f(256, 100, 0), new Vector3f(64, 64, 1)));
+        obj.addComponent(new Transform().init(new Vector3f(256, 100, 0), new Vector3f(2*scale, 2*scale, 1)));
         this.addGameObjectToScene(obj);
 
         SpriteSheet spriteSheet = AssetPool.getSpriteSheet("overlay/overlayBasics_3_1_3.png");
         Sprite[] sprites = {spriteSheet.getSprite(0), spriteSheet.getSprite(1), spriteSheet.getSprite(2)};
-        GameObject ui = OverlayObject.generate(sprites, 0, 0);
+        // Sprite[] sprites = {new Sprite(), new Sprite(), new Sprite()};
+        GameObject ui = OverlayObject.generate(sprites, 10, 5);
 
         this.addGameObjectToScene(ui);
     }

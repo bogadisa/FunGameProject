@@ -203,10 +203,13 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
         boolean isRotated = transform.rotation != 0.0f;
         Matrix4f transformMatrix = new Matrix4f().identity();
         if (isRotated) {
+            // scale (flipping) must happen after rotating 
+            // meaning further left in the equation
+            // meaning applied to the matrix before rotate
             transformMatrix.translate(transform.position);
+            transformMatrix.scale(transform.scale);
             transformMatrix.rotate((float)Math.toRadians(transform.rotation),
                     0, 0, 1);
-            transformMatrix.scale(transform.scale);
         }
 
         

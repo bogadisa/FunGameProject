@@ -60,9 +60,13 @@ public abstract class Scene {
     }
 
     public GameObject createGameObject(String name) {
+        return createGameObject(name, new Transform());
+    }
+
+    public GameObject createGameObject(String name, Transform transform) {
         GameObject go = new GameObject(name);
 
-        go.addComponent(new Transform());
+        go.addComponent(transform);
         go.transform = go.getComponent(Transform.class);
         return go;
     }

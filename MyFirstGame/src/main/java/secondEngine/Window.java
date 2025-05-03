@@ -3,6 +3,7 @@ package secondEngine;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
+import secondEngine.Config.CameraConfig;
 import secondEngine.listeners.KeyListener;
 import secondEngine.listeners.MouseListener;
 import secondEngine.scenes.*;
@@ -29,8 +30,9 @@ public class Window {
     private static Scene currentScene = null;
 
     private Window() {
-        this.width = 1920;
-        this.height = 1080;
+        Config.getCameraConfig();
+        this.width = CameraConfig.width;
+        this.height = CameraConfig.height;
 
         r = 1;
         g = 1;
