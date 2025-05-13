@@ -3,7 +3,6 @@ package secondEngine.components.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import secondEngine.components.Sprite;
 import secondEngine.util.AssetPool;
 
 public class AnimationState {

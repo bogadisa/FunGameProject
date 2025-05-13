@@ -1,62 +1,50 @@
 package secondEngine.objects;
 
+import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
-import secondEngine.Config;
 import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.CompositeSpriteRenderer;
-import secondEngine.components.Sprite;
-import secondEngine.components.SpriteRenderer;
+import secondEngine.components.Overlay;
 import secondEngine.components.Transform;
+import secondEngine.components.helpers.GridState;
+import secondEngine.components.helpers.Sprite;
+import secondEngine.util.AssetPool;
 
 public class OverlayObject {
     public static GameObject generate(Sprite[] sprites, int numSpritesX, int numSpritesY) {
-        Config.getUIconfig();
         int scale = UIconfig.getScale();
         GameObject overlayObj = Window.getScene().createGameObject("OverlayObjectGen", new Transform().init(new Vector3f(400, 400, 0), new Vector3f(scale, scale, 1)));
-        CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
-        Sprite corner = sprites[0];
-        Sprite edge = sprites[1];
-        Sprite fill = sprites[2];
-
-        for (int i = 1; i <= numSpritesX; i++) {
-            for (int j = 1; j <= numSpritesY; j++) {
-                Sprite piece = fill;
-                int rotation = 0;
-                boolean flip = false;
-                if (j == 1) {
-                    piece = edge;
-                    rotation = 180;
-                    if (i == 1 || i == numSpritesX) {
-                        piece = corner;
-                        if (i == 1) {
-                            flip = true;
-                        }
-                    }
-                } else if (j == numSpritesY) {
-                    piece = edge;
-                    if (i == 1 || i == numSpritesX) {
-                        piece = corner;
-                        if (i == numSpritesX) {
-                            flip = true;
-                        }
-                    }
-                } else {
-                    if (i == 1 || i == numSpritesX) {
-                        piece = edge;
-                        rotation = 90;
-                        if (i == numSpritesX) {
-                            flip = true;
-                        }
-                    }
-                }
-    
-                compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), new Vector3f((i - 1) * scale, (j - 1) * scale, 2), rotation, flip);
-            }
-        }
         
-        overlayObj.addComponent(compSprite);
+        Overlay overlay = new Overlay().init(overlayObj, sprites, numSpritesX, numSpritesY);
+        overlayObj.addComponent(overlay);
         return overlayObj;
+    }
+
+    public static GameObject generateGrid() {
+        Sprite gridSprite = new Sprite().setTexture(AssetPool.getTexture("overlay/gridCell.png"));
+        Sprite[] gridSprites = {gridSprite, gridSprite, gridSprite, gridSprite};
+
+        Vector2i gridScale = GridState.getGridScale();
+        
+        GameObject gridObj  = OverlayObject.generate(gridSprites, gridScale.x*3, gridScale.y*2);
+        Vector3f gridPosition = new Vector3f();
+        gridPosition.x = Window.getScene().camera().position.x + 0.5f*GridState.getGridSize();
+        gridPosition.y = Window.getScene().camera().position.y + 0.5f*GridState.getGridSize();
+        gridPosition.z = gridObj.transform.position.z;
+        gridObj.transform.position.set(gridPosition);
+
+        Overlay overlay = gridObj.getComponent(Overlay.class);
+
+        // a white grid to test
+        CompositeSpriteRenderer spriteRenderer = gridObj.getComponent(CompositeSpriteRenderer.class);
+        // a white grid to test
+        // spriteRenderer.setColor(new Vector4f(1.0f, 1.0f, 1.0f, 0.5f));
+        spriteRenderer.setColor(new Vector4f(0.0f, 0.0f, 0.0f, 0.5f));
+        gridObj.setName("gridObj");
+
+        return gridObj;
     }
 }

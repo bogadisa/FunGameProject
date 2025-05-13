@@ -4,9 +4,9 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import secondEngine.Camera;
-import secondEngine.components.Sprite;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.components.Transform;
+import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.GameObject;
 import secondEngine.util.AssetPool;

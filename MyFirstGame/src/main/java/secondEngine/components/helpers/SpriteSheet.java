@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.joml.Vector2f;
 
-import secondEngine.components.Sprite;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 

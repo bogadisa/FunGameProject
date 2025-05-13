@@ -12,6 +12,8 @@ import com.google.gson.GsonBuilder;
 
 import secondEngine.Camera;
 import secondEngine.Component;
+import secondEngine.components.Overlay;
+import secondEngine.components.SpriteRenderer;
 import secondEngine.components.StateMachine;
 import secondEngine.components.Transform;
 import secondEngine.objects.GameObject;
@@ -69,6 +71,15 @@ public abstract class Scene {
         go.addComponent(transform);
         go.transform = go.getComponent(Transform.class);
         return go;
+    }
+
+    public void resize() {
+        for (GameObject go : gameObjects) {
+            Overlay overlay = go.getComponent(Overlay.class);
+            if (overlay != null) {
+                overlay.resize();
+            }
+        }
     }
 
     public boolean isLoaded() {

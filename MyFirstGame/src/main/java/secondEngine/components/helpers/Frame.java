@@ -1,7 +1,5 @@
 package secondEngine.components.helpers;
 
-import secondEngine.components.Sprite;
-
 public class Frame {
     public Sprite sprite;
     public float frameTime;

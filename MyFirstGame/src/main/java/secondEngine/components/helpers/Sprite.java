@@ -1,4 +1,4 @@
-package secondEngine.components;
+package secondEngine.components.helpers;
 
 import org.joml.Vector2f;
 
@@ -38,5 +38,14 @@ public class Sprite {
 
     public Vector2f[] getTexCoords() {
         return this.texCoords;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Sprite)) return false;
+
+        Sprite s = (Sprite)o;
+        return s.texCoords.equals(this.texCoords) && s.texture.getFilepath().equals(this.texture.getFilepath());
     }
 }

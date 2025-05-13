@@ -1,11 +1,13 @@
 package secondEngine;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL;
 
 import secondEngine.Config.CameraConfig;
 import secondEngine.listeners.KeyListener;
 import secondEngine.listeners.MouseListener;
+import secondEngine.objects.GameObject;
 import secondEngine.scenes.*;
 import secondEngine.util.Time;
 
@@ -13,7 +15,13 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.stb.STBImage.*;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
+import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
 
 public class Window {
@@ -21,7 +29,7 @@ public class Window {
 
     String title;
 
-    long glfwWindow; // memory address
+    static long glfwWindow; // memory address
 
     static Window window = null;
 
@@ -30,9 +38,12 @@ public class Window {
     private static Scene currentScene = null;
 
     private Window() {
+        // initializes the configs
         Config.getCameraConfig();
-        this.width = CameraConfig.width;
-        this.height = CameraConfig.height;
+        Config.getUIconfig();
+
+        this.width = CameraConfig.resWidth;
+        this.height = CameraConfig.resHeight;
 
         r = 1;
         g = 1;
@@ -113,6 +124,9 @@ public class Window {
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
         glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
 
+        glfwSetWindowSizeCallback(glfwWindow, Window::windowResizeCallback);
+        glfwSetWindowPosCallback(glfwWindow, Window::windowReposCallback);
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
         // Enable v-sync
@@ -131,26 +145,76 @@ public class Window {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
+        IntBuffer imgWidth = BufferUtils.createIntBuffer(1);
+        IntBuffer imgHeight = BufferUtils.createIntBuffer(1);
+        glfwGetWindowSize(glfwWindow, imgWidth, imgHeight);
+        CameraConfig.width = imgWidth.get(0); 
+        CameraConfig.height = imgHeight.get(0);
+
         Window.changeScene(1);
     }
 
     public void loop() {
+        // Resets the loop
         Time.startLoop();
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
             if (Time.readyToDraw()) {
-                glClearColor(r, g, b, a);
-                glClear(GL_COLOR_BUFFER_BIT);
-                
-                currentScene.update();
-                Time.update();
-                glfwSwapBuffers(glfwWindow);
+                this.render();
             }
 
             Time.increment();
 
         }
-        Window.getScene().save();
+        // Window.getScene().save();
+    }
+
+    public void render() {
+        glClearColor(r, g, b, a);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        currentScene.update();
+        Time.update();
+        glfwSwapBuffers(glfwWindow);
+    }
+
+    public static void setCursor(String filepath) {
+        IntBuffer width = BufferUtils.createIntBuffer(1);
+        IntBuffer height = BufferUtils.createIntBuffer(1);
+        IntBuffer channels = BufferUtils.createIntBuffer(1);
+
+        ByteBuffer image = stbi_load(filepath, width, height, channels, 0);
+        
+        // TODO Fix loading vertically
+        // stbi_set_flip_vertically_on_load(false);
+        GLFWImage img = GLFWImage.malloc().set(width.get(0), height.get(0), image);
+        long cursor = glfwCreateCursor(img, 0, 0);
+        glfwSetCursor(Window.glfwWindow, cursor);
+
+        // stbi_set_flip_vertically_on_load(true);
+
+        img.free();
+        stbi_image_free(image);
+
+    }
+
+    private static void windowResizeCallback(long window, int width, int height) {
+        CameraConfig.width = width;
+        CameraConfig.height = height;
+
+        glViewport(0, 0, width, height);
+        Window.currentScene.camera().adjustProjection();
+
+        if (Time.readyToDraw()) {
+            get().render();
+        }
+        Window.currentScene.resize();
+
+        Time.increment();
+    }
+
+    private static void windowReposCallback(long window, int xpos, int ypos) {
+        MouseListener.setWindowPos(new Vector2f(xpos, ypos));
     }
 }

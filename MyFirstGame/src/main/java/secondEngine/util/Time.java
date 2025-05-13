@@ -28,6 +28,7 @@ public class Time {
     public static void startLoop() {
         get().lastTime = System.nanoTime();
         get().lastDrawTime = System.nanoTime();
+        get().delta = 0;
     }
 
     public static void increment() {

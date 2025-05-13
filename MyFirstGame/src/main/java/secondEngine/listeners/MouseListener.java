@@ -3,12 +3,18 @@ package secondEngine.listeners;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
+import org.joml.Vector2f;
+
+import secondEngine.Config.CameraConfig;
+
 public class MouseListener {
     private static MouseListener instance = null;
     private double scrollX, scrollY;
     private double xPos, yPos, lastX, lastY;
     private boolean mouseButtonPressed[] = new boolean[5];
     private boolean isDragging;
+
+    private Vector2f windowPos;
 
     private MouseListener() {
         this.scrollX = 0.0;
@@ -37,6 +43,7 @@ public class MouseListener {
     public static void mouseButtonCallback(long window, int button, int action, int mods) {
         if (action == GLFW_PRESS) {
             if (button < get().mouseButtonPressed.length) {
+                System.out.println(get().xPos + " ... " + get().yPos);
                 get().mouseButtonPressed[button] = true;
             }
         } else if (action == GLFW_RELEASE) {
@@ -79,12 +86,29 @@ public class MouseListener {
         return (float) get().yPos;
     }
 
+    public static float getScreenX() {
+        // float currentX = getX() - get().windowPos.x;
+        // float currentX = get().windowPos.x - getX();
+        // currentX = (currentX / get().gameViewportSize.x) * 3840.0f;
+        // return (float) currentX / CameraConfig.width * CameraConfig.resWidth;
+        // return currentX;
+        return getX();
+    }
+    public static float getScreenY() {
+        // float currentY = getY() - get().windowPos.y;
+        // float currentY =  get().windowPos.y - getY();
+        // currentY = (1.0f - (currentY / get().gameViewportSize.y)) * 2160.0f;
+        // return (float) (1 - currentY / CameraConfig.height) * CameraConfig.resHeight;
+        // return CameraConfig.height - currentY;
+        return CameraConfig.height - getY();
+    }
+
     public static float getDx() {
         return (float) (get().lastX - get().xPos);
     }
 
     public static float getDy() {
-        return (float) (get().lastY - get().yPos);
+        return (float) (get().lastY - get().yPos);  
     }
 
     public static float getScrollX() {
@@ -105,5 +129,9 @@ public class MouseListener {
         } else {
             return false;
         }
+    }
+
+    public static void setWindowPos(Vector2f pos) {
+        get().windowPos = pos;
     }
 }

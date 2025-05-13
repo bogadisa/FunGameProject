@@ -36,8 +36,17 @@ public class Renderer {
             add(sprite, zIndex);
         }
     }
+
+    public void add(SpriteRenderer spriteRenderer) {
+        int zIndex = (int)spriteRenderer.gameObject.transform.position.z;
+        add(spriteRenderer, zIndex);
+
+    }
     
     private void add(SpriteRenderer sprite, int zIndex) {
+        if (sprite.isAddedToRenderer()) {
+            return;
+        }
         boolean added = false;
         for (BatchRenderer batch: batches) {
             if (batch.hasRoom() && batch.getzIndex() == zIndex) {

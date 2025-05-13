@@ -175,7 +175,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
             if (numSprites >= this.maxBatchSize) {
                 hasRoom = false;
             }
-
+            spr.setAddedToRenderer(true);
         }
     }
 

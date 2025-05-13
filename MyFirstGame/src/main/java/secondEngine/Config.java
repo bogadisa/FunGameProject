@@ -1,14 +1,17 @@
 package secondEngine;
 
+import static org.lwjgl.opengl.GL11.glViewport;
+
+import secondEngine.Config.CameraConfig;
+
 public class Config {
     public class CameraConfig {
-        public static int width = 1920;
-        public static int height = 1080;
+        // Will be initialized by window
+        public static int width;
+        public static int height;
 
-        public static void setResolution(int width, int height) {
-            CameraConfig.width = width;
-            CameraConfig.height = height;
-        }
+        public static int resWidth = 1920;
+        public static int resHeight = 1080;
     }
 
     public class UIconfig {

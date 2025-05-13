@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import secondEngine.Config.CameraConfig;
+
 public class Camera {
     public Vector2f position;
     private Matrix4f projectionMatrix, viewMatrix;
@@ -19,7 +21,11 @@ public class Camera {
         projectionMatrix.identity();
         // Defines it as 40x21 units, where 1 unit is a 32x32 pixel square
         // TODO define units elsewhere
-        projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
+
+        // old
+        // projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
+        // new
+        projectionMatrix.ortho(0.0f, CameraConfig.width, 0.0f, CameraConfig.height, 0.0f, 100.0f);
     }
 
     public Matrix4f getViewMatrix() {

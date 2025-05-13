@@ -1,6 +1,8 @@
 package secondEngine.components;
 
 import secondEngine.Component;
+import secondEngine.components.helpers.Sprite;
+import secondEngine.renderer.BatchRenderer;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 
@@ -20,6 +22,8 @@ public class SpriteRenderer extends Component {
 
     private transient CompositeSpriteRenderer compositeSpriteRenderer = null;
     private transient int compositeIndex;
+
+    private transient boolean addedToRenderer = false;
 
     @Override
     public void start() {
@@ -99,5 +103,13 @@ public class SpriteRenderer extends Component {
         this.gameObject = compSprite.gameObject;
         compositeSpriteRenderer = compSprite;
         compositeIndex = index;
+    }
+
+    public boolean isAddedToRenderer() {
+        return addedToRenderer;
+    }
+
+    public void setAddedToRenderer(boolean addedToRenderer) {
+        this.addedToRenderer = addedToRenderer;
     }
 }

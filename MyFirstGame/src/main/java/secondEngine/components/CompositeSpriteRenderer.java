@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import secondEngine.Component;
+import secondEngine.Window;
 import secondEngine.components.helpers.CompositeSpritePiece;
 
 public class CompositeSpriteRenderer extends Component {
@@ -67,6 +69,8 @@ public class CompositeSpriteRenderer extends Component {
         return this;
     }
 
+    
+
     public SpriteRenderer getSpriteRenderer(int index) {
         return spritePieces.get(index).spriteRenderer;
     }
@@ -82,10 +86,25 @@ public class CompositeSpriteRenderer extends Component {
         return transform;
     }
 
-    public void refreshTextures() {
+    public CompositeSpriteRenderer refreshTextures() {
         for (CompositeSpritePiece spritePiece: spritePieces) {
             spritePiece.spriteRenderer.refreshTexture();
         }
+        return this;
+    }
+
+    public CompositeSpriteRenderer setColor(Vector4f color) {
+        for (CompositeSpritePiece spritePiece: spritePieces) {
+            spritePiece.spriteRenderer.setColor(color);
+        }
+        return this;
+    }
+
+    public CompositeSpriteRenderer setDirty() {
+        for (CompositeSpritePiece spritePiece: spritePieces) {
+            spritePiece.spriteRenderer.setDirty();
+        }
+        return this;
     }
 
     public int size() {
