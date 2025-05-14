@@ -42,8 +42,9 @@ public class OverlayObject {
         CompositeSpriteRenderer spriteRenderer = gridObj.getComponent(CompositeSpriteRenderer.class);
         // a white grid to test
         // spriteRenderer.setColor(new Vector4f(1.0f, 1.0f, 1.0f, 0.5f));
-        spriteRenderer.setColor(new Vector4f(0.0f, 0.0f, 0.0f, 0.5f));
+        spriteRenderer.setColor(new Vector4f(0.0f, 0.0f, 0.0f, 0.1f));
         gridObj.setName("gridObj");
+        gridObj.setSerializeOnSave(false);
 
         return gridObj;
     }

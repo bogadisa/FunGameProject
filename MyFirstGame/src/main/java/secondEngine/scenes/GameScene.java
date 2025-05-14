@@ -21,16 +21,18 @@ import secondEngine.util.AssetPool;
 import secondEngine.util.Time;
 
 public class GameScene extends Scene {
-    public GameScene() {
-
-    }
-
     public void init() {
         Config.getUIconfig();
         int scale = UIconfig.getScale();
         loadResources();
 
         this.camera = new Camera(new Vector2f());
+        
+        GameObject grid = OverlayObject.generateGrid();
+        this.addGameObjectToScene(grid);
+        
+        GameObject mouse = Mouse.generate();
+        this.addGameObjectToScene(mouse);
         if (Window.getScene().isLoaded()) {
             return;
         }
@@ -52,12 +54,6 @@ public class GameScene extends Scene {
         // Sprite[] sprites = {new Sprite(), new Sprite(), new Sprite()};
         // GameObject ui = OverlayObject.generate(sprites, 10, 5);
         // this.addGameObjectToScene(ui);
-
-        GameObject mouse = Mouse.generate();
-        this.addGameObjectToScene(mouse);
-
-        GameObject grid = OverlayObject.generateGrid();
-        this.addGameObjectToScene(grid);
 
     }
 

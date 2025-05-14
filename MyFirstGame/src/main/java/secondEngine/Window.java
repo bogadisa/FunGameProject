@@ -7,7 +7,6 @@ import org.lwjgl.opengl.GL;
 import secondEngine.Config.CameraConfig;
 import secondEngine.listeners.KeyListener;
 import secondEngine.listeners.MouseListener;
-import secondEngine.objects.GameObject;
 import secondEngine.scenes.*;
 import secondEngine.util.Time;
 
@@ -167,7 +166,7 @@ public class Window {
             Time.increment();
 
         }
-        // Window.getScene().save();
+        Window.getScene().save();
     }
 
     public void render() {

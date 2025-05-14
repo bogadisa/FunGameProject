@@ -13,8 +13,6 @@ import com.google.gson.GsonBuilder;
 import secondEngine.Camera;
 import secondEngine.Component;
 import secondEngine.components.Overlay;
-import secondEngine.components.SpriteRenderer;
-import secondEngine.components.StateMachine;
 import secondEngine.components.Transform;
 import secondEngine.objects.GameObject;
 import secondEngine.renderer.Renderer;
@@ -73,6 +71,24 @@ public abstract class Scene {
         return go;
     }
 
+    public void removeGameObject(GameObject goToRemove) {
+        gameObjects.remove(goToRemove);
+        
+    }
+
+    public void removeGameObject(String name) {
+        int i = 0;
+        for (GameObject go: gameObjects) { 
+            if (name.equals(go.getName())) {
+                gameObjects.remove(i);
+                break;
+            }
+            i++;
+            
+        }
+
+    }
+
     public void resize() {
         for (GameObject go : gameObjects) {
             Overlay overlay = go.getComponent(Overlay.class);
@@ -118,6 +134,16 @@ public abstract class Scene {
                 .enableComplexMapKeySerialization()
                 .create();
 
+        // Removes all game objects which should not be serialized
+        List<GameObject> gameObjectsToRemove = new ArrayList<>();
+        for (GameObject go: gameObjects) {
+            if (!go.serializeOnSave()) {
+                gameObjectsToRemove.add(go);
+            }
+        }
+        for (GameObject go : gameObjectsToRemove) {
+            removeGameObject(go);
+        }
         try {
             FileWriter writer = new FileWriter("test.json");
             writer.write(gson.toJson(this.gameObjects));

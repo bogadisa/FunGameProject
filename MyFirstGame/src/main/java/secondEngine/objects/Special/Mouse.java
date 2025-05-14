@@ -9,7 +9,6 @@ import secondEngine.objects.SpriteObject;
 public class Mouse {
     public static GameObject generate() {
         GameObject mouse = SpriteObject.generate(new Sprite(), 32, 32);
-        mouse.setName("Mouse");
 
         MouseTracker mouseTracker = new MouseTracker();
         mouse.addComponent(mouseTracker);
@@ -18,6 +17,10 @@ public class Mouse {
         mouse.transform.gridLockY = true;
 
         Window.setCursor("resources/textures/icons/cursor.png");
+
+        
+        mouse.setName("Mouse");
+        mouse.setSerializeOnSave(false);
 
         return mouse;
     }

@@ -9,6 +9,7 @@ import secondEngine.components.Transform;
 public class GameObject {
 
     private String name;
+    private transient boolean serializeOnSave = true;
 
     private List<Component> components;
     public transient Transform transform;
@@ -58,6 +59,14 @@ public class GameObject {
     
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean serializeOnSave() {
+        return serializeOnSave;
+    }
+
+    public void setSerializeOnSave(boolean serializeOnSave) {
+        this.serializeOnSave = serializeOnSave;
     }
 
     public void update(float dt) {
