@@ -13,15 +13,27 @@ public class Overlay extends Component {
     private boolean rescale = false;
 
     private Sprite corner, edge, fill, inventory;
+    private boolean ignoreEdge = true;
+    private boolean ignoreCorner = true;
+    private boolean ignoreInventory = true;
 
     private transient boolean isInitialized = false;
 
 
     public Overlay init(GameObject go, Sprite[] sprites, int numSpritesX, int numSpritesY) {
-        corner = sprites[0];
-        edge = sprites[1];
-        fill = sprites[2];
-        inventory = sprites[3];
+        fill = sprites[0];
+        if (sprites.length > 1) {
+            corner = sprites[1];
+            ignoreCorner = false;
+            if (sprites.length > 2) {
+                edge = sprites[2];
+                ignoreEdge = false;
+                if (sprites.length > 3) {
+                    inventory = sprites[3];
+                    ignoreInventory = false;
+                }
+            }
+        }
         this.gameObject = go;
         this.buildCompositeSprite(numSpritesX, numSpritesY);
         isInitialized = true;
@@ -30,18 +42,6 @@ public class Overlay extends Component {
 
     private Overlay buildCompositeSprite(int numSpritesX, int numSpritesY) {
         CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
-        boolean ignoreCorner = false;
-        boolean ignoreEdge = false;
-        boolean ignoreInventory = false;
-        if (corner.equals(fill)) {
-            ignoreCorner = true;
-        }
-        if (edge.equals(fill)) {
-            ignoreEdge = true;
-        }
-        if (inventory.equals(fill)) {
-            ignoreInventory = true;
-        }
         int scale = UIconfig.getScale();
         for (int i = 1; i <= numSpritesX; i++) {
             for (int j = 1; j <= numSpritesY; j++) {
@@ -49,7 +49,6 @@ public class Overlay extends Component {
                 int rotation = 0;
                 boolean flip = false;
                 if (j == 1) {
-                    piece = edge;
                     rotation = 180;
                     if (i == 1 || i == numSpritesX) {
                         if (!ignoreCorner) {
@@ -61,8 +60,10 @@ public class Overlay extends Component {
                             rotation = 0;
                         }
                     };
+                    if (!ignoreEdge) {
+                        piece = edge;
+                    }
                 } else if (j == numSpritesY) {
-                    piece = edge;
                     if (i == 1 || i == numSpritesX) {
                         if (!ignoreCorner) {
                             piece = corner;
@@ -71,6 +72,9 @@ public class Overlay extends Component {
                             }
                         }
                     };
+                    if (!ignoreEdge) {
+                        piece = edge;
+                    }
                 } else {
                     if (i == 1 || i == numSpritesX) {
                         if (!ignoreEdge) {
@@ -109,7 +113,7 @@ public class Overlay extends Component {
         return this;
     }
 
-    /*
+    /**
      * Can remake and rescale the overlay.
      * 
      * Remake:

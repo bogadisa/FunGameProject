@@ -1,6 +1,7 @@
 package secondEngine.objects.Special;
 
 import secondEngine.Window;
+import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.objects.GameObject;
@@ -17,6 +18,10 @@ public class Mouse {
         mouse.transform.gridLockY = true;
 
         Window.setCursor("resources/textures/icons/cursor.png");
+
+        Inventory inventory = new Inventory().init(1,1);
+        mouse.addComponent(inventory);
+
 
         
         mouse.setName("Mouse");

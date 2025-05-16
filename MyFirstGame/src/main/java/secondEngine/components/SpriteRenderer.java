@@ -2,7 +2,6 @@ package secondEngine.components;
 
 import secondEngine.Component;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.renderer.BatchRenderer;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 
@@ -18,6 +17,7 @@ public class SpriteRenderer extends Component {
 
     private transient Transform lastTransform;
 
+    private boolean isHidden = false;
     private transient boolean isDirty = true;
 
     private transient CompositeSpriteRenderer compositeSpriteRenderer = null;
@@ -85,6 +85,15 @@ public class SpriteRenderer extends Component {
 
     public Vector2f[] getTexCoords() {
         return this.sprite.getTexCoords();
+    }
+
+    public boolean isHidden() {
+        return this.isHidden;
+    }
+    
+    public void setHidden(boolean isHidden) {
+        this.isDirty = true;
+        this.isHidden = isHidden;
     }
 
     public boolean isDirty() {

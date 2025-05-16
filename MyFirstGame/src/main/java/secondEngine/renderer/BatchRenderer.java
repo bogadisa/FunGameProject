@@ -194,6 +194,9 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
             for (int i=0; i < textures.size(); i++) {
                 if (textures.get(i) == sprite.getTexture()) {
                     // sets the first element to no texture
+                    if (sprite.isHidden()) {
+                        break;
+                    }
                     texId = i + 1;
                     break;
                 }

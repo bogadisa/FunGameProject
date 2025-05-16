@@ -7,7 +7,6 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import secondEngine.Component;
-import secondEngine.Window;
 import secondEngine.components.helpers.CompositeSpritePiece;
 
 public class CompositeSpriteRenderer extends Component {

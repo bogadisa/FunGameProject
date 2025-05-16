@@ -63,6 +63,7 @@ public class GameScene extends Scene {
 
         AssetPool.addSpriteSheet("entities/player_3_3_9.png");
         AssetPool.addSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
+        AssetPool.addSpriteSheet("background/spring_4_4_15.png");
 
         for (GameObject go: this.gameObjects) {
             if (go.getComponent(CompositeSpriteRenderer.class) != null) {
@@ -85,7 +86,9 @@ public class GameScene extends Scene {
         for (GameObject go: this.gameObjects) {
             go.update(dt);
         }
-
+        if (this.newGameObjectsQueued) {
+            this.startQueuedGameObjects();
+        }
         this.renderer.render();
 
     }

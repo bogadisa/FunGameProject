@@ -3,6 +3,9 @@ package secondEngine.listeners;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.joml.Vector2f;
 
 import secondEngine.Config.CameraConfig;
@@ -12,9 +15,15 @@ public class MouseListener {
     private double scrollX, scrollY;
     private double xPos, yPos, lastX, lastY;
     private boolean mouseButtonPressed[] = new boolean[5];
+    private boolean mouseButtonStillPressed[] = new boolean[5];
     private boolean isDragging;
 
     private Vector2f windowPos;
+
+    public interface MouseScrollCallback {
+        void callback(double xOffset, double yOffset);
+    }
+    private List<MouseScrollCallback> mouseScrollCallbacks = new ArrayList<>();
 
     private MouseListener() {
         this.scrollX = 0.0;
@@ -43,13 +52,13 @@ public class MouseListener {
     public static void mouseButtonCallback(long window, int button, int action, int mods) {
         if (action == GLFW_PRESS) {
             if (button < get().mouseButtonPressed.length) {
-                System.out.println(get().xPos + " ... " + get().yPos);
                 get().mouseButtonPressed[button] = true;
             }
         } else if (action == GLFW_RELEASE) {
 
             if (button < get().mouseButtonPressed.length) {
                 get().mouseButtonPressed[button] = false;
+                get().mouseButtonStillPressed[button] = false;
                 get().isDragging = false; // ?
             }
         }
@@ -58,6 +67,13 @@ public class MouseListener {
     public static void mouseScrollCallback(long window, double xOffset, double yOffset) {
         get().scrollX = xOffset;
         get().scrollY = yOffset;
+        for (MouseScrollCallback callback : get().mouseScrollCallbacks) {
+            callback.callback(xOffset, yOffset);
+        }
+    }
+
+    public static void registerMouseScrollCallback(MouseScrollCallback callback) {
+        get().mouseScrollCallbacks.add(callback);
     }
 
     public static void endFrame() {
@@ -124,8 +140,21 @@ public class MouseListener {
     }
 
     public static boolean mouseButtonDown(int button) {
+        // Will it catch everything?
         if (button < get().mouseButtonPressed.length) {
+            get().mouseButtonStillPressed[button] = get().mouseButtonPressed[button];
             return get().mouseButtonPressed[button];
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Used when you want one action per press
+     */
+    public static boolean mouseButtonStillDown(int button) {
+        if (button < get().mouseButtonPressed.length) {
+            return get().mouseButtonStillPressed[button];
         } else {
             return false;
         }

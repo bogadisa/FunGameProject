@@ -25,7 +25,7 @@ public class OverlayObject {
 
     public static GameObject generateGrid() {
         Sprite gridSprite = new Sprite().setTexture(AssetPool.getTexture("overlay/gridCell.png"));
-        Sprite[] gridSprites = {gridSprite, gridSprite, gridSprite, gridSprite};
+        Sprite[] gridSprites = {gridSprite};
 
         Vector2i gridScale = GridState.getGridScale();
         

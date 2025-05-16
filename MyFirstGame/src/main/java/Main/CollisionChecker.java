@@ -132,7 +132,7 @@ public class CollisionChecker {
         return getCollisionSafeSpeedY(entity, entitySpeedY);
     }
 
-    /*
+    /**
      * Checks if the entity would collide, given their current speeds.
      * @param enity The entity to check if its gonna colide
      * @return A pair of speeds which are guarnteed not to collide.

@@ -117,7 +117,6 @@ public class Window {
         if (glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
-
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
@@ -166,7 +165,7 @@ public class Window {
             Time.increment();
 
         }
-        Window.getScene().save();
+        // Window.getScene().save();
     }
 
     public void render() {

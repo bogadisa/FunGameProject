@@ -23,6 +23,8 @@ public abstract class Scene {
     protected Renderer renderer = new Renderer();
 
     protected List<GameObject> gameObjects = new ArrayList<>();
+    protected boolean newGameObjectsQueued = false;
+    private List<GameObject> gameObjectToAdd = new ArrayList<>();
 
     protected Camera camera = null;
     protected float[] vertexArray;
@@ -47,10 +49,19 @@ public abstract class Scene {
         if (!isRunning) {
             gameObjects.add(go);
         } else {
+            gameObjectToAdd.add(go);
+            newGameObjectsQueued = true;
+        }
+    }
+
+    protected void startQueuedGameObjects() {
+        for (GameObject go : gameObjectToAdd) {
             gameObjects.add(go);
             go.start();
             this.renderer.add(go);
         }
+        gameObjectToAdd.clear();
+        newGameObjectsQueued = false;
     }
 
     public abstract void update();
