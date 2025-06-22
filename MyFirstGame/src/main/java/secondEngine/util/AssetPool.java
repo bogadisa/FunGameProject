@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import secondEngine.components.helpers.SpriteSheet;
+import secondEngine.objects.OverlayObject.Layouts;
 import secondEngine.renderer.Shader;
 import secondEngine.renderer.Texture;
 
@@ -13,6 +14,7 @@ public class AssetPool {
     private static Map<String, Shader> shaders = new HashMap<>();
     private static Map<String, Texture> textures = new HashMap<>();
     private static Map<String, SpriteSheet> spriteSheets = new HashMap<>();
+    private static Map<Layouts, int[][]> layouts = new HashMap<>();
 
     public static Shader getShader(String resourceName) {
         File file = new File(resourceName);
@@ -60,5 +62,18 @@ public class AssetPool {
             assert false : "Error: Tried to access spritesheet '" + resourceName + "' and it has not been added to asset pool.";
         }
         return AssetPool.spriteSheets.getOrDefault(file.getAbsolutePath(), null);
+    }
+
+    public static void addLayout(int[][] layout, Layouts layoutType) {
+        if (!AssetPool.layouts.containsKey(layoutType)) {
+            AssetPool.layouts.put(layoutType, layout);
+        }
+    }
+
+    public static int[][] getLayout(Layouts layout) {
+        if (!AssetPool.layouts.containsKey(layout)) {
+            assert false : "Error: Tried to use an unsupported layout '" + layout + "'.";
+        }
+        return AssetPool.layouts.get(layout);
     }
 }

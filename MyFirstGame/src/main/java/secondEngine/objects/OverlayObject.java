@@ -9,11 +9,16 @@ import secondEngine.Config.UIconfig;
 import secondEngine.components.CompositeSpriteRenderer;
 import secondEngine.components.Overlay;
 import secondEngine.components.Transform;
-import secondEngine.components.helpers.GridState;
 import secondEngine.components.helpers.Sprite;
+import secondEngine.components.helpers.GridState;
 import secondEngine.util.AssetPool;
 
 public class OverlayObject {
+    public enum Layouts {
+        STANDARD,
+        LINE,
+    }
+
     public static GameObject generate(Sprite[] sprites, int numSpritesX, int numSpritesY) {
         int scale = UIconfig.getScale();
         GameObject overlayObj = Window.getScene().createGameObject("OverlayObjectGen", new Transform().init(new Vector3f(400, 400, 0), new Vector3f(scale, scale, 1)));
@@ -21,6 +26,16 @@ public class OverlayObject {
         Overlay overlay = new Overlay().init(overlayObj, sprites, numSpritesX, numSpritesY);
         overlayObj.addComponent(overlay);
         return overlayObj;
+    }
+
+    public static GameObject generateInventory(Sprite[] sprites, Sprite[] layoutSprites, int[][] layout) {
+        int scale = UIconfig.getScale();
+        GameObject inventoryObj = Window.getScene().createGameObject("OverlayObjectGen", new Transform().init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1)));
+        
+        Overlay overlay = new Overlay().init(inventoryObj, sprites, layoutSprites, layout);
+        inventoryObj.addComponent(overlay);
+
+        return inventoryObj;
     }
 
     public static GameObject generateGrid() {

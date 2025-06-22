@@ -64,10 +64,10 @@ public class GridState {
 
     // TODO add a method for constraining movement within a cell
 
-    private void addObject(GameObject go, Transform transform) {
-        List<GameObject> gos = objectGrid.getOrDefault(transform, new ArrayList<GameObject>());
+    private static void addObject(GameObject go, Transform transform) {
+        List<GameObject> gos = get().objectGrid.getOrDefault(transform, new ArrayList<GameObject>());
         gos.add(go);
-        objectGrid.put(transform, gos);
+        get().objectGrid.put(transform, gos);
     }
 
     public static void addObject(GameObject go) {
@@ -100,7 +100,7 @@ public class GridState {
             gridCellsOnEachSide = gridWidth/2;
         }
         for (int i = -gridCellsOnEachSide+rightShift; i <= gridCellsOnEachSide-leftShift; i++) {
-            get().addObject(go, new Transform().init(new Vector3f(gridCoords.x + i, gridCoords.y, 0)));
+            GridState.addObject(go, new Transform().init(new Vector3f(gridCoords.x + i, gridCoords.y, 0)));
         }
 
         int upshift = 0;
@@ -120,7 +120,7 @@ public class GridState {
             gridCellsOnEachSide = gridHeight/2;
         }
         for (int i = -gridCellsOnEachSide+upshift; i <= gridCellsOnEachSide-downshift; i++) {
-            get().addObject(go, new Transform().init(new Vector3f(gridCoords.x, gridCoords.y + i, 0)));
+            GridState.addObject(go, new Transform().init(new Vector3f(gridCoords.x, gridCoords.y + i, 0)));
         }
 
     }

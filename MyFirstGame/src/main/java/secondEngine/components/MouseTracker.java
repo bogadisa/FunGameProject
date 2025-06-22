@@ -2,6 +2,8 @@ package secondEngine.components;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.util.List;
+
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -9,6 +11,8 @@ import org.joml.Vector3f;
 import secondEngine.Component;
 import secondEngine.Window;
 import secondEngine.components.helpers.GridState;
+import secondEngine.components.helpers.Interactable;
+import secondEngine.components.helpers.OverlayState;
 import secondEngine.listeners.MouseListener;
 import secondEngine.objects.GameObject;
 import secondEngine.util.PrefabFactory;
@@ -50,8 +54,14 @@ public class MouseTracker extends Component {
         if (!MouseListener.mouseButtonStillDown(GLFW_MOUSE_BUTTON_2)) {
             if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_2)) {
                 
-                SpriteRenderer sprite = this.gameObject.getComponent(SpriteRenderer.class);
-                sprite.setHidden(!sprite.isHidden());
+                // SpriteRenderer sprite = this.gameObject.getComponent(SpriteRenderer.class);
+                // sprite.setHidden(!sprite.isHidden());
+                List<Interactable> interactables = OverlayState.checkInteractable(mouseCoords);
+                if (interactables != null) {
+                    for (Interactable interactable : interactables) {
+                        interactable.interact();
+                    }
+                }
             }
         }
         if (MouseTracker.hasScrolledY) {
@@ -61,7 +71,8 @@ public class MouseTracker extends Component {
                     this.currentSprite = 14;
                 } else if (this.currentSprite > 14) {
                     this.currentSprite = 0;
-            } 
+                }
+                // this.gameObject.getComponent(SpriteRenderer.class).setSprite(PrefabFactory.getObjectSprite(1000+currentSprite));
             } else {
                 MouseTracker.hasScrolledY = false;
             }

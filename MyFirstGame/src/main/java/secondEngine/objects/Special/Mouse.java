@@ -6,10 +6,11 @@ import secondEngine.components.MouseTracker;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.SpriteObject;
+import secondEngine.util.PrefabFactory;
 
 public class Mouse {
     public static GameObject generate() {
-        GameObject mouse = SpriteObject.generate(new Sprite(), 32, 32);
+        GameObject mouse = SpriteObject.generate(PrefabFactory.getObjectSprite(1000), 32, 32);
 
         MouseTracker mouseTracker = new MouseTracker();
         mouse.addComponent(mouseTracker);

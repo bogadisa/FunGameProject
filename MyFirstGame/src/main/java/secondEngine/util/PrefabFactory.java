@@ -1,7 +1,7 @@
 package secondEngine.util;
 
-import secondEngine.components.helpers.GridState;
 import secondEngine.components.helpers.Sprite;
+import secondEngine.components.helpers.GridState;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.SpriteObject;
 import secondEngine.objects.Tiles.Ground;

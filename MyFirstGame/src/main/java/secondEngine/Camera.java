@@ -40,4 +40,12 @@ public class Camera {
     public Matrix4f getProjectionMatrix() {
         return this.projectionMatrix;
     }
+
+    public Vector2f worldToScreen(Vector2f world) {
+        return new Vector2f(world.x - position.x, world.y - position.y);
+    }
+
+    public Vector2f worldToScreen(Vector3f world) {
+        return worldToScreen(world.xy(new Vector2f()));
+    }
 }

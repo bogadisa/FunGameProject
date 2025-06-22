@@ -70,6 +70,7 @@ public class SpriteRenderer extends Component {
     }
     
     public SpriteRenderer setSprite(Sprite sprite) {
+        // TODO needs to do something special for when the new sprite is in another batch renderer?
         this.sprite = sprite;
         this.isDirty = true;
         return this;

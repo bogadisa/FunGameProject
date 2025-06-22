@@ -15,6 +15,7 @@ import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.OverlayObject;
+import secondEngine.objects.OverlayObject.Layouts;
 import secondEngine.objects.Special.Mouse;
 import secondEngine.objects.entities.Player;
 import secondEngine.util.AssetPool;
@@ -49,11 +50,11 @@ public class GameScene extends Scene {
         // obj.addComponent(new Transform().init(new Vector3f(256, 100, 0), new Vector3f(2*scale, 2*scale, 1)));
         // this.addGameObjectToScene(obj);
 
-        // SpriteSheet spriteSheet = AssetPool.getSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
-        // Sprite[] sprites = {spriteSheet.getSprite(0), spriteSheet.getSprite(1), spriteSheet.getSprite(2), spriteSheet.getSprite(3)};
-        // Sprite[] sprites = {new Sprite(), new Sprite(), new Sprite()};
-        // GameObject ui = OverlayObject.generate(sprites, 10, 5);
-        // this.addGameObjectToScene(ui);
+        SpriteSheet spriteSheet = AssetPool.getSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
+        Sprite[] sprites = {spriteSheet.getSprite(2), spriteSheet.getSprite(0), spriteSheet.getSprite(1)};
+        Sprite[] layoutSprites = {spriteSheet.getSprite(3)};
+        GameObject ui = OverlayObject.generateInventory(sprites, layoutSprites, AssetPool.getLayout(Layouts.STANDARD));
+        this.addGameObjectToScene(ui);
 
     }
 
@@ -79,6 +80,22 @@ public class GameScene extends Scene {
                 stateMachine.refreshTextures();
             }
         }
+        int[][] standardLayout = {
+            new int[11],
+            {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            new int[11],
+            {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            new int[11],
+        };
+        AssetPool.addLayout(standardLayout, Layouts.STANDARD);
+        int[][] lineLayout = {
+            new int[11],
+            {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            new int[11],
+        };
+        AssetPool.addLayout(lineLayout, Layouts.LINE);
     }
 
     public void update() {
