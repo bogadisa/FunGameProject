@@ -15,7 +15,7 @@ import secondEngine.objects.GameObject;
 
 public class OverlayState {
     private static OverlayState overlayState;
-    
+
     private HashMap<Vector2i, List<Interactable>> overlayGrid = new HashMap<>();
 
     static public OverlayState get() {
@@ -26,7 +26,8 @@ public class OverlayState {
     }
 
     public static Vector2i screenToGrid(Vector2f pos) {
-        return new Vector2i(Math.floorDiv((int)pos.x, UIconfig.getScale()), Math.floorDiv((int)pos.y, UIconfig.getScale()));
+        return new Vector2i(Math.floorDiv((int) pos.x, UIconfig.getScale()),
+                Math.floorDiv((int) pos.y, UIconfig.getScale()));
     }
 
     public static Vector2i screenToGrid(Vector3f pos) {
@@ -44,9 +45,8 @@ public class OverlayState {
 
     public static Vector2i worldToGrid(Transform transform) {
         return worldToGrid(new Vector2f(
-            Math.floorDiv((int)(transform.position.x + 0.5*UIconfig.getScale()), UIconfig.getScale()), 
-            Math.floorDiv((int)(transform.position.y + 0.5*UIconfig.getScale()), UIconfig.getScale()))
-        );
+                Math.floorDiv((int) (transform.position.x + 0.5 * UIconfig.getScale()), UIconfig.getScale()),
+                Math.floorDiv((int) (transform.position.y + 0.5 * UIconfig.getScale()), UIconfig.getScale())));
     }
 
     public static void addInteractable(Interactable interactable, Vector3f pos) {
@@ -64,9 +64,10 @@ public class OverlayState {
 
     public static List<Interactable> checkInteractable(Vector2f screen) {
         Vector2i gridCoords = OverlayState.screenToGrid(screen);
-        System.out.println(gridCoords);
+        // System.out.println(gridCoords);
         List<Interactable> interactables = get().overlayGrid.getOrDefault(gridCoords, null);
-        if (interactables == null) return null;
+        if (interactables == null)
+            return null;
         List<Interactable> activeInteractables = new ArrayList<>();
         for (Interactable interactable : interactables) {
             if (interactable.isActive()) {

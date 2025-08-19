@@ -9,13 +9,16 @@ import secondEngine.components.Transform;
 public class GameObject {
 
     private String name;
+    private transient int objectId;
+
     private transient boolean serializeOnSave = true;
 
     private List<Component> components;
     public transient Transform transform;
 
-    public GameObject(String name) {
+    public GameObject(String name, int objectId) {
         this.name = name;
+        this.objectId = objectId;
         this.components = new ArrayList<>();
     }
 
@@ -35,7 +38,7 @@ public class GameObject {
     }
 
     public <T extends Component> void removeComponent(Class<T> componentClass) {
-        for (int i=0; i < components.size(); i++) {
+        for (int i = 0; i < components.size(); i++) {
             Component c = components.get(i);
             if (componentClass.isAssignableFrom(c.getClass())) {
                 components.remove(i);
@@ -49,16 +52,20 @@ public class GameObject {
         c.gameObject = this;
 
         if (c.getClass().equals(Transform.class)) {
-            this.transform = (Transform)c;
+            this.transform = (Transform) c;
         }
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getObjectId() {
+        return objectId;
     }
 
     public boolean serializeOnSave() {
@@ -70,13 +77,13 @@ public class GameObject {
     }
 
     public void update(float dt) {
-        for (int i=0; i < components.size(); i++) {
+        for (int i = 0; i < components.size(); i++) {
             components.get(i).update(dt);
         }
     }
 
     public void start() {
-        for (int i=0; i < components.size(); i++) {
+        for (int i = 0; i < components.size(); i++) {
             components.get(i).start();
         }
     }

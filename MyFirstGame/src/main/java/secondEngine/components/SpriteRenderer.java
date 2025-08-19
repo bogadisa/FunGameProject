@@ -13,7 +13,7 @@ import org.joml.Vector4f;
  */
 public class SpriteRenderer extends Component {
     private Vector4f color = new Vector4f(1, 1, 1, 1);
-    private Sprite sprite = null;
+    private Sprite sprite = new Sprite().setTexture(null);
 
     private transient Transform lastTransform;
 
@@ -35,7 +35,7 @@ public class SpriteRenderer extends Component {
 
     @Override
     public void update(float dt) {
-        if (!this.lastTransform.equals(gameObject.transform) ) {
+        if (!this.lastTransform.equals(gameObject.transform)) {
             gameObject.transform.copy(lastTransform);
             isDirty = true;
         }
@@ -50,12 +50,13 @@ public class SpriteRenderer extends Component {
     public Vector4f getColor() {
         return this.color;
     }
+
     public SpriteRenderer setColor(Vector4f color) {
         if (!this.color.equals(color)) {
             this.isDirty = true;
             this.color = color;
         }
-        
+
         return this;
     }
 
@@ -68,9 +69,10 @@ public class SpriteRenderer extends Component {
     public Texture getTexture() {
         return this.sprite.getTexture();
     }
-    
+
     public SpriteRenderer setSprite(Sprite sprite) {
-        // TODO needs to do something special for when the new sprite is in another batch renderer?
+        // TODO needs to do something special for when the new sprite is in another
+        // batch renderer?
         this.sprite = sprite;
         this.isDirty = true;
         return this;
@@ -91,7 +93,7 @@ public class SpriteRenderer extends Component {
     public boolean isHidden() {
         return this.isHidden;
     }
-    
+
     public void setHidden(boolean isHidden) {
         this.isDirty = true;
         this.isHidden = isHidden;

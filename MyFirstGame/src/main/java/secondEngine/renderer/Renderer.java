@@ -19,11 +19,10 @@ public class Renderer {
     public void add(GameObject go) {
         if (go.getComponent(CompositeSpriteRenderer.class) != null) {
             add(go.getComponent(CompositeSpriteRenderer.class));
-            return;
         }
-            
+
         SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
-        int zIndex = (int)go.transform.position.z;
+        int zIndex = (int) go.transform.position.z;
         if (spr != null) {
             add(spr, zIndex);
         }
@@ -32,26 +31,26 @@ public class Renderer {
     public void add(CompositeSpriteRenderer compSprite) {
         for (int i = 0; i < compSprite.size(); i++) {
             SpriteRenderer sprite = compSprite.getSpriteRenderer(i);
-            int zIndex = (int)compSprite.getTransform(i).position.z;
+            int zIndex = (int) compSprite.getTransform(i).position.z;
             add(sprite, zIndex);
         }
     }
 
     public void add(SpriteRenderer spriteRenderer) {
-        int zIndex = (int)spriteRenderer.gameObject.transform.position.z;
+        int zIndex = (int) spriteRenderer.gameObject.transform.position.z;
         add(spriteRenderer, zIndex);
 
     }
-    
+
     private void add(SpriteRenderer sprite, int zIndex) {
         if (sprite.isAddedToRenderer()) {
             return;
         }
         boolean added = false;
-        for (BatchRenderer batch: batches) {
+        for (BatchRenderer batch : batches) {
             if (batch.hasRoom() && batch.getzIndex() == zIndex) {
                 Texture tex = sprite.getTexture();
-                if (tex == null || batch.hasTextureRoom() || batch.hasTexture(tex)){
+                if (tex == null || batch.hasTextureRoom() || batch.hasTexture(tex)) {
                     batch.addSprite(sprite);
                     added = true;
                     break;
@@ -68,7 +67,7 @@ public class Renderer {
     }
 
     public void render() {
-        for (BatchRenderer batch: batches) {
+        for (BatchRenderer batch : batches) {
             batch.render();
         }
     }

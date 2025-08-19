@@ -19,11 +19,11 @@ import secondEngine.components.SpriteRenderer;
 import secondEngine.components.Transform;
 import secondEngine.util.AssetPool;
 
-public class BatchRenderer implements Comparable<BatchRenderer>{
+public class BatchRenderer implements Comparable<BatchRenderer> {
     // Vertex
     // ======
-    // Pos                      Color                       tex coords      tex id
-    // float, float, float      float, float, float, float  float, float    float
+    // Pos Color tex coords tex id
+    // float, float, float float, float, float, float float, float float
     private final int POS_SIZE = 3;
     private final int COLOR_SIZE = 4;
     private final int TEX_COORDS_SIZE = 2;
@@ -35,19 +35,19 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
     private final int TEX_ID_OFFSET = TEX_COORDS_OFFSET + TEX_COORDS_SIZE * Float.BYTES;
 
     private final int VERTEX_SIZE = POS_SIZE + COLOR_SIZE + TEX_COORDS_SIZE + TEX_ID_SIZE;
-    
+
     private final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
-    
+
     private SpriteRenderer[] sprites;
     private int numSprites;
     private boolean hasRoom;
     private int zIndex;
 
     private float[] vertices;
-    private int[] texSlots = {0, 1, 2, 3, 4, 5, 6, 7};
+    private int[] texSlots = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
     private List<Texture> textures;
-    
+
     private int vaoID, vboID;
     private int maxBatchSize;
     private Shader shader;
@@ -57,7 +57,6 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
         this.sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
 
-        
         // 4 vertices quads
         this.vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
         // this.previousVert = new float[maxBatchSize * 4 * VERTEX_SIZE];
@@ -100,7 +99,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
 
     public void render() {
         boolean rebufferData = false;
-        for (int i=0; i < numSprites; i++) {
+        for (int i = 0; i < numSprites; i++) {
             SpriteRenderer sprite = sprites[i];
             if (sprite.isDirty()) {
                 loadVertexProperties(i);
@@ -120,7 +119,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
         // Upload texture to shader
         shader.uploadMat4f("uProjection", Window.getScene().camera().getProjectionMatrix());
         shader.uploadMat4f("uView", Window.getScene().camera().getViewMatrix());
-        for (int i=0; i < textures.size(); i++) {
+        for (int i = 0; i < textures.size(); i++) {
             // sets the first element to no texture
             glActiveTexture(GL_TEXTURE0 + i + 1);
             textures.get(i).bind();
@@ -148,12 +147,11 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
 
         glBindVertexArray(0);
 
-        for (int i=0; i < textures.size(); i++) {
+        for (int i = 0; i < textures.size(); i++) {
             textures.get(i).unbind();
         }
         shader.detatch();
 
-        
     }
 
     public void addSprite(SpriteRenderer spr) {
@@ -168,10 +166,10 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
                     textures.add(spr.getTexture());
                 }
             }
-    
+
             // Add properties to local vertices array
             loadVertexProperties(index);
-    
+
             if (numSprites >= this.maxBatchSize) {
                 hasRoom = false;
             }
@@ -191,7 +189,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
 
         int texId = 0;
         if (sprite.getTexture() != null) {
-            for (int i=0; i < textures.size(); i++) {
+            for (int i = 0; i < textures.size(); i++) {
                 if (textures.get(i) == sprite.getTexture()) {
                     // sets the first element to no texture
                     if (sprite.isHidden()) {
@@ -201,24 +199,22 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
                     break;
                 }
             }
-        } 
+        }
 
         boolean isRotated = transform.rotation != 0.0f;
         Matrix4f transformMatrix = new Matrix4f().identity();
         if (isRotated) {
-            // scale (flipping) must happen after rotating 
+            // scale (flipping) must happen after rotating
             // meaning further left in the equation
             // meaning applied to the matrix before rotate
             transformMatrix.translate(transform.position);
             transformMatrix.scale(transform.scale);
-            transformMatrix.rotate((float)Math.toRadians(transform.rotation),
-                    0, 0, 1);
+            transformMatrix.rotate((float) Math.toRadians(transform.rotation), 0, 0, 1);
         }
 
-        
         float xAdd = 0.5f;
         float yAdd = 0.5f;
-        for (int i=0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             if (i == 1) {
                 yAdd = -0.5f;
             } else if (i == 2) {
@@ -229,8 +225,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
 
             // May be a source of z trouble
             Vector4f currentPos = new Vector4f(transform.position.x + (xAdd * transform.scale.x),
-                    transform.position.y + (yAdd * transform.scale.y),
-                    transform.position.z, 1);
+                    transform.position.y + (yAdd * transform.scale.y), transform.position.z, 1);
             if (isRotated) {
                 currentPos = new Vector4f(xAdd, yAdd, 1, 1).mul(transformMatrix);
             }
@@ -259,7 +254,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
     private int[] generateIndices() {
         // 6 indices per quad (3 per triangle)
         int[] elements = new int[6 * maxBatchSize];
-        for (int i=0; i < maxBatchSize; i++) {
+        for (int i = 0; i < maxBatchSize; i++) {
             loadElementIndices(elements, i);
         }
 
@@ -270,7 +265,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
         int offsetArrayIndex = 6 * index;
         int offset = 4 * index;
 
-        // 3, 2, 0, 0, 2, 1        7, 6, 4, 4, 6, 5
+        // 3, 2, 0, 0, 2, 1 7, 6, 4, 4, 6, 5
         // Triangle 1
         elements[offsetArrayIndex] = offset + 3;
         elements[offsetArrayIndex + 1] = offset + 2;
@@ -285,7 +280,7 @@ public class BatchRenderer implements Comparable<BatchRenderer>{
     public boolean hasRoom() {
         return this.hasRoom;
     }
-    
+
     public int getzIndex() {
         return this.zIndex;
     }

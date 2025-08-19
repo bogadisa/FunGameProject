@@ -1,5 +1,7 @@
 package secondEngine.objects.Special;
 
+import org.joml.Vector3f;
+
 import secondEngine.Window;
 import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
@@ -20,11 +22,11 @@ public class Mouse {
 
         Window.setCursor("resources/textures/icons/cursor.png");
 
-        Inventory inventory = new Inventory().init(1,1);
+        Inventory inventory = new Inventory().init(1, 1);
         mouse.addComponent(inventory);
 
+        mouse.transform.scale = new Vector3f(64, 64, 64);
 
-        
         mouse.setName("Mouse");
         mouse.setSerializeOnSave(false);
 

@@ -35,6 +35,15 @@ public class Window {
     private float r, g, b, a;
 
     private static Scene currentScene = null;
+    private static int currentObjectId = 0;
+
+    public static int getCurrentObjectId() {
+        return currentObjectId;
+    }
+
+    public static int incrementAndGetCurrentObjectId() {
+        return ++currentObjectId;
+    }
 
     private Window() {
         // initializes the configs
@@ -61,24 +70,24 @@ public class Window {
 
     public static void changeScene(int newScene) {
         switch (newScene) {
-            case 0:
-                currentScene = new EditorScene();
-                currentScene.load();
-                currentScene.init();
-                currentScene.start();
-                break;
-            case 1:
-                currentScene = new GameScene();
-                currentScene.load();
-                currentScene.init();
-                currentScene.start();
-                break;
-            default:
-                assert false : "Unknown scene '" + newScene + "'";
-                break;
+        case 0:
+            currentScene = new EditorScene();
+            currentScene.load();
+            currentScene.init();
+            currentScene.start();
+            break;
+        case 1:
+            currentScene = new GameScene();
+            currentScene.load();
+            currentScene.init();
+            currentScene.start();
+            break;
+        default:
+            assert false : "Unknown scene '" + newScene + "'";
+            break;
         }
     }
-    
+
     public static Scene getScene() {
         return Window.currentScene;
     }
@@ -146,7 +155,7 @@ public class Window {
         IntBuffer imgWidth = BufferUtils.createIntBuffer(1);
         IntBuffer imgHeight = BufferUtils.createIntBuffer(1);
         glfwGetWindowSize(glfwWindow, imgWidth, imgHeight);
-        CameraConfig.width = imgWidth.get(0); 
+        CameraConfig.width = imgWidth.get(0);
         CameraConfig.height = imgHeight.get(0);
 
         Window.changeScene(1);
@@ -171,7 +180,7 @@ public class Window {
     public void render() {
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+
         currentScene.update();
         Time.update();
         glfwSwapBuffers(glfwWindow);
@@ -183,7 +192,7 @@ public class Window {
         IntBuffer channels = BufferUtils.createIntBuffer(1);
 
         ByteBuffer image = stbi_load(filepath, width, height, channels, 0);
-        
+
         // TODO Fix loading vertically
         // stbi_set_flip_vertically_on_load(false);
         GLFWImage img = GLFWImage.malloc().set(width.get(0), height.get(0), image);

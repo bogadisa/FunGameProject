@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.joml.Vector3f;
 
 import secondEngine.Component;
-import secondEngine.components.helpers.GridState;
 
 public class Transform extends Component {
 
@@ -45,20 +44,15 @@ public class Transform extends Component {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null) return false;
-        if (!(o instanceof Transform)) return false;
+        if (o == null)
+            return false;
+        if (!(o instanceof Transform))
+            return false;
 
-        Transform t = (Transform)o;
+        Transform t = (Transform) o;
         return t.position.equals(this.position) && t.scale.equals(this.scale) && t.rotation == this.rotation;
     }
 
-    @Override
-        public int hashCode() {
-            // TODO does not account for z position, maybe thats fine?
-            return GridState.worldToGrid(this.position).hashCode();
-        }
-
-    
     @Override
     public void start() {
     }

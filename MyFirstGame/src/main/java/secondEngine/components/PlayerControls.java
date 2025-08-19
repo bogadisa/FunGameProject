@@ -3,13 +3,13 @@ package secondEngine.components;
 import static org.lwjgl.glfw.GLFW.*;
 
 import secondEngine.Component;
+import secondEngine.Window;
 import secondEngine.listeners.KeyListener;
 
 public class PlayerControls extends Component {
 
     private float playerWidth = 16.0f;
     private float xSpeed = 0.0f;
-    
 
     private transient StateMachine stateMachine;
 
@@ -45,8 +45,16 @@ public class PlayerControls extends Component {
             this.stateMachine.trigger("idle");
         }
 
-        xSpeed = (float)0.4 * dt * 5 * xDirection;
-        this.gameObject.transform.position.x +=  xSpeed;
-        this.gameObject.transform.position.y +=  0.4 * dt * 5 * yDirection;
+        // if (KeyListener.isKeyPressed(GLFW_KEY_LEFT_CONTROL) &&
+        // KeyListener.isKeyPressed(GLFW_KEY_T)) {
+        // this.gameObject.getComponent(GridState.class).toggleHighlight();
+        // System.out.println("Toggled!");
+        // }
+
+        xSpeed = (float) 0.4 * dt * 5 * xDirection;
+        this.gameObject.transform.position.x += xSpeed;
+        this.gameObject.transform.position.y += 0.4 * dt * 5 * yDirection;
+        // System.out.println(
+        // gameObject.getComponent(GridState.class).getGridCells(Window.getScene().worldGrid().getName()));
     }
 }

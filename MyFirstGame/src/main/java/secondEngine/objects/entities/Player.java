@@ -1,5 +1,7 @@
 package secondEngine.objects.entities;
 
+import secondEngine.Window;
+import secondEngine.components.GridState;
 import secondEngine.components.PlayerControls;
 import secondEngine.components.StateMachine;
 import secondEngine.components.helpers.AnimationState;
@@ -8,10 +10,10 @@ import secondEngine.objects.GameObject;
 import secondEngine.objects.SpriteObject;
 import secondEngine.util.AssetPool;
 
-public class Player{
+public class Player {
     public static GameObject generate() {
         SpriteSheet playerSprites = AssetPool.getSpriteSheet("entities/player_3_3_9.png");
-        GameObject player = SpriteObject.generate(playerSprites.getSprite(0), 32, 64);
+        GameObject player = SpriteObject.generate(playerSprites.getSprite(0), 64, 96);
         player.setName("Player");
 
         float defaultFrameTime = 5.0f;
@@ -23,7 +25,7 @@ public class Player{
         runDown.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         runDown.addFrame(playerSprites.getSprite(2), defaultFrameTime);
         runDown.setLoop(true);
-        
+
         AnimationState runSideways = new AnimationState();
         runSideways.title = "Run Sideways";
         runSideways.addFrame(playerSprites.getSprite(3), defaultFrameTime);
@@ -40,7 +42,6 @@ public class Player{
         runUp.addFrame(playerSprites.getSprite(8), defaultFrameTime);
         runUp.setLoop(true);
 
-
         AnimationState idling = new AnimationState();
         idling.title = "Idle";
         idling.addFrame(playerSprites.getSprite(0), defaultFrameTime);
@@ -55,28 +56,29 @@ public class Player{
 
         stateMachine.setDefaultState(idling.title);
 
-        stateMachine.addState(idling.title, runUp.title, "runUp");
-        stateMachine.addState(runDown.title, runUp.title, "runUp");
-        stateMachine.addState(runSideways.title, runUp.title, "runUp");
-        
-        stateMachine.addState(idling.title, runDown.title, "runDown");
-        stateMachine.addState(runUp.title, runDown.title, "runDown");
-        stateMachine.addState(runSideways.title, runDown.title, "runDown");
-        
-        stateMachine.addState(idling.title, runSideways.title, "runSideways");
-        stateMachine.addState(runDown.title, runSideways.title, "runSideways");
-        stateMachine.addState(runUp.title, runSideways.title, "runSideways");
+        stateMachine.addTrigger(idling.title, runUp.title, "runUp");
+        stateMachine.addTrigger(runDown.title, runUp.title, "runUp");
+        stateMachine.addTrigger(runSideways.title, runUp.title, "runUp");
 
-        stateMachine.addState(runSideways.title, idling.title, "idle");
-        stateMachine.addState(runDown.title, idling.title, "idle");
-        stateMachine.addState(runUp.title, idling.title, "idle");
+        stateMachine.addTrigger(idling.title, runDown.title, "runDown");
+        stateMachine.addTrigger(runUp.title, runDown.title, "runDown");
+        stateMachine.addTrigger(runSideways.title, runDown.title, "runDown");
 
+        stateMachine.addTrigger(idling.title, runSideways.title, "runSideways");
+        stateMachine.addTrigger(runDown.title, runSideways.title, "runSideways");
+        stateMachine.addTrigger(runUp.title, runSideways.title, "runSideways");
+
+        stateMachine.addTrigger(runSideways.title, idling.title, "idle");
+        stateMachine.addTrigger(runDown.title, idling.title, "idle");
+        stateMachine.addTrigger(runUp.title, idling.title, "idle");
 
         player.addComponent(stateMachine);
 
         PlayerControls controls = new PlayerControls();
         controls.setPlayerWidth(player.transform.scale.x);
         player.addComponent(controls);
+
+        Window.getScene().worldGrid().addObject(player);
 
         return player;
     }

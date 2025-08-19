@@ -12,6 +12,8 @@ import com.google.gson.GsonBuilder;
 
 import secondEngine.Camera;
 import secondEngine.Component;
+import secondEngine.SpatialGrid;
+import secondEngine.Window;
 import secondEngine.components.Overlay;
 import secondEngine.components.Transform;
 import secondEngine.objects.GameObject;
@@ -26,6 +28,9 @@ public abstract class Scene {
     protected boolean newGameObjectsQueued = false;
     private List<GameObject> gameObjectToAdd = new ArrayList<>();
 
+    protected SpatialGrid worldGrid = null;
+    protected SpatialGrid overlayGrid = null;
+
     protected Camera camera = null;
     protected float[] vertexArray;
     protected int[] elementArray;
@@ -37,7 +42,7 @@ public abstract class Scene {
     public abstract void init();
 
     public void start() {
-        for (GameObject go: gameObjects) {
+        for (GameObject go : gameObjects) {
             go.start();
             this.renderer.add(go);
         }
@@ -70,12 +75,16 @@ public abstract class Scene {
         return this.camera;
     }
 
+    public SpatialGrid worldGrid() {
+        return this.worldGrid;
+    }
+
     public GameObject createGameObject(String name) {
         return createGameObject(name, new Transform());
     }
 
     public GameObject createGameObject(String name, Transform transform) {
-        GameObject go = new GameObject(name);
+        GameObject go = new GameObject(name, Window.incrementAndGetCurrentObjectId());
 
         go.addComponent(transform);
         go.transform = go.getComponent(Transform.class);
@@ -84,18 +93,18 @@ public abstract class Scene {
 
     public void removeGameObject(GameObject goToRemove) {
         gameObjects.remove(goToRemove);
-        
+
     }
 
     public void removeGameObject(String name) {
         int i = 0;
-        for (GameObject go: gameObjects) { 
+        for (GameObject go : gameObjects) {
             if (name.equals(go.getName())) {
                 gameObjects.remove(i);
                 break;
             }
             i++;
-            
+
         }
 
     }
@@ -114,11 +123,9 @@ public abstract class Scene {
     }
 
     public void load() {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
+        Gson gson = new GsonBuilder().setPrettyPrinting()
                 .registerTypeAdapter(Component.class, new ComponentDeserializer())
-                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
-                .enableComplexMapKeySerialization()
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer()).enableComplexMapKeySerialization()
                 .create();
 
         String inFile = "";
@@ -130,7 +137,7 @@ public abstract class Scene {
 
         if (!inFile.equals("")) {
             GameObject[] objs = gson.fromJson(inFile, GameObject[].class);
-            for (int i=0; i < objs.length; i++) {
+            for (int i = 0; i < objs.length; i++) {
                 addGameObjectToScene(objs[i]);
             }
             this.sceneIsLoaded = true;
@@ -138,16 +145,14 @@ public abstract class Scene {
     }
 
     public void save() {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
+        Gson gson = new GsonBuilder().setPrettyPrinting()
                 .registerTypeAdapter(Component.class, new ComponentDeserializer())
-                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())
-                .enableComplexMapKeySerialization()
+                .registerTypeAdapter(GameObject.class, new GameObjectDeserializer()).enableComplexMapKeySerialization()
                 .create();
 
         // Removes all game objects which should not be serialized
         List<GameObject> gameObjectsToRemove = new ArrayList<>();
-        for (GameObject go: gameObjects) {
+        for (GameObject go : gameObjects) {
             if (!go.serializeOnSave()) {
                 gameObjectsToRemove.add(go);
             }
@@ -159,7 +164,7 @@ public abstract class Scene {
             FileWriter writer = new FileWriter("test.json");
             writer.write(gson.toJson(this.gameObjects));
             writer.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
