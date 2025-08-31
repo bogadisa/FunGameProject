@@ -45,7 +45,7 @@ public class GameScene extends Scene {
         GameObject player = Player.generate();
         this.addGameObjectToScene(player);
 
-        // player.getComponent(GridState.class).toggleHighlight();
+        player.getComponent(GridState.class).toggleHighlight();
         grid.getComponent(Overlay.class).linkObjectToGrid(player);
 
         // GameObject obj = new GameObject("Obj");

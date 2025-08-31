@@ -74,7 +74,7 @@ public class OverlayObject {
 
         AnimationState colored = new AnimationState();
         colored.title = "colored";
-        colored.addFrame(new Vector4f(1, 0, 0, 1), defaultFrameTime);
+        colored.addFrame(new Vector4f(1, 0, 0, 0.1f), defaultFrameTime);
 
         StateMachine stateMachine = new StateMachine();
 

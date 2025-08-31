@@ -55,14 +55,12 @@ public class SpatialGrid {
 
     public Vector2i worldToGrid(Transform transform) {
         // TODO what is right? prolly not
-        // return new Vector2i(
-        // Math.floorDiv((int)(transform.position.x + 0.5*transform.scale.x),
-        // this.gridSize),
-        // Math.floorDiv((int)(transform.position.y + 0.5*transform.scale.y),
-        // this.gridSize)
-        // );
-        return new Vector2i(Math.floorDiv((int) (transform.position.x + 0.5 * this.gridSize), this.gridSize),
-                Math.floorDiv((int) (transform.position.y + 0.5 * this.gridSize), this.gridSize));
+        return new Vector2i(Math.floorDiv((int) (transform.position.x), this.gridSize),
+                Math.floorDiv((int) (transform.position.y), this.gridSize));
+        // return new Vector2i(Math.floorDiv((int) (transform.position.x + 0.5 *
+        // this.gridSize), this.gridSize),
+        // Math.floorDiv((int) (transform.position.y + 0.5 * this.gridSize),
+        // this.gridSize));
     }
 
     public Vector2f gridToWorld(Vector2i pos) {
@@ -153,65 +151,6 @@ public class SpatialGrid {
         }
         gs.addGridCells(name, coverage);
         addObject(go, coverage);
-
-        // // Position holds the center coordinate of the object
-        // // meaning we have to dynamically find which surrounding grid cells
-        // // should be considered.
-        // String gridCoords = worldToGrid(go.transform.position);
-        // Vector2f offset = getInternalGridCellOffset(go.transform.position);
-        // int gridSize = this.gridSize;
-        // int gridWidth = Math.floorDiv((int) go.transform.scale.x, gridSize);
-        // int gridHeight = Math.floorDiv((int) go.transform.scale.y, gridSize);
-
-        // // if gridWidth/gridHeight is an odd number, we add (gridWidth-1)/2 cells on
-        // // each side
-        // // otherwise, we check the grid coord of the left/bottom side to see how many
-        // // cells away it is
-        // int gridCellsOnEachSide;
-        // int rightShift = 0;
-        // int leftShift = 0;
-        // if (gridWidth % 2 == 1) {
-        // // odd number
-        // gridCellsOnEachSide = (gridWidth - 1) / 2;
-
-        // } else {
-        // // even number
-        // if (offset.x > (gridSize / 2)) {
-        // rightShift = 1;
-        // } else {
-        // leftShift = 1;
-        // }
-
-        // gridCellsOnEachSide = gridWidth / 2;
-        // }
-        // for (int i = -gridCellsOnEachSide + rightShift; i <= gridCellsOnEachSide -
-        // leftShift; i++) {
-        // addObject(go, new Transform().init(new Vector3f(gridCoords.x + i,
-        // gridCoords.y, 0)));
-        // }
-
-        // int upshift = 0;
-        // int downshift = 0;
-        // if (gridHeight % 2 == 1) {
-        // // odd number
-        // gridCellsOnEachSide = (gridHeight - 1) / 2;
-
-        // } else {
-        // // even number
-        // if (offset.y > (gridSize / 2)) {
-        // upshift = 1;
-        // } else {
-        // downshift = 1;
-        // }
-
-        // gridCellsOnEachSide = gridHeight / 2;
-        // }
-        // for (int i = -gridCellsOnEachSide + upshift; i <= gridCellsOnEachSide -
-        // downshift; i++) {
-        // addObject(go, new Transform().init(new Vector3f(gridCoords.x, gridCoords.y +
-        // i, 0)));
-        // }
-
     }
 
     private void removeObject(GameObject go, Transform transform) {
