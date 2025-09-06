@@ -16,7 +16,7 @@ import secondEngine.objects.GameObject;
 public class OverlayState {
     private static OverlayState overlayState;
 
-    private HashMap<Vector2i, List<Interactable>> overlayGrid = new HashMap<>();
+    private HashMap<Vector2i, List<InteractableState>> overlayGrid = new HashMap<>();
 
     static public OverlayState get() {
         if (OverlayState.overlayState == null) {
@@ -49,27 +49,27 @@ public class OverlayState {
                 Math.floorDiv((int) (transform.position.y + 0.5 * UIconfig.getScale()), UIconfig.getScale())));
     }
 
-    public static void addInteractable(Interactable interactable, Vector3f pos) {
+    public static void addInteractable(InteractableState interactable, Vector3f pos) {
         OverlayState.addInteractable(interactable, pos.xy(new Vector2f()));
 
     }
 
-    public static void addInteractable(Interactable interactable, Vector2f pos) {
+    public static void addInteractable(InteractableState interactable, Vector2f pos) {
         Vector2i gridCoords = OverlayState.worldToGrid(pos);
 
-        List<Interactable> interactables = get().overlayGrid.getOrDefault(gridCoords, new ArrayList<Interactable>());
+        List<InteractableState> interactables = get().overlayGrid.getOrDefault(gridCoords, new ArrayList<InteractableState>());
         interactables.add(interactable);
         get().overlayGrid.put(gridCoords, interactables);
     }
 
-    public static List<Interactable> checkInteractable(Vector2f screen) {
+    public static List<InteractableState> checkInteractable(Vector2f screen) {
         Vector2i gridCoords = OverlayState.screenToGrid(screen);
         // System.out.println(gridCoords);
-        List<Interactable> interactables = get().overlayGrid.getOrDefault(gridCoords, null);
+        List<InteractableState> interactables = get().overlayGrid.getOrDefault(gridCoords, null);
         if (interactables == null)
             return null;
-        List<Interactable> activeInteractables = new ArrayList<>();
-        for (Interactable interactable : interactables) {
+        List<InteractableState> activeInteractables = new ArrayList<>();
+        for (InteractableState interactable : interactables) {
             if (interactable.isActive()) {
                 activeInteractables.add(interactable);
             }
@@ -77,7 +77,7 @@ public class OverlayState {
         return activeInteractables;
     }
 
-    public static List<Interactable> checkInteractable(Vector3f screen) {
+    public static List<InteractableState> checkInteractable(Vector3f screen) {
         return OverlayState.checkInteractable(screen.xy(new Vector2f()));
     }
 }

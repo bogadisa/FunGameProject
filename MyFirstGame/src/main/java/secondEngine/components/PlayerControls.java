@@ -3,7 +3,6 @@ package secondEngine.components;
 import static org.lwjgl.glfw.GLFW.*;
 
 import secondEngine.Component;
-import secondEngine.Window;
 import secondEngine.listeners.KeyListener;
 
 public class PlayerControls extends Component {
@@ -11,7 +10,7 @@ public class PlayerControls extends Component {
     private float playerWidth = 16.0f;
     private float xSpeed = 0.0f;
 
-    private transient StateMachine stateMachine;
+    private transient AnimationStateMachine stateMachine;
 
     public void setPlayerWidth(float playerWidth) {
         this.playerWidth = playerWidth;
@@ -20,7 +19,7 @@ public class PlayerControls extends Component {
     @Override
     public void start() {
         // this.gameObject.transform.position.set(new Vector3f(100, 100, 0));
-        this.stateMachine = this.gameObject.getComponent(StateMachine.class);
+        this.stateMachine = this.gameObject.getComponent(AnimationStateMachine.class);
     }
 
     @Override
@@ -51,10 +50,8 @@ public class PlayerControls extends Component {
         // System.out.println("Toggled!");
         // }
 
-        xSpeed = (float) 0.4 * dt * 5 * xDirection;
+        xSpeed = 3.3f * dt * 5 * xDirection;
         this.gameObject.transform.position.x += xSpeed;
-        this.gameObject.transform.position.y += 0.4 * dt * 5 * yDirection;
-        // System.out.println(
-        // gameObject.getComponent(GridState.class).getGridCells(Window.getScene().worldGrid().getName()));
+        this.gameObject.transform.position.y += 3.3f * dt * 5 * yDirection;
     }
 }

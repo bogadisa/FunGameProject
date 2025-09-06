@@ -3,21 +3,16 @@ package secondEngine.objects.Tiles;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.util.AssetPool;
+import secondEngine.util.PrefabFactory.PrefabIds;
+import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs;
 
-public class Ground {
-    public static Sprite getSprite(int objectSubId) {
-        int spriteSheetId = Math.floorDiv(objectSubId, 32);
-        int spriteSheetSubId = objectSubId - spriteSheetId*32;
-        switch (spriteSheetId) {
-            case 0:
-                SpriteSheet sheet = AssetPool.getSpriteSheet("background/spring_4_4_15.png");
-                if (spriteSheetSubId < 15) {
-                    return sheet.getSprite(spriteSheetSubId);
-                }
-                break;
-        
-            default:
-                break;
+public class Ground implements TileBase{
+    @Override
+    public <TileType extends PrefabIds> Sprite getSprite(TileType objectId) {
+        if (objectId.getClass().isAssignableFrom(GroundPrefabs.Spring.class)){
+            GroundPrefabs.Spring springId = GroundPrefabs.Spring.class.cast(objectId);
+            SpriteSheet sheet = AssetPool.getSpriteSheet("background/spring_4_4_15.png");
+            return sheet.getSprite(springId.ordinal());
         }
 
         return null;

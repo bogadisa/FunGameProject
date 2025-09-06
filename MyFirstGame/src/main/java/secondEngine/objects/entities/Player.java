@@ -1,9 +1,9 @@
 package secondEngine.objects.entities;
 
 import secondEngine.Window;
-import secondEngine.components.GridState;
+import secondEngine.components.GridMachine;
 import secondEngine.components.PlayerControls;
-import secondEngine.components.StateMachine;
+import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.helpers.AnimationState;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.GameObject;
@@ -47,7 +47,7 @@ public class Player {
         idling.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         idling.setLoop(false);
 
-        StateMachine stateMachine = new StateMachine();
+        AnimationStateMachine stateMachine = new AnimationStateMachine();
 
         stateMachine.addState(runDown);
         stateMachine.addState(runUp);

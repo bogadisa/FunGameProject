@@ -9,7 +9,7 @@ import secondEngine.util.AssetPool;
 
 public class AnimationState {
     public String title;
-    public List<Frame> animationFrames = new ArrayList<>();
+    public List<AnimationFrame> animationFrames = new ArrayList<>();
 
     private static Sprite defaultSprite = new Sprite();
     private static Vector4f defaultColor = new Vector4f(1, 1, 1, 1);
@@ -18,35 +18,35 @@ public class AnimationState {
     private boolean doesLoop = false;
 
     public void refreshTextures() {
-        for (Frame frame : animationFrames) {
+        for (AnimationFrame frame : animationFrames) {
             frame.sprite.setTexture(AssetPool.getTexture(frame.sprite.getTexture().getFilepath()));
         }
     }
 
     private Sprite getLatestSprite() {
         if (animationFrames.size() > 0) {
-            Frame prevFrame = animationFrames.get(animationFrames.size() - 1);
+            AnimationFrame prevFrame = animationFrames.get(animationFrames.size() - 1);
             return prevFrame.sprite;
         }
         return defaultSprite;
     }
 
     public void addFrame(Sprite sprite, float frameTime) {
-        animationFrames.add(new Frame(sprite, frameTime));
+        animationFrames.add(new AnimationFrame(sprite, frameTime));
     }
 
     public void addFrame(Sprite sprite, Vector4f color, float frameTime) {
-        animationFrames.add(new Frame(sprite, color, frameTime));
+        animationFrames.add(new AnimationFrame(sprite, color, frameTime));
     }
 
     public void addFrame(Vector4f color, float frameTime) {
         Sprite prevSprite = getLatestSprite();
-        animationFrames.add(new Frame(prevSprite, color, frameTime));
+        animationFrames.add(new AnimationFrame(prevSprite, color, frameTime));
     }
 
     public void addFrames(List<Sprite> sprites, float frameTime) {
         for (Sprite sprite : sprites) {
-            this.animationFrames.add(new Frame(sprite, frameTime));
+            this.addFrame(sprite, frameTime);
         }
     }
 

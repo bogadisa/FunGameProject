@@ -1,7 +1,6 @@
 package secondEngine.scenes;
 
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 import secondEngine.Camera;
 import secondEngine.Config;
@@ -9,11 +8,11 @@ import secondEngine.SpatialGrid;
 import secondEngine.Config.UIconfig;
 import secondEngine.Window;
 import secondEngine.components.CompositeSpriteRenderer;
-import secondEngine.components.GridState;
+import secondEngine.components.GridMachine;
+import secondEngine.components.InteractiveStateMachine;
 import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
-import secondEngine.components.StateMachine;
-import secondEngine.components.Transform;
+import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.GameObject;
@@ -23,6 +22,7 @@ import secondEngine.objects.Special.Mouse;
 import secondEngine.objects.entities.Player;
 import secondEngine.util.AssetPool;
 import secondEngine.util.Time;
+import secondEngine.util.InteractableFactory.InteractableIds;
 
 public class GameScene extends Scene {
     public void init() {
@@ -36,16 +36,17 @@ public class GameScene extends Scene {
         GameObject grid = OverlayObject.generateGrid();
         this.addGameObjectToScene(grid);
 
-        // GameObject mouse = Mouse.generate();
-        // this.addGameObjectToScene(mouse);
+        GameObject mouse = Mouse.generate();
+        this.addGameObjectToScene(mouse);
         if (Window.getScene().isLoaded()) {
             return;
         }
 
         GameObject player = Player.generate();
+        player.transform.position.add(64, 80, 0);
         this.addGameObjectToScene(player);
 
-        player.getComponent(GridState.class).toggleHighlight();
+        player.getComponent(GridMachine.class).toggleHighlight();
         grid.getComponent(Overlay.class).linkObjectToGrid(player);
 
         // GameObject obj = new GameObject("Obj");
@@ -62,8 +63,7 @@ public class GameScene extends Scene {
         SpriteSheet spriteSheet = AssetPool.getSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
         Sprite[] sprites = { spriteSheet.getSprite(2), spriteSheet.getSprite(0), spriteSheet.getSprite(1) };
         Sprite[] layoutSprites = { spriteSheet.getSprite(3) };
-        // GameObject ui = OverlayObject.generateInventory(sprites, layoutSprites,
-        // AssetPool.getLayout(Layouts.STANDARD));
+        // GameObject ui = OverlayObject.generateInventory(sprites, layoutSprites, AssetPool.getLayout(Layouts.STANDARD));
         // Window.getScene().worldGrid().addObject(ui);
 
         // this.addGameObjectToScene(ui);
@@ -88,8 +88,8 @@ public class GameScene extends Scene {
                 spr.refreshTexture();
             }
 
-            if (go.getComponent(StateMachine.class) != null) {
-                StateMachine stateMachine = go.getComponent(StateMachine.class);
+            if (go.getComponent(AnimationStateMachine.class) != null) {
+                AnimationStateMachine stateMachine = go.getComponent(AnimationStateMachine.class);
                 stateMachine.refreshTextures();
             }
         }

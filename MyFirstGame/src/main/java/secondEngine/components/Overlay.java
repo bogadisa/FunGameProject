@@ -2,6 +2,7 @@ package secondEngine.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +16,12 @@ import secondEngine.SpatialGrid;
 import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.components.GridState;
-import secondEngine.components.helpers.Interactable;
+import secondEngine.components.GridMachine;
+import secondEngine.components.helpers.InteractableState;
 import secondEngine.components.helpers.OverlayState;
 import secondEngine.objects.GameObject;
 import secondEngine.util.PrefabFactory;
+import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs;
 
 public class Overlay extends Component {
     private boolean rescale = false;
@@ -90,9 +92,9 @@ public class Overlay extends Component {
     }
 
     public Overlay linkObjectToGrid(GameObject go) {
-        GridState gs = go.getComponent(GridState.class);
+        GridMachine gs = go.getComponent(GridMachine.class);
         if (gs == null) {
-            gs = new GridState().init();
+            gs = new GridMachine().init();
             go.addComponent(gs);
         }
         linkedObjects.add(go);
@@ -126,6 +128,7 @@ public class Overlay extends Component {
         CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
         int scale = UIconfig.getScale();
 
+
         int specialPiecesAdded = 0;
         for (int i = 1; i <= sizeX; i++) {
             for (int j = 1; j <= sizeY; j++) {
@@ -141,8 +144,9 @@ public class Overlay extends Component {
                     compSprite.addSpriteRenderer(
                             new SpriteRenderer().setSprite(layoutSprites[layout[sizeY - j][i - 1] - 1]), offset);
                     // TODO why 15
-                    if (specialPiecesAdded < 15) {
-                        Sprite sprite = PrefabFactory.getObjectSprite(1000 + specialPiecesAdded);
+                     PrefabFactory.PrefabIds.GroundPrefabs.Spring enumSpring = PrefabFactory.getEnum(PrefabFactory.PrefabIds.GroundPrefabs.Spring.class, specialPiecesAdded);
+                    if (enumSpring != null) {
+                        Sprite sprite = PrefabFactory.getObjectSprite(enumSpring);
                         compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(sprite), offset);
                         // Vector3f worldPos = new Vector3f().set(this.gameObject.transform.position);
                         // worldPos.add(offset);
@@ -222,7 +226,7 @@ public class Overlay extends Component {
     public void start() {
         overlayGrid.setName(this.gameObject.getName());
         for (GameObject go : linkedObjects) {
-            go.getComponent(GridState.class).linkGrid(overlayGrid);
+            go.getComponent(GridMachine.class).linkGrid(overlayGrid);
             overlayGrid.addObject(go);
         }
         assert isInitialized
@@ -232,25 +236,28 @@ public class Overlay extends Component {
     @Override
     public void update(float dt) {
         for (GameObject go : linkedObjects) {
-            String[] lastGridCells = overlayGrid.updateObject(go);
-            GridState gs = go.getComponent(GridState.class);
-            StateMachine sm = gameObject.getComponent(StateMachine.class);
-            if (sm != null && gs.highlight()) {
-                String[] gridCells = gs.getGridCells(this.gameObject.getName());
-                if (gridCells != null) {
-                    for (String pos : gridCells) {
-                        int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
-                        if (spriteRendererIndex > -1) {
-                            sm.trigger("addColor", spriteRendererIndex);
+            GridMachine gs = go.getComponent(GridMachine.class);
+            // TODO a bit fucked, need to think more about when an object is updated
+            if (gs.isDirty()) {
+                String[] lastGridCells = overlayGrid.updateObject(go);
+                AnimationStateMachine sm = gameObject.getComponent(AnimationStateMachine.class);
+                if (sm != null && gs.highlight()) {
+                    String[] gridCells = gs.getLastGridCells(this.gameObject.getName());
+                    if (gridCells != null) {
+                        for (String pos : gridCells) {
+                            int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
+                            if (spriteRendererIndex > -1) {
+                                sm.trigger("addColor", spriteRendererIndex);
+                            }
                         }
                     }
-                }
-                for (String lastPos : lastGridCells) {
-                    int spriteRendererIndex = spriteRenderers.getOrDefault(lastPos, -1);
-                    if (spriteRendererIndex > -1) {
-                        sm.trigger("removeColor", spriteRendererIndex);
-                    }
+                    for (String lastPos : lastGridCells) {
+                        int spriteRendererIndex = spriteRenderers.getOrDefault(lastPos, -1);
+                        if (spriteRendererIndex > -1) {
+                            sm.trigger("removeColor", spriteRendererIndex);
+                        }
 
+                    }
                 }
             }
         }

@@ -11,7 +11,7 @@ import org.joml.Vector3f;
 import secondEngine.Component;
 import secondEngine.SpatialGrid;
 import secondEngine.Window;
-import secondEngine.components.helpers.Interactable;
+import secondEngine.components.helpers.InteractableState;
 import secondEngine.components.helpers.OverlayState;
 import secondEngine.listeners.MouseListener;
 import secondEngine.objects.GameObject;
@@ -50,6 +50,18 @@ public class MouseTracker extends Component {
         }
         if (this.gameObject.transform.gridLockY) {
             this.gameObject.transform.position.y = worldCoords.y;
+        }
+
+        if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_1)) {
+            List<GameObject> gos = grid.getObjects(this.gameObject.transform);
+            InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
+            // stateMachine.interact("enlarge", this.gameObject);
+            if (gos != null) {
+                System.out.println("yo");
+                for (GameObject go : gos) {
+                    stateMachine.interact("enlarge", go);
+                }
+            }
         }
 
         // Window.getScene().worldGrid().removeObject(gameObject);

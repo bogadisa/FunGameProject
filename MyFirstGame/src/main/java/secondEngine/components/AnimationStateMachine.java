@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import secondEngine.Component;
 import secondEngine.components.helpers.AnimationState;
 
-public class StateMachine extends Component {
+public class AnimationStateMachine extends Component {
     private class StateTrigger {
         // TODO move to enums
         public String fromState;

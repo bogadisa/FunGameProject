@@ -7,12 +7,15 @@ import org.joml.Vector4f;
 import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.CompositeSpriteRenderer;
+import secondEngine.components.InteractiveStateMachine;
 import secondEngine.components.Overlay;
-import secondEngine.components.StateMachine;
+import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.Transform;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.AnimationState;
+import secondEngine.components.helpers.InteractableState;
 import secondEngine.util.AssetPool;
+import secondEngine.util.InteractableFactory.InteractableIds;
 
 public class OverlayObject {
     public enum Layouts {
@@ -76,7 +79,7 @@ public class OverlayObject {
         colored.title = "colored";
         colored.addFrame(new Vector4f(1, 0, 0, 0.1f), defaultFrameTime);
 
-        StateMachine stateMachine = new StateMachine();
+        AnimationStateMachine stateMachine = new AnimationStateMachine();
 
         stateMachine.addState(defaultState);
         stateMachine.addState(colored);

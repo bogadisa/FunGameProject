@@ -3,16 +3,20 @@ package secondEngine.objects.Special;
 import org.joml.Vector3f;
 
 import secondEngine.Window;
+import secondEngine.components.InteractiveStateMachine;
 import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
+import secondEngine.components.helpers.InteractableState;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.SpriteObject;
+import secondEngine.util.InteractableFactory.InteractableIds;
 import secondEngine.util.PrefabFactory;
 
 public class Mouse {
     public static GameObject generate() {
-        GameObject mouse = SpriteObject.generate(PrefabFactory.getObjectSprite(1000), 32, 32);
+        Sprite sprite = PrefabFactory.getObjectSprite(PrefabFactory.PrefabIds.GroundPrefabs.Spring.GRASS_1);
+        GameObject mouse = SpriteObject.generate(sprite, 32, 32);
 
         MouseTracker mouseTracker = new MouseTracker();
         mouse.addComponent(mouseTracker);
@@ -26,6 +30,15 @@ public class Mouse {
         mouse.addComponent(inventory);
 
         mouse.transform.scale = new Vector3f(64, 64, 64);
+
+        InteractableState enlarge = new InteractableState();
+        enlarge.title = "enlarge";
+        enlarge.addFrame(InteractableIds.Misc.TEST);
+
+        InteractiveStateMachine stateMachine = new InteractiveStateMachine();
+        stateMachine.addState(enlarge);
+
+        mouse.addComponent(stateMachine);
 
         mouse.setName("Mouse");
         mouse.setSerializeOnSave(false);
