@@ -9,6 +9,7 @@ public class PlayerControls extends Component {
 
     private float playerWidth = 16.0f;
     private float xSpeed = 0.0f;
+    private float ySpeed = 0.0f;
 
     private transient AnimationStateMachine stateMachine;
 
@@ -51,7 +52,9 @@ public class PlayerControls extends Component {
         // }
 
         xSpeed = 3.3f * dt * 5 * xDirection;
-        this.gameObject.transform.position.x += xSpeed;
-        this.gameObject.transform.position.y += 3.3f * dt * 5 * yDirection;
+        ySpeed = 3.3f * dt * 5 * yDirection;
+        // this.gameObject.transform.position.x += xSpeed;
+        // this.gameObject.transform.position.y += ySpeed;
+        this.gameObject.transform.position.add(xSpeed, ySpeed, 0);
     }
 }
