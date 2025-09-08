@@ -1,7 +1,6 @@
 package secondEngine;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +99,7 @@ public class SpatialGrid {
         return gridToString(worldToGrid(pos));
     }
 
-    private String[] getGridCoverage(Transform transform) {
+    private Set<String> getGridCoverage(Transform transform) {
         Vector2i gridCoords = worldToGrid(transform);
         Vector2f offset = getInternalGridCellOffset(transform);
 
@@ -113,12 +112,10 @@ public class SpatialGrid {
         int upShift = Math.floorDiv((int) (halfHeight + gridSize - offset.y - secretShrinkageFactor), gridSize);
         int downShift = Math.floorDiv((int) (halfHeight + offset.y - secretShrinkageFactor), gridSize);
 
-        String[] coverage = new String[(leftShift + rightShift + 1) * (upShift + downShift + 1)];
-        int k = 0;
+        Set<String> coverage = new HashSet<>();
         for (int i = -leftShift; i <= rightShift; i++) {
             for (int j = -upShift; j <= downShift; j++) {
-                coverage[k] = (gridCoords.x + i) + ";;" + (gridCoords.y + j);
-                k++;
+                coverage.add((gridCoords.x + i) + ";;" + (gridCoords.y + j));
             }
         }
         return coverage;
@@ -137,20 +134,20 @@ public class SpatialGrid {
         this.objectGrid.put(pos, gos);
     }
 
-    private void addObject(GameObject go, String[] coverage) {
+    private void addObject(GameObject go, Set<String> coverage) {
         for (String gridCellPos : coverage) {
             addObject(go, gridCellPos);
         }
     }
 
     public void addObject(GameObject go) {
-        String[] coverage = getGridCoverage(go.transform);
+        Set<String> coverage = getGridCoverage(go.transform);
         GridMachine gm = go.getComponent(GridMachine.class);
         if (gm == null) {
             gm = new GridMachine().init().linkGrid(this);
             go.addComponent(gm);
         }
-        GridState gs = new GridState(coverage);
+        GridState gs = new GridState(coverage, this);
         gm.setGridState(name, gs);
         addObject(go, coverage);
     }
@@ -167,16 +164,14 @@ public class SpatialGrid {
         }
     }
 
-    private String[] removeObject(GameObject go, String[] coverage) {
+    private void removeObject(GameObject go, Set<String> coverage) {
         for (String gridCellPos : coverage) {
             removeObject(go, gridCellPos);
         }
-
-        return coverage;
     }
 
     public void removeObject(GameObject go) {
-        String[] coverage = getGridCoverage(go.transform);
+        Set<String> coverage = getGridCoverage(go.transform);
         GridMachine gs = go.getComponent(GridMachine.class);
         if (gs == null) {
             gs = new GridMachine().init();
@@ -189,22 +184,21 @@ public class SpatialGrid {
     public void updateObject(GameObject go) {
         GridMachine gm = go.getComponent(GridMachine.class);
         GridState gs = gm.getGridState(name);
-        String[] prevCoverage = gs.getCurrentGridCells();
-        String[] curCoverage = getGridCoverage(go.transform);
+        Set<String> diffCells = gs.getCurrentGridCells();
+        Set<String> curCoverage = getGridCoverage(go.transform);
+        Set<String> curCells = new HashSet<>(curCoverage);
 
-        // TODO might be slow
-        Set<String> removeCoverage = new HashSet<>(Arrays.asList(prevCoverage));
-        Set<String> intersectCoverage = new HashSet<>(removeCoverage);
-        Set<String> keepCoverage = new HashSet<>(Arrays.asList(curCoverage));
+        Set<String> diffCoverage = new HashSet<>(diffCells);
+        diffCoverage.retainAll(curCoverage);
 
-        intersectCoverage.retainAll(keepCoverage);
-        removeCoverage.removeAll(intersectCoverage);
-        keepCoverage.removeAll(intersectCoverage);
+        diffCells.removeAll(diffCoverage);
+        curCoverage.removeAll(diffCoverage);
 
-        String[] differenceCoverage = removeObject(go, removeCoverage.toArray(new String[removeCoverage.size()]));
-        addObject(go, keepCoverage.toArray(new String[keepCoverage.size()]));
 
-        gs.update(curCoverage, differenceCoverage);
+        removeObject(go, diffCoverage);
+        addObject(go, curCoverage);
+
+        gs.update(curCells, diffCells);
     }
 
     // TODO add update object that can update several spatial grids continuously

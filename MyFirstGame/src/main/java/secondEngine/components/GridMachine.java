@@ -2,7 +2,12 @@ package secondEngine.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.joml.Vector2f;
+import org.joml.Vector2i;
 
 import secondEngine.Component;
 import secondEngine.SpatialGrid;
@@ -53,6 +58,27 @@ public class GridMachine extends Component {
             gameObject.transform.copy(lastTransform);
             isDirty = false;
         }
+    }
+
+    public <T extends Component> T getComponent(Class<T> componentClass, Set<String> coverage, SpatialGrid grid) {
+        GridState gs = getGridState(grid.getName());
+
+        Vector2i pos = grid.worldToGrid(this.gameObject.transform);
+        List<T> components = gs.getComponents(componentClass);
+
+        Set<String> overlap = new HashSet<>(coverage);
+        overlap.retainAll(gs.getCurrentGridCells());
+
+        for (T t : components) {
+            
+        }
+        
+        // for (String pos : coverage) {
+        //     Vector2f xy = grid.stringToWorld(pos);
+        //     // List<Component> components = componentMap.get(pos);
+        // }
+
+        return null;
     }
 
     public boolean isDirty() {

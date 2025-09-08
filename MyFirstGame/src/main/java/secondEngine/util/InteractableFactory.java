@@ -1,7 +1,12 @@
 package secondEngine.util;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import secondEngine.Window;
 import secondEngine.components.GridMachine;
 import secondEngine.components.InteractiveStateMachine;
+import secondEngine.components.helpers.GridState;
 import secondEngine.objects.GameObject;
 import secondEngine.util.InteractableFactory.InteractableIds.Misc;
 
@@ -67,7 +72,19 @@ public class InteractableFactory {
                 };
 
             case HIGHLIGHT:
-                break;
+                return get().new HighlightInteractableFunction() {
+                    @Override
+                    public void interact(GameObject thisGO, GameObject otherGO) {
+                        Set<String> otherCoverage = getCoverage(otherGO);
+                        Set<String> thisCoverage = getCoverage(thisGO);
+                        boolean overlap = otherCoverage.retainAll(thisCoverage);
+                        if (overlap) {
+                            
+                        }
+                        
+                    }
+                    
+                };
             
             case NO_HIGHLIGHT:
                 break;
@@ -84,8 +101,10 @@ public class InteractableFactory {
     }
 
     private abstract class HighlightInteractableFunction extends InteractableFunction {
-        protected void getCoverage(GameObject go, GridMachine gs) {
-            
+        protected Set<String> getCoverage(GameObject go) {
+            GridMachine gm = go.getComponent(GridMachine.class);
+            GridState gs = gm.getGridState(Window.getScene().worldGrid().getName());
+            return new HashSet<>(gs.getCurrentGridCells());
         }
     }
 }

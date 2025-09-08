@@ -1,29 +1,61 @@
 package secondEngine.components.helpers;
 
-public class GridState {
-    private String[] currentGridCells;
-    private String[] lastGridCells = new String[0];
-    private String[] differenceGridCells = new String[0];
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    public GridState(String[] currentGridCells) {
+import org.joml.Vector2f;
+
+import secondEngine.Component;
+import secondEngine.SpatialGrid;
+
+public class GridState {
+    private SpatialGrid grid;
+
+    private Set<String> currentGridCells;
+    private Set<String> lastGridCells = new HashSet<>();
+    private Set<String> differenceGridCells = new HashSet<>();
+
+    private List<Component> components = new ArrayList<>();
+
+    public GridState(Set<String> currentGridCells, SpatialGrid grid) {
         this.currentGridCells = currentGridCells;
+        this.grid = grid;
     }
 
-    public void update(String[] currentGridCells, String[] differenceGridCells) {
+    
+
+    public void update(Set<String> currentGridCells, Set<String> differenceGridCells) {
         this.lastGridCells = this.currentGridCells;
         this.currentGridCells = currentGridCells;
         this.differenceGridCells = differenceGridCells;
     }
 
-    public String[] getDifferenceGridCells() {
+    public Set<String> getDifferenceGridCells() {
         return differenceGridCells;
     }
 
-    public String[] getLastGridCells() {
+    public Set<String> getLastGridCells() {
         return lastGridCells;
     }
 
-    public String[] getCurrentGridCells() {
+    public Set<String> getCurrentGridCells() {
         return currentGridCells;
+    }
+
+    public <T extends Component> List<T> getComponents(Class<T> componentClass) {
+        List<T> components = new ArrayList<>();
+        for (Component c : this.components) {
+            if (componentClass.isAssignableFrom(c.getClass())) {
+                try {
+                    components.add(componentClass.cast(c));
+                } catch (ClassCastException e) {
+                    e.printStackTrace();
+                    assert false : "Error: Casting component.";
+                }
+            }
+        }
+        return components;
     }
 }

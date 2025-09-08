@@ -1,28 +1,20 @@
 package secondEngine.components;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import secondEngine.Component;
 import secondEngine.SpatialGrid;
-import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.components.GridMachine;
 import secondEngine.components.helpers.GridState;
-import secondEngine.components.helpers.InteractableState;
-import secondEngine.components.helpers.OverlayState;
 import secondEngine.objects.GameObject;
 import secondEngine.util.PrefabFactory;
-import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs;
 
 public class Overlay extends Component {
     private boolean rescale = false;
@@ -244,8 +236,8 @@ public class Overlay extends Component {
                 GridState gs = gm.getGridState(overlayGrid.getName());
                 AnimationStateMachine sm = gameObject.getComponent(AnimationStateMachine.class);
                 if (sm != null && gm.highlight()) {
-                    String[] currentGridCells = gs.getCurrentGridCells();
-                    String[] differenceGridCells = gs.getDifferenceGridCells();
+                    Set<String> currentGridCells = gs.getCurrentGridCells();
+                    Set<String> differenceGridCells = gs.getDifferenceGridCells();
                     if (currentGridCells != null) {
                         for (String pos : currentGridCells) {
                             int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
