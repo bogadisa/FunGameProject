@@ -57,7 +57,6 @@ public class MouseTracker extends Component {
             InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
             // stateMachine.interact("enlarge", this.gameObject);
             if (gos != null) {
-                System.out.println("yo");
                 for (GameObject go : gos) {
                     stateMachine.interact("enlarge", go);
                 }

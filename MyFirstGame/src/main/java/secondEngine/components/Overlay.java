@@ -17,6 +17,7 @@ import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.GridMachine;
+import secondEngine.components.helpers.GridState;
 import secondEngine.components.helpers.InteractableState;
 import secondEngine.components.helpers.OverlayState;
 import secondEngine.objects.GameObject;
@@ -236,22 +237,24 @@ public class Overlay extends Component {
     @Override
     public void update(float dt) {
         for (GameObject go : linkedObjects) {
-            GridMachine gs = go.getComponent(GridMachine.class);
+            GridMachine gm = go.getComponent(GridMachine.class);
             // TODO a bit fucked, need to think more about when an object is updated
-            if (gs.isDirty()) {
-                String[] lastGridCells = overlayGrid.updateObject(go);
+            if (gm.isDirty()) {
+                overlayGrid.updateObject(go);
+                GridState gs = gm.getGridState(overlayGrid.getName());
                 AnimationStateMachine sm = gameObject.getComponent(AnimationStateMachine.class);
-                if (sm != null && gs.highlight()) {
-                    String[] gridCells = gs.getLastGridCells(this.gameObject.getName());
-                    if (gridCells != null) {
-                        for (String pos : gridCells) {
+                if (sm != null && gm.highlight()) {
+                    String[] currentGridCells = gs.getCurrentGridCells();
+                    String[] differenceGridCells = gs.getDifferenceGridCells();
+                    if (currentGridCells != null) {
+                        for (String pos : currentGridCells) {
                             int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
                             if (spriteRendererIndex > -1) {
                                 sm.trigger("addColor", spriteRendererIndex);
                             }
                         }
                     }
-                    for (String lastPos : lastGridCells) {
+                    for (String lastPos : differenceGridCells) {
                         int spriteRendererIndex = spriteRenderers.getOrDefault(lastPos, -1);
                         if (spriteRendererIndex > -1) {
                             sm.trigger("removeColor", spriteRendererIndex);

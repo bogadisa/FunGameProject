@@ -7,20 +7,21 @@ import java.util.List;
 import secondEngine.Component;
 import secondEngine.SpatialGrid;
 import secondEngine.Window;
+import secondEngine.components.helpers.GridState;
 
 public class GridMachine extends Component {
     private boolean isDirty = false;
 
     private List<SpatialGrid> grids;
     // TODO is this needed?
-    private HashMap<String, String[]> lastGridCells;
+    private HashMap<String, GridState> gridStates;
 
     private transient boolean highlightCells = false;
     private transient Transform lastTransform = new Transform();
 
     public GridMachine init() {
         this.grids = new ArrayList<>();
-        this.lastGridCells = new HashMap<>();
+        this.gridStates = new HashMap<>();
         return this;
     }
 
@@ -36,7 +37,7 @@ public class GridMachine extends Component {
 
     @Override
     public void update(float dt) {
-        if (lastTransform.equals(gameObject.transform)) {
+        if (!lastTransform.equals(gameObject.transform)) {
             // TODO add update object that can update several spatial grids continuously
             // TODO a bit fucked, need to think more about when an object is updated
             // String[] lastGridCells = null;
@@ -66,16 +67,16 @@ public class GridMachine extends Component {
         return this.highlightCells;
     }
 
-    public void removeLastGridCells(String name) {
-        this.lastGridCells.remove(name);
+    public void removeGridState(String name) {
+        this.gridStates.remove(name);
     }
 
-    public void addLastGridCells(String name, String[] gridCells) {
-        this.lastGridCells.put(name, gridCells);
+    public GridState getGridState(String name) {
+        return this.gridStates.get(name);
     }
 
-    public String[] getLastGridCells(String name) {
-        return this.lastGridCells.get(name);
+    public void setGridState(String name, GridState gridState) {
+        this.gridStates.put(name, gridState);
     }
 
     public boolean isEmpty() {

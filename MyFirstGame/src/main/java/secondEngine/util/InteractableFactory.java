@@ -1,6 +1,6 @@
 package secondEngine.util;
 
-import secondEngine.Component;
+import secondEngine.components.GridMachine;
 import secondEngine.components.InteractiveStateMachine;
 import secondEngine.objects.GameObject;
 import secondEngine.util.InteractableFactory.InteractableIds.Misc;
@@ -20,7 +20,9 @@ public class InteractableFactory {
         }
 
         enum Misc implements InteractableIds {
-            TEST;
+            ENLARGE,
+            HIGHLIGHT,
+            NO_HIGHLIGHT;
 
             @Override
             public Categories id() {
@@ -56,13 +58,19 @@ public class InteractableFactory {
 
     private static InteractableFunction getMisc(InteractableIds subcategory) {
         switch (Misc.class.cast(subcategory)) {
-            case TEST:
+            case ENLARGE:
                 return get().new InteractableFunction() {
                     @Override
-                    public void interact(GameObject go) {
-                        go.transform.scale.set(128, 256, 1);
+                    public void interact(GameObject thisGO, GameObject otherGO) {
+                        otherGO.transform.scale.set(128, 256, 1);
                     }
                 };
+
+            case HIGHLIGHT:
+                break;
+            
+            case NO_HIGHLIGHT:
+                break;
                 
             default:
                 break;
@@ -72,7 +80,12 @@ public class InteractableFactory {
     }
 
     public abstract class InteractableFunction {
-        protected InteractiveStateMachine state;
-        public abstract void interact(GameObject go);
+        public abstract void interact(GameObject thisGO, GameObject otherGO);
+    }
+
+    private abstract class HighlightInteractableFunction extends InteractableFunction {
+        protected void getCoverage(GameObject go, GridMachine gs) {
+            
+        }
     }
 }

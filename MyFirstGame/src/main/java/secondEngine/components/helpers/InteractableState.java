@@ -11,8 +11,14 @@ public class InteractableState {
     public String title;
     public List<InteractableFrame> interactableFrames = new ArrayList<>();
     private boolean isActive = true;
+    private transient GameObject gameObject;
 
-    public void refreshInteractables() {
+    public void start(GameObject gameObject) {
+        this.gameObject = gameObject;
+        refreshInteractables();
+    }
+
+    private void refreshInteractables() {
         for (InteractableFrame interactableFrame : interactableFrames) {
             interactableFrame.interactable = InteractableFactory.getInteractable(interactableFrame.interactId);
         }
@@ -38,7 +44,7 @@ public class InteractableState {
     
     public void interact(GameObject go) {
         for (InteractableFrame interactableFrame : interactableFrames) {
-            interactableFrame.interactable.interact(go);
+            interactableFrame.interactable.interact(this.gameObject, go);
         }
     }
 }

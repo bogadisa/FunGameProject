@@ -33,7 +33,7 @@ public class Mouse {
 
         InteractableState enlarge = new InteractableState();
         enlarge.title = "enlarge";
-        enlarge.addFrame(InteractableIds.Misc.TEST);
+        enlarge.addFrame(InteractableIds.Misc.ENLARGE);
 
         InteractiveStateMachine stateMachine = new InteractiveStateMachine();
         stateMachine.addState(enlarge);

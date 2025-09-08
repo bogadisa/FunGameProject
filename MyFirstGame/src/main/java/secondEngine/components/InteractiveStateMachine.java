@@ -13,7 +13,7 @@ public class InteractiveStateMachine extends Component {
 
     public void addState(InteractableState state) {
         this.interactables.put(state.title, state);
-        state.refreshInteractables();
+        state.start(this.gameObject);
     }
 
     public void interact(String interactType, GameObject go) {
@@ -24,7 +24,7 @@ public class InteractiveStateMachine extends Component {
     @Override
     public void start() {
         for (InteractableState interactableState : interactables.values()) {
-            interactableState.refreshInteractables();
+            interactableState.start(this.gameObject);
         }
     }
 
