@@ -11,6 +11,7 @@ import java.util.Set;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import secondEngine.Config.CameraConfig;
 import secondEngine.components.GridMachine;
@@ -97,6 +98,25 @@ public class SpatialGrid {
 
     public String worldToString(Vector3f pos) {
         return gridToString(worldToGrid(pos));
+    }
+
+    public List<Vector4f> getBoundriesArray(Set<String> positions) {
+        List<Vector4f> boundriesArray = new ArrayList<>();
+        float xMin;
+        float xMax;
+        float yMin;
+        float yMax;
+        for (String pos : positions) {
+            Vector2f worldPos = stringToWorld(pos);
+            xMin = worldPos.x;
+            xMax = worldPos.x + gridSize;
+            yMin = worldPos.y;
+            yMax = worldPos.y + gridSize;
+
+            boundriesArray.add(new Vector4f(xMin, xMax, yMin, yMax));
+        }
+
+        return boundriesArray;
     }
 
     private Set<String> getGridCoverage(Transform transform) {
@@ -193,7 +213,6 @@ public class SpatialGrid {
 
         diffCells.removeAll(diffCoverage);
         curCoverage.removeAll(diffCoverage);
-
 
         removeObject(go, diffCoverage);
         addObject(go, curCoverage);
