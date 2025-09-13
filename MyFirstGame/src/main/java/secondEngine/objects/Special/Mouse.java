@@ -15,8 +15,9 @@ import secondEngine.util.PrefabFactory;
 
 public class Mouse {
     public static GameObject generate() {
-        Sprite sprite = PrefabFactory.getObjectSprite(PrefabFactory.PrefabIds.GroundPrefabs.Spring.GRASS_1);
-        GameObject mouse = SpriteObject.generate(sprite, 32, 32);
+        // Sprite sprite = PrefabFactory.getObjectSprite(PrefabFactory.PrefabIds.GroundPrefabs.Spring.GRASS_1);
+        // GameObject mouse = SpriteObject.generate(sprite, 32, 32);
+        GameObject mouse = SpriteObject.generate(new Sprite().setTexture(null), 1, 1);
 
         MouseTracker mouseTracker = new MouseTracker();
         mouse.addComponent(mouseTracker);
@@ -29,14 +30,30 @@ public class Mouse {
         Inventory inventory = new Inventory().init(1, 1);
         mouse.addComponent(inventory);
 
-        mouse.transform.scale = new Vector3f(64, 64, 64);
+        // mouse.transform.scale = new Vector3f(64, 64, 64);
 
         InteractableState enlarge = new InteractableState();
-        enlarge.title = "enlarge";
+        enlarge.title = "Enlarge";
         enlarge.addFrame(InteractableIds.Misc.ENLARGE);
+
+        InteractableState highlight = new InteractableState();
+        highlight.title = "Highlight";
+        highlight.addFrame(InteractableIds.Misc.HIGHLIGHT);
+
+        InteractableState noHighlight = new InteractableState();
+        noHighlight.title = "NoHighlight";
+        noHighlight.addFrame(InteractableIds.Misc.NO_HIGHLIGHT);
+
+        
+        InteractableState toggleHighlight = new InteractableState();
+        toggleHighlight.title = "ToggleHighlight";
+        toggleHighlight.addFrame(InteractableIds.Misc.TOGGLE_HIGHLIGHT);
 
         InteractiveStateMachine stateMachine = new InteractiveStateMachine();
         stateMachine.addState(enlarge);
+        stateMachine.addState(highlight);
+        stateMachine.addState(noHighlight);
+        stateMachine.addState(toggleHighlight);
 
         mouse.addComponent(stateMachine);
 

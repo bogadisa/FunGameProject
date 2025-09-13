@@ -16,9 +16,13 @@ public class InteractiveStateMachine extends Component {
         state.start(this.gameObject);
     }
 
-    public void interact(String interactType, GameObject go) {
+    public boolean interact(String interactType, GameObject otherGo) {
         InteractableState triggeredState = interactables.get(interactType);
-        if (triggeredState.isActive()) triggeredState.interact(go);
+        if (triggeredState.isActive()) {
+            return triggeredState.interact(otherGo);
+        } else {
+            return false;
+        }
     }
 
     @Override

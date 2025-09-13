@@ -1,5 +1,7 @@
 package secondEngine.objects.entities;
 
+import org.joml.Vector4f;
+
 import secondEngine.Window;
 import secondEngine.components.GridMachine;
 import secondEngine.components.PlayerControls;
@@ -47,12 +49,23 @@ public class Player {
         idling.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         idling.setLoop(false);
 
+        AnimationState addColor = new AnimationState();
+        addColor.title = "AddColor";
+        addColor.addFrame(new Vector4f(0, 0, 0, 0.1f), defaultFrameTime);
+
+        
+        AnimationState removeColor = new AnimationState();
+        removeColor.title = "RemoveColor";
+        removeColor.addFrame(new Vector4f(0), defaultFrameTime);
+
         AnimationStateMachine stateMachine = new AnimationStateMachine();
 
         stateMachine.addState(runDown);
         stateMachine.addState(runUp);
         stateMachine.addState(runSideways);
         stateMachine.addState(idling);
+        stateMachine.addState(addColor);
+        stateMachine.addState(removeColor);
 
         stateMachine.setDefaultState(idling.title);
 
@@ -71,6 +84,24 @@ public class Player {
         stateMachine.addTrigger(runSideways.title, idling.title, "idle");
         stateMachine.addTrigger(runDown.title, idling.title, "idle");
         stateMachine.addTrigger(runUp.title, idling.title, "idle");
+
+        stateMachine.addTrigger(idling.title, removeColor.title, "removeColor");
+        stateMachine.addTrigger(runUp.title, removeColor.title, "removeColor");
+        stateMachine.addTrigger(runDown.title, removeColor.title, "removeColor");
+        stateMachine.addTrigger(runSideways.title, removeColor.title, "removeColor");
+        stateMachine.addTrigger(addColor.title, removeColor.title, "removeColor");
+        
+        stateMachine.addTrigger(idling.title, addColor.title, "addColor");
+        stateMachine.addTrigger(runUp.title, addColor.title, "addColor");
+        stateMachine.addTrigger(runDown.title, addColor.title, "addColor");
+        stateMachine.addTrigger(runSideways.title, addColor.title, "addColor");
+        stateMachine.addTrigger(removeColor.title, addColor.title, "addColor");
+
+        
+        stateMachine.addTrigger(removeColor.title, addColor.title, "toggleColor");
+        stateMachine.addTrigger(addColor.title, removeColor.title, "toggleColor");
+
+
 
         player.addComponent(stateMachine);
 

@@ -1,6 +1,7 @@
 package secondEngine.components;
 
 import secondEngine.Component;
+import secondEngine.Window;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
@@ -21,7 +22,7 @@ public class SpriteRenderer extends Component {
     private transient boolean isDirty = true;
 
     private transient CompositeSpriteRenderer compositeSpriteRenderer = null;
-    private transient int compositeIndex;
+    private transient int compositeIndex = -1;
 
     private transient boolean addedToRenderer = false;
 
@@ -30,6 +31,12 @@ public class SpriteRenderer extends Component {
         if (this.sprite.getTexture() != null) {
             this.sprite.setTexture(AssetPool.getTexture(this.sprite.getTexture().getFilepath()));
         }
+        GridMachine gm = this.gameObject.getComponent(GridMachine.class);
+        if (gm == null) {
+            gm = new GridMachine().init();
+            this.gameObject.addComponent(gm);
+        }
+        gm.addComponent(Window.getScene().worldGrid(), this, new Vector2f(0), getTransform().scale.xy(new Vector2f()));
         this.lastTransform = gameObject.transform.copy();
     }
 
@@ -79,7 +86,7 @@ public class SpriteRenderer extends Component {
     }
 
     public Transform getTransform() {
-        if (this.compositeSpriteRenderer != null) {
+        if (this.compositeIndex >= 0) {
             return this.compositeSpriteRenderer.getTransform(compositeIndex);
         }
 
@@ -123,5 +130,9 @@ public class SpriteRenderer extends Component {
 
     public void setAddedToRenderer(boolean addedToRenderer) {
         this.addedToRenderer = addedToRenderer;
+    }
+
+    public int getCompositeIndex() {
+        return compositeIndex;
     }
 }

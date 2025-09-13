@@ -118,8 +118,8 @@ public class SpatialGrid {
 
         return boundriesArray;
     }
-
-    private Set<String> getGridCoverage(Transform transform) {
+    // TODO doesnt work with single cell objects??
+    public Set<String> getGridCoverage(Transform transform) {
         Vector2i gridCoords = worldToGrid(transform);
         Vector2f offset = getInternalGridCellOffset(transform);
 
@@ -141,9 +141,12 @@ public class SpatialGrid {
         return coverage;
     }
 
-    public List<GameObject> getObjects(Transform transform) {
-        String pos = worldToString(transform.position);
-        return objectGrid.get(pos);
+    public List<GameObject> getObjects(GameObject go) {
+        String pos = worldToString(go.transform.position);
+        List<GameObject> gos = new ArrayList<>(objectGrid.getOrDefault(pos, new ArrayList<>()));
+        gos.remove(go);
+        return gos;
+
     }
 
     // TODO add a method for constraining movement within a cell
@@ -168,7 +171,7 @@ public class SpatialGrid {
             go.addComponent(gm);
         }
         GridState gs = new GridState(coverage, this);
-        gm.setGridState(name, gs);
+        gm.getGridState(name, gs);
         addObject(go, coverage);
     }
 
@@ -214,7 +217,7 @@ public class SpatialGrid {
         diffCells.removeAll(diffCoverage);
         curCoverage.removeAll(diffCoverage);
 
-        removeObject(go, diffCoverage);
+        removeObject(go, diffCells);
         addObject(go, curCoverage);
 
         gs.update(curCells, diffCells);

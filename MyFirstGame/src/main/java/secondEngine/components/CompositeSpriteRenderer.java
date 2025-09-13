@@ -3,10 +3,12 @@ package secondEngine.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import secondEngine.Component;
+import secondEngine.Window;
 import secondEngine.components.helpers.CompositeSpritePiece;
 
 public class CompositeSpriteRenderer extends Component {
@@ -75,6 +77,7 @@ public class CompositeSpriteRenderer extends Component {
             startSpritePiece(numSprites);
         }
         numSprites++;
+
         return this;
     }
 

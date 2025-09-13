@@ -38,13 +38,16 @@ public class InteractableState {
 
     public void addFrames(List<InteractableIds> interactableIds) {
         for (InteractableIds interactableId : interactableIds) {
-            this.addFrame(interactableId);
+            addFrame(interactableId);
         }
     }
     
-    public void interact(GameObject go) {
+    public boolean interact(GameObject otherGo) {
+        boolean interacted = false;
         for (InteractableFrame interactableFrame : interactableFrames) {
-            interactableFrame.interactable.interact(this.gameObject, go);
+            interacted = interactableFrame.interactable.interact(this.gameObject, otherGo);
+            if (!interacted) return false;
         }
+        return interacted;
     }
 }

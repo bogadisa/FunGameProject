@@ -2,12 +2,10 @@ package secondEngine.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 
 import secondEngine.Component;
 import secondEngine.SpatialGrid;
@@ -18,7 +16,6 @@ public class GridMachine extends Component {
     private boolean isDirty = false;
 
     private List<SpatialGrid> grids;
-    // TODO is this needed?
     private HashMap<String, GridState> gridStates;
 
     private transient boolean highlightCells = false;
@@ -27,17 +24,18 @@ public class GridMachine extends Component {
     public GridMachine init() {
         this.grids = new ArrayList<>();
         this.gridStates = new HashMap<>();
+        linkGrid(Window.getScene().worldGrid());
         return this;
     }
 
     public GridMachine linkGrid(SpatialGrid grid) {
         grids.add(grid);
+        gridStates.put(grid.getName(), new GridState(grid));
         return this;
     }
 
     @Override
     public void start() {
-        linkGrid(Window.getScene().worldGrid());
     }
 
     @Override
@@ -60,25 +58,17 @@ public class GridMachine extends Component {
         }
     }
 
-    public <T extends Component> T getComponent(Class<T> componentClass, Set<String> coverage, SpatialGrid grid) {
+    public void addComponent(SpatialGrid grid, Component component, Vector2f offset, Vector2f size) {
         GridState gs = getGridState(grid.getName());
+        gs.addComponent(component, offset, size);
+    }
 
-        Vector2i pos = grid.worldToGrid(this.gameObject.transform);
-        List<T> components = gs.getComponents(componentClass);
-
-        Set<String> overlap = new HashSet<>(coverage);
-        overlap.retainAll(gs.getCurrentGridCells());
-
-        for (T t : components) {
-            
+    public <T extends Component> List<T> getComponents(Class<T> componentClass, Set<String> coverage, SpatialGrid grid) {
+        GridState gs = getGridState(grid.getName());
+        if (gs == null) {
+            return new ArrayList<>();
         }
-        
-        // for (String pos : coverage) {
-        //     Vector2f xy = grid.stringToWorld(pos);
-        //     // List<Component> components = componentMap.get(pos);
-        // }
-
-        return null;
+        return gs.getComponents(componentClass, coverage);
     }
 
     public boolean isDirty() {
@@ -101,7 +91,7 @@ public class GridMachine extends Component {
         return this.gridStates.get(name);
     }
 
-    public void setGridState(String name, GridState gridState) {
+    public void getGridState(String name, GridState gridState) {
         this.gridStates.put(name, gridState);
     }
 

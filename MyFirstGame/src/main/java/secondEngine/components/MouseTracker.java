@@ -21,10 +21,11 @@ public class MouseTracker extends Component {
     private transient Transform lastTransform = new Transform();
 
     // temp
-    private int currentSprite = 0;
 
     private static boolean hasScrolledY = false;
     private boolean hasScrolledLocal = false;
+
+    private boolean temp = false;
 
     @Override
     public void start() {
@@ -53,13 +54,16 @@ public class MouseTracker extends Component {
         }
 
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_1)) {
-            List<GameObject> gos = grid.getObjects(this.gameObject.transform);
+            List<GameObject> gos = grid.getObjects(this.gameObject);
             InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
-            // stateMachine.interact("enlarge", this.gameObject);
-            if (gos != null) {
-                for (GameObject go : gos) {
-                    stateMachine.interact("enlarge", go);
-                }
+            // stateMachine.interact("Enlarge", this.gameObject);
+            String func = "NoHighlight";
+            if (temp) {
+                func = "ToggleHighlight";
+            }
+            for (GameObject go : gos) {
+                // stateMachine.interact("enlarge", go);
+                temp = stateMachine.interact(func, go);
             }
         }
 

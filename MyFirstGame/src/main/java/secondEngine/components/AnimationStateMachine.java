@@ -27,8 +27,7 @@ public class AnimationStateMachine extends Component {
 
         @Override
         public boolean equals(Object o) {
-            if (o.getClass() != StateTrigger.class)
-                return false;
+            if (o.getClass() != StateTrigger.class) return false;
             StateTrigger t2 = (StateTrigger) o;
             return t2.trigger.equals(this.trigger) && t2.fromState.equals(this.fromState);
         }

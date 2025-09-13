@@ -1,11 +1,13 @@
 package secondEngine.util;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import secondEngine.Window;
+import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.GridMachine;
-import secondEngine.components.InteractiveStateMachine;
+import secondEngine.components.SpriteRenderer;
 import secondEngine.components.helpers.GridState;
 import secondEngine.objects.GameObject;
 import secondEngine.util.InteractableFactory.InteractableIds.Misc;
@@ -27,7 +29,8 @@ public class InteractableFactory {
         enum Misc implements InteractableIds {
             ENLARGE,
             HIGHLIGHT,
-            NO_HIGHLIGHT;
+            NO_HIGHLIGHT,
+            TOGGLE_HIGHLIGHT;
 
             @Override
             public Categories id() {
@@ -66,28 +69,36 @@ public class InteractableFactory {
             case ENLARGE:
                 return get().new InteractableFunction() {
                     @Override
-                    public void interact(GameObject thisGO, GameObject otherGO) {
+                    public boolean interact(GameObject thisGO, GameObject otherGO) {
                         otherGO.transform.scale.set(128, 256, 1);
+                        return true;
                     }
                 };
 
             case HIGHLIGHT:
                 return get().new HighlightInteractableFunction() {
                     @Override
-                    public void interact(GameObject thisGO, GameObject otherGO) {
-                        Set<String> otherCoverage = getCoverage(otherGO);
-                        Set<String> thisCoverage = getCoverage(thisGO);
-                        boolean overlap = otherCoverage.retainAll(thisCoverage);
-                        if (overlap) {
-                            
-                        }
-                        
+                    public boolean interact(GameObject thisGO, GameObject otherGO) {
+                        return trigger("addColor", thisGO, otherGO);
                     }
-                    
                 };
             
             case NO_HIGHLIGHT:
-                break;
+                return get().new HighlightInteractableFunction() {
+                    @Override
+                    public boolean interact(GameObject thisGO, GameObject otherGO) {
+                        return trigger("removeColor", thisGO, otherGO);
+                    }
+                };
+
+            case TOGGLE_HIGHLIGHT:
+                return get().new HighlightInteractableFunction() {
+                    @Override
+                    public boolean interact(GameObject thisGO, GameObject otherGO) {
+                        return trigger("toggleColor", thisGO, otherGO);
+                    }
+                };
+
                 
             default:
                 break;
@@ -97,14 +108,36 @@ public class InteractableFactory {
     }
 
     public abstract class InteractableFunction {
-        public abstract void interact(GameObject thisGO, GameObject otherGO);
+        public abstract boolean interact(GameObject thisGO, GameObject otherGO);
     }
 
     private abstract class HighlightInteractableFunction extends InteractableFunction {
-        protected Set<String> getCoverage(GameObject go) {
+        private Set<String> getCoverage(GameObject go) {
             GridMachine gm = go.getComponent(GridMachine.class);
             GridState gs = gm.getGridState(Window.getScene().worldGrid().getName());
             return new HashSet<>(gs.getCurrentGridCells());
+        }
+
+        protected boolean trigger(String trigger, GameObject thisGO, GameObject otherGO) {
+            AnimationStateMachine sm = otherGO.getComponent(AnimationStateMachine.class);
+            if (sm == null) return false;
+            Set<String> otherCoverage = getCoverage(otherGO);
+            Set<String> thisCoverage = Window.getScene().worldGrid().getGridCoverage(thisGO.transform);
+            boolean overlap = otherCoverage.retainAll(thisCoverage);
+            boolean triggered = false;
+            if (overlap) {
+                GridMachine gm = otherGO.getComponent(GridMachine.class);
+                List<SpriteRenderer> sprRenderers = gm.getComponents(SpriteRenderer.class, otherCoverage, Window.getScene().worldGrid());
+                triggered = !sprRenderers.isEmpty();
+                for (SpriteRenderer spriteRenderer : sprRenderers) {
+                    if (spriteRenderer.getCompositeIndex() >= 0) {
+                        sm.trigger(trigger, spriteRenderer.getCompositeIndex());
+                    } else {
+                        sm.trigger(trigger);
+                    }
+                }
+            }
+            return triggered;
         }
     }
 }

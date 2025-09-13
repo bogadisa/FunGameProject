@@ -56,6 +56,13 @@ public class GameObject {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass() != GameObject.class) return false;
+        GameObject go = (GameObject) o;
+        return go.getObjectId() == this.objectId;
+    }
+
     public String getName() {
         return name;
     }
