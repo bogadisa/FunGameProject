@@ -16,32 +16,33 @@ public class AnimationState {
     private transient float time = 0.0f;
     private transient int currentFrame = 0;
     private boolean doesLoop = false;
+    private boolean isColorAnimation = false;
+    private boolean isSpriteAnimation = false;
 
     public void refreshTextures() {
         for (AnimationFrame frame : animationFrames) {
-            frame.sprite.setTexture(AssetPool.getTexture(frame.sprite.getTexture().getFilepath()));
+            if (frame.sprite != null) {
+                frame.sprite.setTexture(AssetPool.getTexture(frame.sprite.getTexture().getFilepath()));
+            }
         }
-    }
-
-    private Sprite getLatestSprite() {
-        if (animationFrames.size() > 0) {
-            AnimationFrame prevFrame = animationFrames.get(animationFrames.size() - 1);
-            return prevFrame.sprite;
-        }
-        return defaultSprite;
     }
 
     public void addFrame(Sprite sprite, float frameTime) {
         animationFrames.add(new AnimationFrame(sprite, frameTime));
+        isSpriteAnimation = true;
     }
 
     public void addFrame(Sprite sprite, Vector4f color, float frameTime) {
         animationFrames.add(new AnimationFrame(sprite, color, frameTime));
+        isSpriteAnimation = true;
+        isColorAnimation = true;
     }
 
     public void addFrame(Vector4f color, float frameTime) {
-        Sprite prevSprite = getLatestSprite();
-        animationFrames.add(new AnimationFrame(prevSprite, color, frameTime));
+        // Sprite prevSprite = getLatestSprite();
+        // animationFrames.add(new AnimationFrame(prevSprite, color, frameTime));
+        animationFrames.add(new AnimationFrame(null, color, frameTime));
+        isColorAnimation = true;
     }
 
     public void addFrames(List<Sprite> sprites, float frameTime) {
@@ -74,7 +75,7 @@ public class AnimationState {
     }
 
     public Sprite getCurrentSprite() {
-        if (currentFrame < animationFrames.size()) {
+        if (currentFrame < animationFrames.size() && isSpriteAnimation) {
             return animationFrames.get(currentFrame).sprite;
         }
 
@@ -82,9 +83,17 @@ public class AnimationState {
     }
 
     public Vector4f getCurrentColor() {
-        if (currentFrame < animationFrames.size()) {
+        if (currentFrame < animationFrames.size() && isColorAnimation) {
             return animationFrames.get(currentFrame).color;
         }
         return defaultColor;
+    }
+
+    public boolean isColorAnimation() {
+        return isColorAnimation;
+    }
+
+    public boolean isSpriteAnimation() {
+        return isSpriteAnimation;
     }
 }

@@ -51,7 +51,7 @@ public class Player {
 
         AnimationState addColor = new AnimationState();
         addColor.title = "AddColor";
-        addColor.addFrame(new Vector4f(0, 0, 0, 0.1f), defaultFrameTime);
+        addColor.addFrame(new Vector4f(0, 0, 0, 1), defaultFrameTime);
 
         
         AnimationState removeColor = new AnimationState();
@@ -67,39 +67,39 @@ public class Player {
         stateMachine.addState(addColor);
         stateMachine.addState(removeColor);
 
-        stateMachine.setDefaultState(idling.title);
+        stateMachine.setDefaultState(idling, addColor);
 
-        stateMachine.addTrigger(idling.title, runUp.title, "runUp");
-        stateMachine.addTrigger(runDown.title, runUp.title, "runUp");
-        stateMachine.addTrigger(runSideways.title, runUp.title, "runUp");
+        stateMachine.addTrigger(idling, runUp, "runUp");
+        stateMachine.addTrigger(runDown, runUp, "runUp");
+        stateMachine.addTrigger(runSideways, runUp, "runUp");
 
-        stateMachine.addTrigger(idling.title, runDown.title, "runDown");
-        stateMachine.addTrigger(runUp.title, runDown.title, "runDown");
-        stateMachine.addTrigger(runSideways.title, runDown.title, "runDown");
+        stateMachine.addTrigger(idling, runDown, "runDown");
+        stateMachine.addTrigger(runUp, runDown, "runDown");
+        stateMachine.addTrigger(runSideways, runDown, "runDown");
 
-        stateMachine.addTrigger(idling.title, runSideways.title, "runSideways");
-        stateMachine.addTrigger(runDown.title, runSideways.title, "runSideways");
-        stateMachine.addTrigger(runUp.title, runSideways.title, "runSideways");
+        stateMachine.addTrigger(idling, runSideways, "runSideways");
+        stateMachine.addTrigger(runDown, runSideways, "runSideways");
+        stateMachine.addTrigger(runUp, runSideways, "runSideways");
 
-        stateMachine.addTrigger(runSideways.title, idling.title, "idle");
-        stateMachine.addTrigger(runDown.title, idling.title, "idle");
-        stateMachine.addTrigger(runUp.title, idling.title, "idle");
+        stateMachine.addTrigger(runSideways, idling, "idle");
+        stateMachine.addTrigger(runDown, idling, "idle");
+        stateMachine.addTrigger(runUp, idling, "idle");
 
-        stateMachine.addTrigger(idling.title, removeColor.title, "removeColor");
-        stateMachine.addTrigger(runUp.title, removeColor.title, "removeColor");
-        stateMachine.addTrigger(runDown.title, removeColor.title, "removeColor");
-        stateMachine.addTrigger(runSideways.title, removeColor.title, "removeColor");
-        stateMachine.addTrigger(addColor.title, removeColor.title, "removeColor");
+        // stateMachine.addTrigger(idling, removeColor, "removeColor");
+        // stateMachine.addTrigger(runUp, removeColor, "removeColor");
+        // stateMachine.addTrigger(runDown, removeColor, "removeColor");
+        // stateMachine.addTrigger(runSideways, removeColor, "removeColor");
+        // stateMachine.addTrigger(addColor, removeColor, "removeColor");
         
-        stateMachine.addTrigger(idling.title, addColor.title, "addColor");
-        stateMachine.addTrigger(runUp.title, addColor.title, "addColor");
-        stateMachine.addTrigger(runDown.title, addColor.title, "addColor");
-        stateMachine.addTrigger(runSideways.title, addColor.title, "addColor");
-        stateMachine.addTrigger(removeColor.title, addColor.title, "addColor");
+        // stateMachine.addTrigger(idling, addColor, "addColor");
+        // stateMachine.addTrigger(runUp, addColor, "addColor");
+        // stateMachine.addTrigger(runDown, addColor, "addColor");
+        // stateMachine.addTrigger(runSideways, addColor, "addColor");
+        // stateMachine.addTrigger(removeColor, addColor, "addColor");
 
         
-        stateMachine.addTrigger(removeColor.title, addColor.title, "toggleColor");
-        stateMachine.addTrigger(addColor.title, removeColor.title, "toggleColor");
+        stateMachine.addTrigger(removeColor, addColor, "toggleColor");
+        stateMachine.addTrigger(addColor, removeColor, "toggleColor");
 
 
 

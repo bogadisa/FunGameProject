@@ -15,9 +15,9 @@ import secondEngine.util.PrefabFactory;
 
 public class Mouse {
     public static GameObject generate() {
-        // Sprite sprite = PrefabFactory.getObjectSprite(PrefabFactory.PrefabIds.GroundPrefabs.Spring.GRASS_1);
-        // GameObject mouse = SpriteObject.generate(sprite, 32, 32);
-        GameObject mouse = SpriteObject.generate(new Sprite().setTexture(null), 1, 1);
+        Sprite sprite = PrefabFactory.getObjectSprite(PrefabFactory.PrefabIds.GroundPrefabs.Spring.GRASS_1);
+        GameObject mouse = SpriteObject.generate(sprite, 32, 32);
+        // GameObject mouse = SpriteObject.generate(new Sprite().setTexture(null), 1, 1);
 
         MouseTracker mouseTracker = new MouseTracker();
         mouse.addComponent(mouseTracker);

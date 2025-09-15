@@ -84,12 +84,12 @@ public class OverlayObject {
         stateMachine.addState(defaultState);
         stateMachine.addState(colored);
 
-        stateMachine.setDefaultState(defaultState.title);
+        stateMachine.setDefaultState(defaultState, defaultState);
 
-        stateMachine.addTrigger(defaultState.title, colored.title, "addColor");
-        stateMachine.addTrigger(colored.title, colored.title, "addColor");
-        stateMachine.addTrigger(colored.title, defaultState.title, "removeColor");
-        stateMachine.addTrigger(defaultState.title, defaultState.title, "removeColor");
+        stateMachine.addTrigger(defaultState, colored, "addColor");
+        stateMachine.addTrigger(colored, colored, "addColor");
+        stateMachine.addTrigger(colored, defaultState, "removeColor");
+        stateMachine.addTrigger(defaultState, defaultState, "removeColor");
 
         gridObj.addComponent(stateMachine);
 
