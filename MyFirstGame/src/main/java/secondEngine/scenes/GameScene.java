@@ -1,6 +1,7 @@
 package secondEngine.scenes;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import secondEngine.Camera;
 import secondEngine.Config;
@@ -17,12 +18,14 @@ import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.OverlayObject;
-import secondEngine.objects.OverlayObject.Layouts;
+// import secondEngine.objects.OverlayObject.Layouts;
 import secondEngine.objects.Special.Mouse;
 import secondEngine.objects.entities.Player;
 import secondEngine.util.AssetPool;
+import secondEngine.util.PrefabFactory;
 import secondEngine.util.Time;
 import secondEngine.util.InteractableFactory.InteractableIds;
+import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
 
 public class GameScene extends Scene {
     public void init() {
@@ -60,13 +63,18 @@ public class GameScene extends Scene {
         // Vector3f(2*scale, 2*scale, 1)));
         // this.addGameObjectToScene(obj);
 
-        SpriteSheet spriteSheet = AssetPool.getSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
-        Sprite[] sprites = { spriteSheet.getSprite(2), spriteSheet.getSprite(0), spriteSheet.getSprite(1) };
-        Sprite[] layoutSprites = { spriteSheet.getSprite(3) };
-        // GameObject ui = OverlayObject.generateInventory(sprites, layoutSprites, AssetPool.getLayout(Layouts.STANDARD));
+        // SpriteSheet spriteSheet =
+        // AssetPool.getSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
+        // Sprite[] sprites = { spriteSheet.getSprite(2), spriteSheet.getSprite(0),
+        // spriteSheet.getSprite(1) };
+        // Sprite[] layoutSprites = { spriteSheet.getSprite(3) };
+        // GameObject ui = OverlayObject.generateInventory(sprites, layoutSprites,
+        // AssetPool.getLayout(Layouts.STANDARD));
         // Window.getScene().worldGrid().addObject(ui);
+        GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
+        inventory.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1));
 
-        // this.addGameObjectToScene(ui);
+        this.addGameObjectToScene(inventory);
         // ui.getComponent(GridState.class).toggleHighlight();
 
     }
@@ -77,6 +85,7 @@ public class GameScene extends Scene {
 
         AssetPool.addSpriteSheet("entities/player_3_3_9.png");
         AssetPool.addSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
+        AssetPool.addSpriteSheet("overlay/inventory_2_2_4.png");
         AssetPool.addSpriteSheet("background/spring_4_4_15.png");
 
         for (GameObject go : this.gameObjects) {
@@ -96,9 +105,9 @@ public class GameScene extends Scene {
         int[][] standardLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
                 { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11],
                 { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11], };
-        AssetPool.addLayout(standardLayout, Layouts.STANDARD);
+        AssetPool.addLayout(standardLayout, InventoryLayout.DEFAULT_27);
         int[][] lineLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11], };
-        AssetPool.addLayout(lineLayout, Layouts.LINE);
+        AssetPool.addLayout(lineLayout, InventoryLayout.DEFAULT_9);
     }
 
     public void update() {

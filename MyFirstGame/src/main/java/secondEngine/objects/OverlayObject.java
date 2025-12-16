@@ -12,14 +12,26 @@ import secondEngine.components.Overlay;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.Transform;
 import secondEngine.components.helpers.Sprite;
+import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.components.helpers.AnimationState;
 import secondEngine.components.helpers.InteractableState;
 import secondEngine.util.AssetPool;
 import secondEngine.util.InteractableFactory.InteractableIds;
+import secondEngine.util.PrefabFactory.PrefabIds;
+import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs;
+import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
 
 public class OverlayObject {
-    public enum Layouts {
-        STANDARD, LINE,
+
+    public static <OverlayType extends PrefabIds> GameObject generate(SpriteSheet spriteSheet,
+            OverlayType overlayType) {
+        GameObject overlayObj = Window.getScene().createGameObject("OverlayObjectGen");
+
+        if (overlayType.getClass().isAssignableFrom(OverlayPrefabs.InventoryLayout.class)) {
+            InventoryLayout layout = InventoryLayout.class.cast(overlayType);
+            overlayObj = generateInventory(overlayObj, spriteSheet, layout);
+        }
+        return overlayObj;
     }
 
     public static GameObject generate(Sprite[] sprites, int numSpritesX, int numSpritesY) {
@@ -32,7 +44,20 @@ public class OverlayObject {
         return overlayObj;
     }
 
-    public static GameObject generateInventory(Sprite[] sprites, Sprite[] layoutSprites, int[][] layout) {
+    private static GameObject generateInventory(GameObject inventoryObject, SpriteSheet spriteSheet,
+            InventoryLayout layout) {
+        Sprite corner = spriteSheet.getSprite(0);
+        Sprite edge = spriteSheet.getSprite(1);
+        Sprite inventory = spriteSheet.getSprite(2);
+        Sprite fill = spriteSheet.getSprite(3);
+        Sprite[] sprites = { fill, corner, edge };
+        Sprite[] layoutSprites = { inventory };
+        Overlay overlay = new Overlay().init(inventoryObject, sprites, layoutSprites, AssetPool.getLayout(layout));
+        inventoryObject.addComponent(overlay);
+        return inventoryObject;
+    }
+
+    private static GameObject generateInventory(Sprite[] sprites, Sprite[] layoutSprites, int[][] layout) {
         int scale = UIconfig.getScale();
         GameObject inventoryObj = Window.getScene().createGameObject("OverlayObjectGen",
                 new Transform().init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1)));

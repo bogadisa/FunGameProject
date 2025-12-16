@@ -35,7 +35,8 @@ public class AnimationStateMachine extends Component {
 
         @Override
         public boolean equals(Object o) {
-            if (o.getClass() != StateTrigger.class) return false;
+            if (o.getClass() != StateTrigger.class)
+                return false;
             StateTrigger t2 = (StateTrigger) o;
             return t2.trigger.equals(this.trigger) && t2.fromState.equals(this.fromState);
         }
@@ -96,8 +97,10 @@ public class AnimationStateMachine extends Component {
     }
 
     public void addState(AnimationState state) {
-        if (state.isSpriteAnimation()) this.spriteStates.add(state);
-        if (state.isColorAnimation()) this.colorStates.add(state);
+        if (state.isSpriteAnimation())
+            this.spriteStates.add(state);
+        if (state.isColorAnimation())
+            this.colorStates.add(state);
         state.refreshTextures();
     }
 
@@ -116,12 +119,17 @@ public class AnimationStateMachine extends Component {
 
     public Optional<AnimationState> trigger(String trigger) {
         Optional<AnimationState> optionalState = Optional.empty();
-        for (Entry<StateTrigger, AnimationState> entrySet: stateTransfers.entrySet()) {
+        for (Entry<StateTrigger, AnimationState> entrySet : stateTransfers.entrySet()) {
             StateTrigger stateTrigger = entrySet.getKey();
-            if (((stateTrigger.isColorTrigger && stateTrigger.fromState.equals(currentColorState.title)) || (stateTrigger.isSpriteTrigger && stateTrigger.fromState.equals(currentSpriteState.title))) && stateTrigger.trigger.equals(trigger)) {
+            // TODO what is this condition?
+            if (((stateTrigger.isColorTrigger && stateTrigger.fromState.equals(currentColorState.title))
+                    || (stateTrigger.isSpriteTrigger && stateTrigger.fromState.equals(currentSpriteState.title)))
+                    && stateTrigger.trigger.equals(trigger)) {
                 AnimationState state = entrySet.getValue();
-                if (state.isSpriteAnimation()) currentSpriteState = state;
-                if (state.isColorAnimation()) currentColorState = state;
+                if (state.isSpriteAnimation())
+                    currentSpriteState = state;
+                if (state.isColorAnimation())
+                    currentColorState = state;
                 optionalState = Optional.of(state);
             }
         }
@@ -176,22 +184,19 @@ public class AnimationStateMachine extends Component {
                     sprite.setTexture(animationState.getCurrentSprite().getTexture());
                     sprite.setColor(animationState.getCurrentColor());
                 }
-                i = 0;
-                for (int index : keys) {
-                    if (isFinished[i]) {
-                        compositeSpriteIndexToAnimation.remove(index);
+                for (int j = 0; j < keys.length; j++) {
+                    if (isFinished[j]) {
+                        compositeSpriteIndexToAnimation.remove(keys[j]);
                     }
-                    i++;
                 }
             }
-
         }
         if (currentSpriteState != null || currentColorState != null) {
             SpriteRenderer sprite = gameObject.getComponent(SpriteRenderer.class);
             if (currentSpriteState != null) {
                 currentSpriteState.update(dt);
                 if (sprite != null) {
-                    
+
                     // TODO Why do we need to set texture when the sprite already contains the
                     // texture?
                     sprite.setSprite(currentSpriteState.getCurrentSprite());
@@ -204,7 +209,7 @@ public class AnimationStateMachine extends Component {
                     sprite.setColor(currentColorState.getCurrentColor());
                 }
             }
-            
+
         }
     }
 

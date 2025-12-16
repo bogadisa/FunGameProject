@@ -5,18 +5,20 @@ import java.util.HashMap;
 import secondEngine.SpatialGrid;
 import secondEngine.Window;
 import secondEngine.components.helpers.Sprite;
+import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.GameObject;
+import secondEngine.objects.OverlayObject;
 import secondEngine.objects.SpriteObject;
-import secondEngine.objects.Tiles.Ground;
+import secondEngine.objects.Special.OverlayManager;
+import secondEngine.objects.Tiles.GroundManager;
 import secondEngine.util.PrefabFactory.PrefabIds.Categories;
 import secondEngine.util.PrefabFactory.PrefabIds.MiscPrefabs;
 import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs.Spring;
 
 /**
  * <pre>
- * Categories: 
- * <tab/> Misc.
- * <tab/> Ground
+ * Categories: <tab/> Misc. <tab/> Ground
+ * 
  * <pre/>
  */
 public class PrefabFactory {
@@ -24,8 +26,7 @@ public class PrefabFactory {
         public Categories id();
 
         enum Categories {
-            MISC,
-            GROUND
+            MISC, GROUND, OVERLAY
         }
 
         enum MiscPrefabs implements PrefabIds {
@@ -39,9 +40,7 @@ public class PrefabFactory {
 
         public interface GroundPrefabs extends PrefabIds {
             enum Spring implements GroundPrefabs {
-                GRASS_1, GRASS_2, GRASS_3, GRASS_4,
-                DIRT_1, DIRT_2,
-                DIRT_BONE, DIRT_STONE_1, DIRT_STONE_2, DIRT_BOTTLE,
+                GRASS_1, GRASS_2, GRASS_3, GRASS_4, DIRT_1, DIRT_2, DIRT_BONE, DIRT_STONE_1, DIRT_STONE_2, DIRT_BOTTLE,
                 SURFACE_ROCK, SURFACE_BUSH_1, SURFACE_BUSH_2, SURFACE_SHRUB_1, SURFACE_SHRUB_2;
 
                 @Override
@@ -50,15 +49,40 @@ public class PrefabFactory {
                 }
             }
         }
+
+        public interface OverlayPrefabs extends PrefabIds {
+            enum InventoryLayout implements GroundPrefabs {
+                DEFAULT_27, DEFAULT_9;
+
+                @Override
+                public Categories id() {
+                    return Categories.OVERLAY;
+                }
+            }
+        }
+
+    }
+
+    public interface PrefabBase {
+        public abstract <PrefabType extends PrefabIds> Sprite getSprite(PrefabType objectId);
+
+        public abstract <PrefabType extends PrefabIds> SpriteSheet getSpriteSheet(PrefabType objectId);
+
+        default <PrefabType extends PrefabIds, WantedPrefabType extends PrefabIds> boolean isOfType(PrefabType objectId,
+                Class<WantedPrefabType> objectClass) {
+            return objectId.getClass().isAssignableFrom(objectClass);
+        }
     }
 
     private static PrefabFactory prefabFactory;
-    private Ground ground;
+    private GroundManager groundManager;
+    private OverlayManager overlayManager;
 
     private HashMap<Integer, PrefabIds[]> enumValues;
 
     private PrefabFactory() {
-        ground = new Ground();
+        groundManager = new GroundManager();
+        overlayManager = new OverlayManager();
 
         enumValues = new HashMap<>();
         enumValues.put(MiscPrefabs.class.hashCode(), MiscPrefabs.values());
@@ -71,15 +95,14 @@ public class PrefabFactory {
         }
         return PrefabFactory.prefabFactory;
     }
-    
+
     public static <EnumType extends PrefabIds> EnumType getEnum(Class<EnumType> enumClass, int idx) {
         if (Enum.class.isAssignableFrom(enumClass)) {
             PrefabIds[] enums = get().enumValues.get(enumClass.hashCode());
             PrefabIds targetEnum = enums.length > idx ? enums[idx] : null;
             if (targetEnum == null) {
                 return null;
-            } 
-            else if (enumClass.isAssignableFrom(targetEnum.getClass()) ) {
+            } else if (enumClass.isAssignableFrom(targetEnum.getClass())) {
                 return enumClass.cast(targetEnum);
             } else {
                 return null;
@@ -95,10 +118,11 @@ public class PrefabFactory {
 
     private static <PrefabSubClass extends PrefabIds> Sprite getObjSprite(PrefabSubClass objectId) {
         Categories catEnum = objectId.id();
-        Sprite sprite = null; 
+        Sprite sprite = null;
         switch (catEnum) {
         case GROUND:
-            sprite = get().ground.getSprite(objectId);
+            sprite = get().groundManager.getSprite(objectId);
+
         default:
             break;
         }
@@ -108,14 +132,31 @@ public class PrefabFactory {
         return sprite;
     }
 
+    private static <PrefabSubClass extends PrefabIds> SpriteSheet getObjSpriteSheet(PrefabSubClass objectId) {
+        Categories catEnum = objectId.id();
+        SpriteSheet spriteSheet = null;
+        switch (catEnum) {
+        case OVERLAY:
+            spriteSheet = get().overlayManager.getSpriteSheet(objectId);
+
+        default:
+            break;
+        }
+        if (spriteSheet == null) {
+            throw new IllegalArgumentException("Argument of type '" + objectId + "' is not supported");
+        }
+        return spriteSheet;
+    }
+
     public static GameObject getObject(PrefabIds objectId) {
         SpatialGrid grid = Window.getScene().worldGrid();
         Categories catEnum = objectId.id();
         GameObject go = null;
         switch (catEnum) {
         case GROUND:
-            go = SpriteObject.generate(PrefabFactory.getObjSprite(objectId), grid.getGridSize(),
-                    grid.getGridSize());
+            go = SpriteObject.generate(PrefabFactory.getObjSprite(objectId), grid.getGridSize(), grid.getGridSize());
+        case OVERLAY:
+            go = OverlayObject.generate(PrefabFactory.getObjSpriteSheet(objectId), objectId);
         default:
             break;
         }
