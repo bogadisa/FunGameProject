@@ -64,8 +64,8 @@ public class GameScene extends Scene {
         // this.addGameObjectToScene(obj);
 
         GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
-        // inventory.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale,
-        // 10));
+        inventory.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 10));
+
         // Window.getScene().worldGrid().addObject(inventory);
 
         this.addGameObjectToScene(inventory);
@@ -98,9 +98,9 @@ public class GameScene extends Scene {
         }
         int[][] standardLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
                 { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11],
-                { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11], };
+                { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11] };
         AssetPool.addLayout(standardLayout, InventoryLayout.DEFAULT_27);
-        int[][] lineLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11], };
+        int[][] lineLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11] };
         AssetPool.addLayout(lineLayout, InventoryLayout.DEFAULT_9);
     }
 }

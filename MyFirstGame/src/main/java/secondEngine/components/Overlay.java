@@ -19,10 +19,9 @@ import secondEngine.util.PrefabFactory;
 public class Overlay extends Component {
     private boolean rescale = false;
 
-    private Sprite corner, edge, fill, inventory;
+    private Sprite corner, edge, fill;
     private boolean ignoreEdge = true;
     private boolean ignoreCorner = true;
-    private Sprite[] layoutSprites;
 
     private Map<String, Integer> spriteRenderers = new HashMap<>();
 
@@ -102,7 +101,7 @@ public class Overlay extends Component {
                 int[] rotation = { 0 };
                 boolean[] flip = { false };
 
-                Sprite piece = addSprite(i, j, numSpritesX, numSpritesY, rotation, flip);
+                Sprite piece = getSprite(i, j, numSpritesX, numSpritesY, rotation, flip);
                 offset = new Vector3f((i - 1) * scale, (j - 1) * scale, 2);
                 spriteRenderers.put(overlayGrid.worldToString(offset), compSprite.size());
                 compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), offset, rotation[0], flip[0]);
@@ -130,7 +129,7 @@ public class Overlay extends Component {
                 int[] rotation = { 0 };
                 boolean[] flip = { false };
 
-                Sprite piece = addSprite(i, j, sizeX, sizeY, rotation, flip);
+                Sprite piece = getSprite(i, j, sizeX, sizeY, rotation, flip);
                 compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece),
                         new Vector3f((i - 1) * scale, (j - 1) * scale, 2), rotation[0], flip[0]);
                 if (layoutSprites != null && layout[sizeY - j][i - 1] > 0) {
@@ -156,7 +155,7 @@ public class Overlay extends Component {
 
     }
 
-    private Sprite addSprite(int i, int j, int x, int y, int[] rotation, boolean[] flip) {
+    private Sprite getSprite(int i, int j, int x, int y, int[] rotation, boolean[] flip) {
         Sprite piece = fill;
         if (j == 1) {
             rotation[0] = 180;
@@ -218,6 +217,7 @@ public class Overlay extends Component {
         if (this.gameObject.getName().equals("inventoryObj")) {
             System.out.println("yo!");
         }
+        // TODO remove because better permanent system is needed
         for (GameObject go : linkedObjects) {
             GridMachine gm = go.getComponent(GridMachine.class);
             if (gm.isDirty()) {

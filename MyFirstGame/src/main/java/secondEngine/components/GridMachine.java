@@ -48,8 +48,6 @@ public class GridMachine extends Component {
             for (SpatialGrid grid : grids) {
                 grid.updateObject(this.gameObject);
             }
-            // SpatialGrid worldGrid = Window.getScene().worldGrid();
-            // worldGrid.updateObject(gameObject);
             gameObject.transform.copy(lastTransform);
             isDirty = true;
         } else {

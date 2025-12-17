@@ -47,9 +47,10 @@ public abstract class Scene {
         for (Priority prio : Priority.values()) {
             for (GameObject go : gameObjects) {
                 go.start(prio);
-                this.renderer.add(go);
             }
-
+        }
+        for (GameObject go : gameObjects) {
+            this.renderer.add(go);
         }
 
         isRunning = true;
@@ -84,9 +85,10 @@ public abstract class Scene {
             for (GameObject go : gameObjectToAdd) {
                 gameObjects.add(go);
                 go.start(prio);
-                this.renderer.add(go);
             }
-
+        }
+        for (GameObject go : gameObjects) {
+            this.renderer.add(go);
         }
         gameObjectToAdd.clear();
         newGameObjectsQueued = false;

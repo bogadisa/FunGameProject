@@ -50,11 +50,11 @@ public class Player {
 
         AnimationState addColor = new AnimationState();
         addColor.title = "AddColor";
-        addColor.addFrame(new Vector4f(0, 0, 0, 1), defaultFrameTime);
+        addColor.addFrame(new Vector4f(1), defaultFrameTime);
 
         AnimationState removeColor = new AnimationState();
         removeColor.title = "RemoveColor";
-        removeColor.addFrame(new Vector4f(0), defaultFrameTime);
+        removeColor.addFrame(new Vector4f(1, 1, 1, 0), defaultFrameTime);
 
         AnimationStateMachine stateMachine = new AnimationStateMachine();
 
@@ -82,18 +82,6 @@ public class Player {
         stateMachine.addTrigger(runSideways, idling, "idle");
         stateMachine.addTrigger(runDown, idling, "idle");
         stateMachine.addTrigger(runUp, idling, "idle");
-
-        // stateMachine.addTrigger(idling, removeColor, "removeColor");
-        // stateMachine.addTrigger(runUp, removeColor, "removeColor");
-        // stateMachine.addTrigger(runDown, removeColor, "removeColor");
-        // stateMachine.addTrigger(runSideways, removeColor, "removeColor");
-        // stateMachine.addTrigger(addColor, removeColor, "removeColor");
-
-        // stateMachine.addTrigger(idling, addColor, "addColor");
-        // stateMachine.addTrigger(runUp, addColor, "addColor");
-        // stateMachine.addTrigger(runDown, addColor, "addColor");
-        // stateMachine.addTrigger(runSideways, addColor, "addColor");
-        // stateMachine.addTrigger(removeColor, addColor, "addColor");
 
         stateMachine.addTrigger(removeColor, addColor, "toggleColor");
         stateMachine.addTrigger(addColor, removeColor, "toggleColor");

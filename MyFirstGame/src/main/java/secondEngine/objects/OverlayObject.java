@@ -46,8 +46,9 @@ public class OverlayObject {
 
     private static GameObject generateInventory(GameObject inventoryObject, SpriteSheet spriteSheet,
             InventoryLayout layout) {
-        int scale = UIconfig.getScale();
-        inventoryObject.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1));
+        // int scale = UIconfig.getScale();
+        // inventoryObject.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale,
+        // scale, 1));
         Sprite corner = spriteSheet.getSprite(0);
         Sprite edge = spriteSheet.getSprite(1);
         Sprite inventory = spriteSheet.getSprite(2);
