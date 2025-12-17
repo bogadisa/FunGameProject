@@ -1,7 +1,5 @@
 package secondEngine.components;
 
-import java.util.Objects;
-
 import org.joml.Vector3f;
 
 import secondEngine.Component;

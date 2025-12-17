@@ -29,7 +29,6 @@ public class MouseTracker extends Component {
 
     @Override
     public void start() {
-
         this.gameObject.transform.position.x = 100;
         this.gameObject.transform.position.y = 100;
         this.gameObject.transform.copy(lastTransform);

@@ -31,12 +31,12 @@ public class GridState {
 
             float xMinB, xMaxB, yMinB, yMaxB;
 
-            // A.X1 < B.X2:	true
-            // A.X2 > B.X1:	true
-            // A.Y1 < B.Y2:	true
-            // A.Y2 > B.Y1:	true
-            // Intersect:   true
-            // else:        false
+            // A.X1 < B.X2: true
+            // A.X2 > B.X1: true
+            // A.Y1 < B.Y2: true
+            // A.Y2 > B.Y1: true
+            // Intersect: true
+            // else: false
             // TODO misses components that are bigger than a boundry
             for (Vector4f boundries : boundriesArray) {
                 xMinB = boundries.x;
@@ -60,7 +60,6 @@ public class GridState {
 
     private List<ComponentCell> components = new ArrayList<>();
 
-    
     public GridState(SpatialGrid grid) {
         this(new HashSet<>(), grid);
     }

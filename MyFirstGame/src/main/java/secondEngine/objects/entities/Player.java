@@ -3,7 +3,6 @@ package secondEngine.objects.entities;
 import org.joml.Vector4f;
 
 import secondEngine.Window;
-import secondEngine.components.GridMachine;
 import secondEngine.components.PlayerControls;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.helpers.AnimationState;
@@ -53,7 +52,6 @@ public class Player {
         addColor.title = "AddColor";
         addColor.addFrame(new Vector4f(0, 0, 0, 1), defaultFrameTime);
 
-        
         AnimationState removeColor = new AnimationState();
         removeColor.title = "RemoveColor";
         removeColor.addFrame(new Vector4f(0), defaultFrameTime);
@@ -90,18 +88,15 @@ public class Player {
         // stateMachine.addTrigger(runDown, removeColor, "removeColor");
         // stateMachine.addTrigger(runSideways, removeColor, "removeColor");
         // stateMachine.addTrigger(addColor, removeColor, "removeColor");
-        
+
         // stateMachine.addTrigger(idling, addColor, "addColor");
         // stateMachine.addTrigger(runUp, addColor, "addColor");
         // stateMachine.addTrigger(runDown, addColor, "addColor");
         // stateMachine.addTrigger(runSideways, addColor, "addColor");
         // stateMachine.addTrigger(removeColor, addColor, "addColor");
 
-        
         stateMachine.addTrigger(removeColor, addColor, "toggleColor");
         stateMachine.addTrigger(addColor, removeColor, "toggleColor");
-
-
 
         player.addComponent(stateMachine);
 

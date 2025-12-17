@@ -63,16 +63,10 @@ public class GameScene extends Scene {
         // Vector3f(2*scale, 2*scale, 1)));
         // this.addGameObjectToScene(obj);
 
-        // SpriteSheet spriteSheet =
-        // AssetPool.getSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");
-        // Sprite[] sprites = { spriteSheet.getSprite(2), spriteSheet.getSprite(0),
-        // spriteSheet.getSprite(1) };
-        // Sprite[] layoutSprites = { spriteSheet.getSprite(3) };
-        // GameObject ui = OverlayObject.generateInventory(sprites, layoutSprites,
-        // AssetPool.getLayout(Layouts.STANDARD));
-        // Window.getScene().worldGrid().addObject(ui);
         GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
-        inventory.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1));
+        // inventory.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale,
+        // 10));
+        // Window.getScene().worldGrid().addObject(inventory);
 
         this.addGameObjectToScene(inventory);
         // ui.getComponent(GridState.class).toggleHighlight();
@@ -108,17 +102,5 @@ public class GameScene extends Scene {
         AssetPool.addLayout(standardLayout, InventoryLayout.DEFAULT_27);
         int[][] lineLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11], };
         AssetPool.addLayout(lineLayout, InventoryLayout.DEFAULT_9);
-    }
-
-    public void update() {
-        float dt = (float) Time.getDelta();
-        for (GameObject go : this.gameObjects) {
-            go.update(dt);
-        }
-        if (this.newGameObjectsQueued) {
-            this.startQueuedGameObjects();
-        }
-        this.renderer.render();
-
     }
 }

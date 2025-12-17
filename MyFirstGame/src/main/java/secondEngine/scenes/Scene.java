@@ -16,10 +16,12 @@ import secondEngine.SpatialGrid;
 import secondEngine.Window;
 import secondEngine.components.Overlay;
 import secondEngine.components.Transform;
+import secondEngine.data.UpdateHierarchy.Priority;
 import secondEngine.objects.GameObject;
 import secondEngine.renderer.Renderer;
 import secondEngine.util.ComponentDeserializer;
 import secondEngine.util.GameObjectDeserializer;
+import secondEngine.util.Time;
 
 public abstract class Scene {
     protected Renderer renderer = new Renderer();
@@ -42,12 +44,30 @@ public abstract class Scene {
     public abstract void init();
 
     public void start() {
-        for (GameObject go : gameObjects) {
-            go.start();
-            this.renderer.add(go);
+        for (Priority prio : Priority.values()) {
+            for (GameObject go : gameObjects) {
+                go.start(prio);
+                this.renderer.add(go);
+            }
+
         }
 
         isRunning = true;
+    }
+
+    public void update() {
+        float dt = (float) Time.getDelta();
+        for (Priority prio : Priority.values()) {
+            for (GameObject go : this.gameObjects) {
+                go.update(dt, prio);
+            }
+
+        }
+
+        if (this.newGameObjectsQueued) {
+            this.startQueuedGameObjects();
+        }
+        this.renderer.render();
     }
 
     public void addGameObjectToScene(GameObject go) {
@@ -60,16 +80,17 @@ public abstract class Scene {
     }
 
     protected void startQueuedGameObjects() {
-        for (GameObject go : gameObjectToAdd) {
-            gameObjects.add(go);
-            go.start();
-            this.renderer.add(go);
+        for (Priority prio : Priority.values()) {
+            for (GameObject go : gameObjectToAdd) {
+                gameObjects.add(go);
+                go.start(prio);
+                this.renderer.add(go);
+            }
+
         }
         gameObjectToAdd.clear();
         newGameObjectsQueued = false;
     }
-
-    public abstract void update();
 
     public Camera camera() {
         return this.camera;

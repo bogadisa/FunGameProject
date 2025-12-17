@@ -58,9 +58,8 @@ public class Overlay extends Component {
         // TODO does this need to be initialized in another way?
         this.overlayGrid = new SpatialGrid(go.getName());
         this.initSprites(sprites);
-        this.layoutSprites = layoutSprites;
         this.gameObject = go;
-        this.buildCompositeSprite(layout);
+        this.buildCompositeSprite(layout, layoutSprites);
         isInitialized = true;
         return this;
 
@@ -114,13 +113,16 @@ public class Overlay extends Component {
         return this;
     }
 
-    private Overlay buildCompositeSprite(int[][] layout) {
+    // private Overlay buildCompositeSprite(int[][] layout) {
+    // return buildCompositeSprite(layout, null);
+    // }
+
+    private Overlay buildCompositeSprite(int[][] layout, Sprite[] layoutSprites) {
         int sizeY = layout.length;
         int sizeX = layout[0].length;
         // TODO might cause issues if a comp sprite already exists
         CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
         int scale = UIconfig.getScale();
-
 
         int specialPiecesAdded = 0;
         for (int i = 1; i <= sizeX; i++) {
@@ -131,33 +133,18 @@ public class Overlay extends Component {
                 Sprite piece = addSprite(i, j, sizeX, sizeY, rotation, flip);
                 compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece),
                         new Vector3f((i - 1) * scale, (j - 1) * scale, 2), rotation[0], flip[0]);
-                if (layout[sizeY - j][i - 1] > 0) {
+                if (layoutSprites != null && layout[sizeY - j][i - 1] > 0) {
                     Vector3f offset = new Vector3f((i - 1) * scale, (j - 1) * scale, 2);
                     spriteRenderers.put(overlayGrid.worldToString(offset), compSprite.size());
                     compSprite.addSpriteRenderer(
                             new SpriteRenderer().setSprite(layoutSprites[layout[sizeY - j][i - 1] - 1]), offset);
-                    // TODO why 15
-                     PrefabFactory.PrefabIds.GroundPrefabs.Spring enumSpring = PrefabFactory.getEnum(PrefabFactory.PrefabIds.GroundPrefabs.Spring.class, specialPiecesAdded);
+
+                    // TODO remove this testing stuff
+                    PrefabFactory.PrefabIds.GroundPrefabs.Spring enumSpring = PrefabFactory
+                            .getEnum(PrefabFactory.PrefabIds.GroundPrefabs.Spring.class, specialPiecesAdded);
                     if (enumSpring != null) {
                         Sprite sprite = PrefabFactory.getObjectSprite(enumSpring);
                         compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(sprite), offset);
-                        // Vector3f worldPos = new Vector3f().set(this.gameObject.transform.position);
-                        // worldPos.add(offset);
-                        // Vector2f screenPos = Window.getScene().camera().worldToScreen(worldPos);
-
-                        // // TODO not serializable
-                        // Interactable temp = new Interactable() {
-                        // @Override
-                        // public void interact() {
-                        // CompositeSpriteRenderer compSprite =
-                        // gameObject.getComponent(CompositeSpriteRenderer.class);
-                        // // hmmm
-                        // }
-
-                        // };
-                        // temp.setActive(true);
-                        // temp.gameObject = this.gameObject;
-                        // OverlayState.addInteractable(temp, screenPos);
                     }
                     specialPiecesAdded++;
                 }
@@ -228,11 +215,12 @@ public class Overlay extends Component {
 
     @Override
     public void update(float dt) {
+        if (this.gameObject.getName().equals("inventoryObj")) {
+            System.out.println("yo!");
+        }
         for (GameObject go : linkedObjects) {
             GridMachine gm = go.getComponent(GridMachine.class);
-            // TODO a bit fucked, need to think more about when an object is updated
             if (gm.isDirty()) {
-                overlayGrid.updateObject(go);
                 GridState gs = gm.getGridState(overlayGrid.getName());
                 AnimationStateMachine sm = gameObject.getComponent(AnimationStateMachine.class);
                 if (sm != null && gm.highlight()) {
@@ -251,7 +239,6 @@ public class Overlay extends Component {
                         if (spriteRendererIndex > -1) {
                             sm.trigger("removeColor", spriteRendererIndex);
                         }
-
                     }
                 }
             }

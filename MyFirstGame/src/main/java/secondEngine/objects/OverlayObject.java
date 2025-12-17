@@ -46,6 +46,8 @@ public class OverlayObject {
 
     private static GameObject generateInventory(GameObject inventoryObject, SpriteSheet spriteSheet,
             InventoryLayout layout) {
+        int scale = UIconfig.getScale();
+        inventoryObject.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1));
         Sprite corner = spriteSheet.getSprite(0);
         Sprite edge = spriteSheet.getSprite(1);
         Sprite inventory = spriteSheet.getSprite(2);
@@ -53,21 +55,9 @@ public class OverlayObject {
         Sprite[] sprites = { fill, corner, edge };
         Sprite[] layoutSprites = { inventory };
         Overlay overlay = new Overlay().init(inventoryObject, sprites, layoutSprites, AssetPool.getLayout(layout));
+        inventoryObject.setName("inventoryObj");
         inventoryObject.addComponent(overlay);
         return inventoryObject;
-    }
-
-    private static GameObject generateInventory(Sprite[] sprites, Sprite[] layoutSprites, int[][] layout) {
-        int scale = UIconfig.getScale();
-        GameObject inventoryObj = Window.getScene().createGameObject("OverlayObjectGen",
-                new Transform().init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 1)));
-
-        Overlay overlay = new Overlay().init(inventoryObj, sprites, layoutSprites, layout);
-        inventoryObj.addComponent(overlay);
-
-        inventoryObj.setSerializeOnSave(false);
-
-        return inventoryObj;
     }
 
     public static GameObject generateGrid() {

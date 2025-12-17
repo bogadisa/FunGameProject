@@ -118,6 +118,7 @@ public class SpatialGrid {
 
         return boundriesArray;
     }
+
     // TODO doesnt work with single cell objects??
     public Set<String> getGridCoverage(Transform transform) {
         Vector2i gridCoords = worldToGrid(transform);
@@ -171,7 +172,7 @@ public class SpatialGrid {
             go.addComponent(gm);
         }
         GridState gs = new GridState(coverage, this);
-        gm.getGridState(name, gs);
+        gm.putGridState(name, gs);
         addObject(go, coverage);
     }
 

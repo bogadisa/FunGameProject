@@ -1,0 +1,37 @@
+package secondEngine.data;
+
+import java.util.HashMap;
+
+import secondEngine.Component;
+import secondEngine.components.GridMachine;
+import secondEngine.components.MouseTracker;
+import secondEngine.components.Overlay;
+import secondEngine.components.PlayerControls;
+
+public class UpdateHierarchy {
+    public enum Priority {
+        FIRST, SECOND, THIRD, LAST
+    }
+
+    private static UpdateHierarchy updateHierarchy;
+    private static HashMap<Class<? extends Component>, Priority> hierarchy;
+
+    private UpdateHierarchy() {
+        hierarchy = new HashMap<>();
+        hierarchy.put(PlayerControls.class, Priority.FIRST);
+        hierarchy.put(MouseTracker.class, Priority.FIRST);
+        hierarchy.put(GridMachine.class, Priority.SECOND);
+        hierarchy.put(Overlay.class, Priority.THIRD);
+    }
+
+    static public UpdateHierarchy get() {
+        if (UpdateHierarchy.updateHierarchy == null) {
+            UpdateHierarchy.updateHierarchy = new UpdateHierarchy();
+        }
+        return UpdateHierarchy.updateHierarchy;
+    }
+
+    public Priority getPriority(Component c) {
+        return hierarchy.getOrDefault(c.getClass(), Priority.LAST);
+    }
+}

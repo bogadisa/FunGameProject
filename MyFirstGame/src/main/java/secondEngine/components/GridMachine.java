@@ -24,13 +24,16 @@ public class GridMachine extends Component {
     public GridMachine init() {
         this.grids = new ArrayList<>();
         this.gridStates = new HashMap<>();
+        // TODO do we want to assume this?
         linkGrid(Window.getScene().worldGrid());
         return this;
     }
 
     public GridMachine linkGrid(SpatialGrid grid) {
-        grids.add(grid);
-        gridStates.put(grid.getName(), new GridState(grid));
+        if (!grids.contains(grid)) {
+            grids.add(grid);
+            gridStates.put(grid.getName(), new GridState(grid));
+        }
         return this;
     }
 
@@ -42,14 +45,11 @@ public class GridMachine extends Component {
     public void update(float dt) {
         if (!lastTransform.equals(gameObject.transform)) {
             // TODO add update object that can update several spatial grids continuously
-            // TODO a bit fucked, need to think more about when an object is updated
-            // String[] lastGridCells = null;
-            // for (SpatialGrid grid : grids) {
-            //     lastGridCells = grid.updateObject(this.gameObject);
-            //     this.lastGridCells.put(grid.getName(), lastGridCells);
-            // }
-            SpatialGrid worldGrid = Window.getScene().worldGrid();
-            worldGrid.updateObject(gameObject);
+            for (SpatialGrid grid : grids) {
+                grid.updateObject(this.gameObject);
+            }
+            // SpatialGrid worldGrid = Window.getScene().worldGrid();
+            // worldGrid.updateObject(gameObject);
             gameObject.transform.copy(lastTransform);
             isDirty = true;
         } else {
@@ -63,7 +63,8 @@ public class GridMachine extends Component {
         gs.addComponent(component, offset, size);
     }
 
-    public <T extends Component> List<T> getComponents(Class<T> componentClass, Set<String> coverage, SpatialGrid grid) {
+    public <T extends Component> List<T> getComponents(Class<T> componentClass, Set<String> coverage,
+            SpatialGrid grid) {
         GridState gs = getGridState(grid.getName());
         if (gs == null) {
             return new ArrayList<>();
@@ -91,7 +92,7 @@ public class GridMachine extends Component {
         return this.gridStates.get(name);
     }
 
-    public void getGridState(String name, GridState gridState) {
+    public void putGridState(String name, GridState gridState) {
         this.gridStates.put(name, gridState);
     }
 
