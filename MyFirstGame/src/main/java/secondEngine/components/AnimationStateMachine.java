@@ -141,13 +141,14 @@ public class AnimationStateMachine extends Component {
                     newColorState = state;
                     colorAnimation = true;
                 }
-            }
-            if (stateTrigger.trigger.equals(trigger)) {
-                AnimationState state = entrySet.getValue();
                 if (state.isSpriteAnimation() && stateTrigger.isSpriteTrigger
                         && stateTrigger.fromState.equals(currentSpriteState.getTitle())) {
                     newSpriteState = state;
                     spriteAnimation = true;
+                }
+                if (stateTrigger.fromState.equals(currentColorState.getTitle())
+                        || stateTrigger.fromState.equals(currentSpriteState.getTitle())) {
+                    break;
                 }
             }
         }
@@ -160,18 +161,6 @@ public class AnimationStateMachine extends Component {
         AnimationState[] newState = { currentColorState, currentSpriteState };
         optionalState = Optional.of(newState);
         return optionalState;
-    }
-
-    private int stateIndexOf(String stateTitle) {
-        int index = 0;
-        for (AnimationState state : colorStates) {
-            if (state.getTitle().equals(stateTitle)) {
-                return index;
-            }
-            index++;
-        }
-
-        return -1;
     }
 
     @Override
