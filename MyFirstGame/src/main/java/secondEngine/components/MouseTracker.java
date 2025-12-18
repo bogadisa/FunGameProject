@@ -56,10 +56,11 @@ public class MouseTracker extends Component {
             List<GameObject> gos = grid.getObjects(this.gameObject);
             InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
             // stateMachine.interact("Enlarge", this.gameObject);
-            String func = "NoHighlight";
-            if (temp) {
-                func = "ToggleHighlight";
-            }
+            // String func = "NoHighlight";
+            String func = "ToggleHighlight";
+            // if (temp) {
+            // func = "ToggleHighlight";
+            // }
             for (GameObject go : gos) {
                 // stateMachine.interact("enlarge", go);
                 temp = stateMachine.interact(func, go);

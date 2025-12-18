@@ -49,8 +49,8 @@ public class GameScene extends Scene {
         player.transform.position.add(64, 80, 0);
         this.addGameObjectToScene(player);
 
-        player.getComponent(GridMachine.class).toggleHighlight();
-        grid.getComponent(Overlay.class).linkObjectToGrid(player);
+        // player.getComponent(GridMachine.class).toggleHighlight();
+        // grid.getComponent(Overlay.class).linkObjectToGrid(player);
 
         // GameObject obj = new GameObject("Obj");
         // CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer();

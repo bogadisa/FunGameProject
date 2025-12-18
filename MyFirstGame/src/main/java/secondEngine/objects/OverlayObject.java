@@ -87,12 +87,10 @@ public class OverlayObject {
 
         float defaultFrameTime = 5.0f;
 
-        AnimationState defaultState = new AnimationState();
-        defaultState.title = "default";
+        AnimationState defaultState = new AnimationState().init("default");
         defaultState.addFrame(gridSprite, new Vector4f(0, 0, 0, 0.1f), defaultFrameTime);
 
-        AnimationState colored = new AnimationState();
-        colored.title = "colored";
+        AnimationState colored = new AnimationState().init("colored");
         colored.addFrame(new Vector4f(1, 0, 0, 0.1f), defaultFrameTime);
 
         AnimationStateMachine stateMachine = new AnimationStateMachine();

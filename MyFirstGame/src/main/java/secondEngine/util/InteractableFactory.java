@@ -14,8 +14,8 @@ import secondEngine.util.InteractableFactory.InteractableIds.Misc;
 
 /**
  * <pre>
- * Categories: 
- * <tab/> Misc.
+ * Categories: <tab/> Misc.
+ * 
  * <pre/>
  */
 public class InteractableFactory {
@@ -27,10 +27,7 @@ public class InteractableFactory {
         }
 
         enum Misc implements InteractableIds {
-            ENLARGE,
-            HIGHLIGHT,
-            NO_HIGHLIGHT,
-            TOGGLE_HIGHLIGHT;
+            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT;
 
             @Override
             public Categories id() {
@@ -41,7 +38,8 @@ public class InteractableFactory {
 
     private static InteractableFactory interactableFactory;
 
-    private InteractableFactory() {}
+    private InteractableFactory() {
+    }
 
     public static InteractableFactory get() {
         if (InteractableFactory.interactableFactory == null) {
@@ -53,10 +51,10 @@ public class InteractableFactory {
     public static InteractableFunction getInteractable(InteractableIds interactable) {
         InteractableFunction func = null;
         switch (interactable.id()) {
-            case MISC:
-                func = InteractableFactory.getMisc(interactable);
-            default:
-                break;
+        case MISC:
+            func = InteractableFactory.getMisc(interactable);
+        default:
+            break;
         }
         if (func == null) {
             throw new IllegalArgumentException("Argument of type '" + interactable + "' is not supported");
@@ -66,42 +64,41 @@ public class InteractableFactory {
 
     private static InteractableFunction getMisc(InteractableIds subcategory) {
         switch (Misc.class.cast(subcategory)) {
-            case ENLARGE:
-                return get().new InteractableFunction() {
-                    @Override
-                    public boolean interact(GameObject thisGO, GameObject otherGO) {
-                        otherGO.transform.scale.set(128, 256, 1);
-                        return true;
-                    }
-                };
+        case ENLARGE:
+            return get().new InteractableFunction() {
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    otherGO.transform.scale.set(128, 256, 1);
+                    return true;
+                }
+            };
 
-            case HIGHLIGHT:
-                return get().new HighlightInteractableFunction() {
-                    @Override
-                    public boolean interact(GameObject thisGO, GameObject otherGO) {
-                        return trigger("addColor", thisGO, otherGO);
-                    }
-                };
-            
-            case NO_HIGHLIGHT:
-                return get().new HighlightInteractableFunction() {
-                    @Override
-                    public boolean interact(GameObject thisGO, GameObject otherGO) {
-                        return trigger("removeColor", thisGO, otherGO);
-                    }
-                };
+        case HIGHLIGHT:
+            return get().new HighlightInteractableFunction() {
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    return trigger("addColor", thisGO, otherGO);
+                }
+            };
 
-            case TOGGLE_HIGHLIGHT:
-                return get().new HighlightInteractableFunction() {
-                    @Override
-                    public boolean interact(GameObject thisGO, GameObject otherGO) {
-                        return trigger("toggleColor", thisGO, otherGO);
-                    }
-                };
+        case NO_HIGHLIGHT:
+            return get().new HighlightInteractableFunction() {
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    return trigger("removeColor", thisGO, otherGO);
+                }
+            };
 
-                
-            default:
-                break;
+        case TOGGLE_HIGHLIGHT:
+            return get().new HighlightInteractableFunction() {
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    return trigger("toggleColor", thisGO, otherGO);
+                }
+            };
+
+        default:
+            break;
         }
 
         return null;
@@ -120,14 +117,18 @@ public class InteractableFactory {
 
         protected boolean trigger(String trigger, GameObject thisGO, GameObject otherGO) {
             AnimationStateMachine sm = otherGO.getComponent(AnimationStateMachine.class);
-            if (sm == null) return false;
+            if (sm == null) {
+                return false;
+            }
+            // TODO make this part of GridMachine logic
             Set<String> otherCoverage = getCoverage(otherGO);
             Set<String> thisCoverage = Window.getScene().worldGrid().getGridCoverage(thisGO.transform);
             boolean overlap = otherCoverage.retainAll(thisCoverage);
             boolean triggered = false;
             if (overlap) {
                 GridMachine gm = otherGO.getComponent(GridMachine.class);
-                List<SpriteRenderer> sprRenderers = gm.getComponents(SpriteRenderer.class, otherCoverage, Window.getScene().worldGrid());
+                List<SpriteRenderer> sprRenderers = gm.getComponents(SpriteRenderer.class, otherCoverage,
+                        Window.getScene().worldGrid());
                 triggered = !sprRenderers.isEmpty();
                 for (SpriteRenderer spriteRenderer : sprRenderers) {
                     if (spriteRenderer.getCompositeIndex() >= 0) {

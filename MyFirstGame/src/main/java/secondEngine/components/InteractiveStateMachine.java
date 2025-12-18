@@ -10,9 +10,9 @@ import secondEngine.objects.GameObject;
 public class InteractiveStateMachine extends Component {
     private Map<String, InteractableState> interactables = new HashMap<>();
 
-
     public void addState(InteractableState state) {
-        this.interactables.put(state.title, state);
+        assert !this.interactables.containsKey(state.getTitle()) : "Duplicate interactables";
+        this.interactables.put(state.getTitle(), state);
         state.start(this.gameObject);
     }
 

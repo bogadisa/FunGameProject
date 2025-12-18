@@ -214,9 +214,6 @@ public class Overlay extends Component {
 
     @Override
     public void update(float dt) {
-        if (this.gameObject.getName().equals("inventoryObj")) {
-            System.out.println("yo!");
-        }
         // TODO remove because better permanent system is needed
         for (GameObject go : linkedObjects) {
             GridMachine gm = go.getComponent(GridMachine.class);

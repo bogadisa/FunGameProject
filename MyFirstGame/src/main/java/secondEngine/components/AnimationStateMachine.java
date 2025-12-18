@@ -3,11 +3,9 @@ package secondEngine.components;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import secondEngine.Component;
 import secondEngine.components.helpers.AnimationState;
@@ -22,7 +20,7 @@ public class AnimationStateMachine extends Component {
         public boolean isSpriteTrigger = false;
 
         public StateTrigger(AnimationState state, String trigger) {
-            this.fromState = state.title;
+            this.fromState = state.getTitle();
             this.isColorTrigger = state.isColorAnimation();
             this.isSpriteTrigger = state.isSpriteAnimation();
             this.trigger = trigger;
@@ -52,7 +50,8 @@ public class AnimationStateMachine extends Component {
     private List<AnimationState> colorStates = new ArrayList<>();
     private transient AnimationState currentSpriteState = null;
     private transient AnimationState currentColorState = null;
-    private transient HashMap<Integer, AnimationState> compositeSpriteIndexToAnimation = new HashMap<>();
+    private transient HashMap<Integer, AnimationState[]> compositeSpriteIndexToAnimation = new HashMap<>();
+    private transient boolean colorAnimation, spriteAnimation;
 
     private String defaultSpriteStateTitle = "";
     private String defaultColorStateTitle = "";
@@ -61,11 +60,14 @@ public class AnimationStateMachine extends Component {
         for (AnimationState state : colorStates) {
             state.refreshTextures();
         }
+        for (AnimationState state : spriteStates) {
+            state.refreshTextures();
+        }
     }
 
     private void setDefaultSpriteState(String animationTitle) {
         for (AnimationState state : spriteStates) {
-            if (state.title.equals(animationTitle)) {
+            if (state.getTitle().equals(animationTitle)) {
                 defaultSpriteStateTitle = animationTitle;
                 if (currentSpriteState == null) {
                     currentSpriteState = state;
@@ -79,7 +81,7 @@ public class AnimationStateMachine extends Component {
 
     private void setDefaultColorState(String animationTitle) {
         for (AnimationState state : colorStates) {
-            if (state.title.equals(animationTitle)) {
+            if (state.getTitle().equals(animationTitle)) {
                 defaultColorStateTitle = animationTitle;
                 if (currentColorState == null) {
                     currentColorState = state;
@@ -92,15 +94,23 @@ public class AnimationStateMachine extends Component {
     }
 
     public void setDefaultState(AnimationState spriteState, AnimationState colorState) {
-        setDefaultSpriteState(spriteState.title);
-        setDefaultColorState(colorState.title);
+        setDefaultSpriteState(spriteState.getTitle());
+        setDefaultColorState(colorState.getTitle());
     }
 
     public void addState(AnimationState state) {
-        if (state.isSpriteAnimation())
+        if (state.isSpriteAnimation()) {
+            for (AnimationState addedState : spriteStates) {
+                assert !addedState.getTitle().equals(state.getTitle()) : "State already added";
+            }
             this.spriteStates.add(state);
-        if (state.isColorAnimation())
+        }
+        if (state.isColorAnimation()) {
+            for (AnimationState addedState : colorStates) {
+                assert !addedState.getTitle().equals(state.getTitle()) : "State already added";
+            }
             this.colorStates.add(state);
+        }
         state.refreshTextures();
     }
 
@@ -113,33 +123,49 @@ public class AnimationStateMachine extends Component {
     }
 
     public void trigger(String trigger, int compositeSpriteIndex) {
-        Optional<AnimationState> newState = trigger(trigger);
+        Optional<AnimationState[]> newState = trigger(trigger);
         newState.ifPresent(state -> compositeSpriteIndexToAnimation.put(compositeSpriteIndex, state));
     }
 
-    public Optional<AnimationState> trigger(String trigger) {
-        Optional<AnimationState> optionalState = Optional.empty();
+    public Optional<AnimationState[]> trigger(String trigger) {
+        Optional<AnimationState[]> optionalState = Optional.empty();
+        AnimationState newColorState = currentColorState;
+        AnimationState newSpriteState = currentSpriteState;
         for (Entry<StateTrigger, AnimationState> entrySet : stateTransfers.entrySet()) {
             StateTrigger stateTrigger = entrySet.getKey();
-            // TODO what is this condition?
-            if (((stateTrigger.isColorTrigger && stateTrigger.fromState.equals(currentColorState.title))
-                    || (stateTrigger.isSpriteTrigger && stateTrigger.fromState.equals(currentSpriteState.title)))
-                    && stateTrigger.trigger.equals(trigger)) {
+
+            if (stateTrigger.trigger.equals(trigger)) {
                 AnimationState state = entrySet.getValue();
-                if (state.isSpriteAnimation())
-                    currentSpriteState = state;
-                if (state.isColorAnimation())
-                    currentColorState = state;
-                optionalState = Optional.of(state);
+                if (state.isColorAnimation() && stateTrigger.isColorTrigger
+                        && stateTrigger.fromState.equals(currentColorState.getTitle())) {
+                    newColorState = state;
+                    colorAnimation = true;
+                }
+            }
+            if (stateTrigger.trigger.equals(trigger)) {
+                AnimationState state = entrySet.getValue();
+                if (state.isSpriteAnimation() && stateTrigger.isSpriteTrigger
+                        && stateTrigger.fromState.equals(currentSpriteState.getTitle())) {
+                    newSpriteState = state;
+                    spriteAnimation = true;
+                }
             }
         }
+        if (colorAnimation) {
+            currentColorState = newColorState;
+        }
+        if (spriteAnimation) {
+            currentSpriteState = newSpriteState;
+        }
+        AnimationState[] newState = { currentColorState, currentSpriteState };
+        optionalState = Optional.of(newState);
         return optionalState;
     }
 
     private int stateIndexOf(String stateTitle) {
         int index = 0;
         for (AnimationState state : colorStates) {
-            if (state.title.equals(stateTitle)) {
+            if (state.getTitle().equals(stateTitle)) {
                 return index;
             }
             index++;
@@ -151,66 +177,75 @@ public class AnimationStateMachine extends Component {
     @Override
     public void start() {
         for (AnimationState state : spriteStates) {
-            if (state.title.equals(defaultSpriteStateTitle)) {
+            if (state.getTitle().equals(defaultSpriteStateTitle)) {
                 currentSpriteState = state;
                 break;
             }
         }
         for (AnimationState state : colorStates) {
-            if (state.title.equals(defaultColorStateTitle)) {
+            if (state.getTitle().equals(defaultColorStateTitle)) {
                 currentColorState = state;
                 break;
             }
         }
     }
 
-    @Override
-    public void update(float dt) {
-        if (!compositeSpriteIndexToAnimation.isEmpty()) {
-            CompositeSpriteRenderer compSprite = gameObject.getComponent(CompositeSpriteRenderer.class);
-            if (compSprite != null) {
-                boolean[] isFinished = new boolean[compositeSpriteIndexToAnimation.size()];
-                Integer[] keys = compositeSpriteIndexToAnimation.keySet().toArray(new Integer[isFinished.length]);
-                int i = 0;
-                for (int index : keys) {
-                    AnimationState animationState = compositeSpriteIndexToAnimation.get(index);
-                    boolean finished = animationState.update(dt);
-                    isFinished[i] = finished;
-                    i++;
-                    SpriteRenderer sprite = compSprite.getSpriteRenderer(index);
-                    sprite.setSprite(animationState.getCurrentSprite());
-                    // TODO Why do we need to set texture when the sprite already contains the
-                    // texture?
-                    sprite.setTexture(animationState.getCurrentSprite().getTexture());
-                    sprite.setColor(animationState.getCurrentColor());
-                }
-                for (int j = 0; j < keys.length; j++) {
-                    if (isFinished[j]) {
-                        compositeSpriteIndexToAnimation.remove(keys[j]);
-                    }
+    private void updateComposite(float dt) {
+        CompositeSpriteRenderer compSprite = gameObject.getComponent(CompositeSpriteRenderer.class);
+        if (compSprite != null) {
+            boolean[] isFinished = new boolean[compositeSpriteIndexToAnimation.size()];
+            Integer[] keys = compositeSpriteIndexToAnimation.keySet().toArray(new Integer[isFinished.length]);
+            int i = 0;
+            for (int index : keys) {
+                AnimationState[] animationState = compositeSpriteIndexToAnimation.get(index);
+                AnimationState colorState = animationState[0];
+                AnimationState spriteState = animationState[1];
+                isFinished[i] = updateStates(dt, colorState, spriteState);
+                i++;
+            }
+            for (int j = 0; j < keys.length; j++) {
+                if (isFinished[j]) {
+                    compositeSpriteIndexToAnimation.remove(keys[j]);
                 }
             }
-        }
-        if (currentSpriteState != null || currentColorState != null) {
-            SpriteRenderer sprite = gameObject.getComponent(SpriteRenderer.class);
-            if (currentSpriteState != null) {
-                currentSpriteState.update(dt);
-                if (sprite != null) {
-
-                    // TODO Why do we need to set texture when the sprite already contains the
-                    // texture?
-                    sprite.setSprite(currentSpriteState.getCurrentSprite());
-                    sprite.setTexture(currentSpriteState.getCurrentSprite().getTexture());
-                }
-            }
-            if (currentColorState != null) {
-                currentColorState.update(dt);
-                if (sprite != null) {
-                    sprite.setColor(currentColorState.getCurrentColor());
-                }
-            }
-
         }
     }
 
+    private void updateRegular(float dt) {
+        if (currentSpriteState != null || currentColorState != null) {
+            updateStates(dt, currentColorState, currentSpriteState);
+        }
+    }
+
+    private boolean updateStates(float dt, AnimationState colorState, AnimationState spriteState) {
+        SpriteRenderer sprite = gameObject.getComponent(SpriteRenderer.class);
+        if (colorState != null) {
+            if (colorState != null && this.colorAnimation) {
+                this.colorAnimation = !colorState.update(dt);
+                if (sprite != null) {
+                    sprite.setColor(colorState.getCurrentColor());
+                }
+            }
+        }
+        if (spriteState != null) {
+            this.spriteAnimation = !spriteState.update(dt);
+            if (sprite != null && this.spriteAnimation) {
+                // TODO Why do we need to set texture when the sprite already contains the
+                // texture?
+                sprite.setSprite(spriteState.getCurrentSprite());
+                // sprite.setTexture(spriteState.getCurrentSprite().getTexture());
+            }
+        }
+        return !(spriteAnimation || colorAnimation);
+    }
+
+    @Override
+    public void update(float dt) {
+        // TODO should these happen at the same time ever?
+        if (!compositeSpriteIndexToAnimation.isEmpty()) {
+            updateComposite(dt);
+        } else if (colorAnimation || spriteAnimation) {
+            updateRegular(dt);
+        }
+    }
 }

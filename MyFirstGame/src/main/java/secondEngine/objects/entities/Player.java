@@ -19,42 +19,36 @@ public class Player {
 
         float defaultFrameTime = 5.0f;
 
-        AnimationState runDown = new AnimationState();
-        runDown.title = "Run Down";
+        AnimationState runDown = new AnimationState().init("Run Down");
         runDown.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         runDown.addFrame(playerSprites.getSprite(1), defaultFrameTime);
         runDown.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         runDown.addFrame(playerSprites.getSprite(2), defaultFrameTime);
         runDown.setLoop(true);
 
-        AnimationState runSideways = new AnimationState();
-        runSideways.title = "Run Sideways";
+        AnimationState runSideways = new AnimationState().init("Run Sideways");
         runSideways.addFrame(playerSprites.getSprite(3), defaultFrameTime);
         runSideways.addFrame(playerSprites.getSprite(4), defaultFrameTime);
         runSideways.addFrame(playerSprites.getSprite(3), defaultFrameTime);
         runSideways.addFrame(playerSprites.getSprite(5), defaultFrameTime);
         runSideways.setLoop(true);
 
-        AnimationState runUp = new AnimationState();
-        runUp.title = "Run Up";
+        AnimationState runUp = new AnimationState().init("Run Up");
         runUp.addFrame(playerSprites.getSprite(6), defaultFrameTime);
         runUp.addFrame(playerSprites.getSprite(7), defaultFrameTime);
         runUp.addFrame(playerSprites.getSprite(6), defaultFrameTime);
         runUp.addFrame(playerSprites.getSprite(8), defaultFrameTime);
         runUp.setLoop(true);
 
-        AnimationState idling = new AnimationState();
-        idling.title = "Idle";
+        AnimationState idling = new AnimationState().init("Idle");
         idling.addFrame(playerSprites.getSprite(0), defaultFrameTime);
         idling.setLoop(false);
 
-        AnimationState addColor = new AnimationState();
-        addColor.title = "AddColor";
+        AnimationState addColor = new AnimationState().init("AddColor");
         addColor.addFrame(new Vector4f(1), defaultFrameTime);
 
-        AnimationState removeColor = new AnimationState();
-        removeColor.title = "RemoveColor";
-        removeColor.addFrame(new Vector4f(1, 1, 1, 0), defaultFrameTime);
+        AnimationState removeColor = new AnimationState().init("RemoveColor");
+        removeColor.addFrame(new Vector4f(1.0f, 1.0f, 1.0f, 0.5f), defaultFrameTime);
 
         AnimationStateMachine stateMachine = new AnimationStateMachine();
 

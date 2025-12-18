@@ -8,7 +8,8 @@ import org.joml.Vector4f;
 import secondEngine.util.AssetPool;
 
 public class AnimationState {
-    public String title;
+    private String title;
+
     public List<AnimationFrame> animationFrames = new ArrayList<>();
 
     private static Sprite defaultSprite = new Sprite();
@@ -18,6 +19,11 @@ public class AnimationState {
     private boolean doesLoop = false;
     private boolean isColorAnimation = false;
     private boolean isSpriteAnimation = false;
+
+    public AnimationState init(String title) {
+        this.title = title;
+        return this;
+    }
 
     public void refreshTextures() {
         for (AnimationFrame frame : animationFrames) {
@@ -49,6 +55,10 @@ public class AnimationState {
         for (Sprite sprite : sprites) {
             this.addFrame(sprite, frameTime);
         }
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public void setLoop(boolean doesLoop) {
