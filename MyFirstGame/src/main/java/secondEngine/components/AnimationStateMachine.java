@@ -128,7 +128,6 @@ public class AnimationStateMachine extends Component {
     }
 
     public Optional<AnimationState[]> trigger(String trigger) {
-        Optional<AnimationState[]> optionalState = Optional.empty();
         AnimationState newColorState = currentColorState;
         AnimationState newSpriteState = currentSpriteState;
         for (Entry<StateTrigger, AnimationState> entrySet : stateTransfers.entrySet()) {
@@ -159,7 +158,7 @@ public class AnimationStateMachine extends Component {
             currentSpriteState = newSpriteState;
         }
         AnimationState[] newState = { currentColorState, currentSpriteState };
-        optionalState = Optional.of(newState);
+        Optional<AnimationState[]> optionalState = Optional.of(newState);
         return optionalState;
     }
 
