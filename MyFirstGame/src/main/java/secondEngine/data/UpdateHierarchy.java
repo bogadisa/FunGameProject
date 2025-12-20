@@ -3,7 +3,6 @@ package secondEngine.data;
 import java.util.HashMap;
 
 import secondEngine.Component;
-import secondEngine.components.GridMachine;
 import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
 import secondEngine.components.PlayerControls;
@@ -20,7 +19,6 @@ public class UpdateHierarchy {
         hierarchy = new HashMap<>();
         hierarchy.put(PlayerControls.class, Priority.FIRST);
         hierarchy.put(MouseTracker.class, Priority.FIRST);
-        hierarchy.put(GridMachine.class, Priority.SECOND);
         hierarchy.put(Inventory.class, Priority.SECOND);
     }
 

@@ -15,6 +15,7 @@ public class Player {
     public static GameObject generate() {
         SpriteSheet playerSprites = AssetPool.getSpriteSheet("entities/player_3_3_9.png");
         GameObject player = SpriteObject.generate(playerSprites.getSprite(0), 64, 96);
+        player.transform.position.add(64, 80, 0);
         player.setName("Player");
 
         float defaultFrameTime = 5.0f;
@@ -85,8 +86,6 @@ public class Player {
         PlayerControls controls = new PlayerControls();
         controls.setPlayerWidth(player.transform.scale.x);
         player.addComponent(controls);
-
-        Window.getScene().worldGrid().addObject(player);
 
         return player;
     }

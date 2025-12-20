@@ -1,19 +1,20 @@
 package secondEngine.components;
 
 import secondEngine.Component;
-import secondEngine.Window;
 import secondEngine.components.helpers.Sprite;
+import secondEngine.grid.GridableObject;
+import secondEngine.grid.GriddableComponent;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
-import secondEngine.util.Time;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 /**
  * Stores information about how a sprite is rendered
  */
-public class SpriteRenderer extends Component {
+public class SpriteRenderer extends GriddableComponent {
     private Vector4f color = new Vector4f(1, 1, 1, 1);
     private Sprite sprite = new Sprite().setTexture(null);
 
@@ -32,12 +33,13 @@ public class SpriteRenderer extends Component {
         if (this.sprite.getTexture() != null) {
             this.sprite.setTexture(AssetPool.getTexture(this.sprite.getTexture().getFilepath()));
         }
-        GridMachine gm = this.gameObject.getComponent(GridMachine.class);
-        if (gm == null) {
-            gm = new GridMachine().init();
-            this.gameObject.addComponent(gm);
-        }
-        gm.addComponent(Window.getScene().worldGrid(), this, new Vector2f(0), getTransform().scale.xy(new Vector2f()));
+        // GridMachine gm = this.gameObject.getComponent(GridMachine.class);
+        // if (gm == null) {
+        // gm = new GridMachine().init();
+        // this.gameObject.addComponent(gm);
+        // }
+        // gm.addComponent(Window.getScene().worldGrid(), this, new Vector2f(0),
+        // getTransform().scale.xy(new Vector2f()));
         this.lastTransform = gameObject.transform.copy();
     }
 
@@ -136,4 +138,20 @@ public class SpriteRenderer extends Component {
     public int getCompositeIndex() {
         return compositeIndex;
     }
+
+    @Override
+    public Vector3f getPosition() {
+        return getTransform().position;
+    }
+
+    @Override
+    public Vector3f getScale() {
+        return getTransform().scale;
+    }
+
+    @Override
+    public int getObjectId() {
+        return this.hashCode();
+    }
+
 }

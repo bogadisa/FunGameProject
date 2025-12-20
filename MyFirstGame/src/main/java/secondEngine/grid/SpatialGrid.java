@@ -1,4 +1,4 @@
-package secondEngine;
+package secondEngine.grid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +14,6 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import secondEngine.Config.CameraConfig;
-import secondEngine.components.GridMachine;
-import secondEngine.components.Transform;
-import secondEngine.components.helpers.GridState;
 import secondEngine.objects.GameObject;
 
 public class SpatialGrid {
@@ -25,18 +22,28 @@ public class SpatialGrid {
     private final float secretShrinkageFactor = 0.00001f;
 
     private String name;
+    private boolean useScreenCoordinates = false;
     private static Map<String, SpatialGrid> spatialGrids = new HashMap<>();
 
-    private Map<String, List<GameObject>> objectGrid = new HashMap<>();
+    private Map<String, List<Griddable>> objectGrid;
 
     public SpatialGrid(String name) {
+        this(name, false);
+    }
+
+    public SpatialGrid(String name, boolean useScreenCoordinates) {
         this.name = name;
         SpatialGrid.spatialGrids.put(name, this);
         this.objectGrid = new HashMap<>();
+        this.useScreenCoordinates = useScreenCoordinates;
     }
 
     public static Set<Entry<String, SpatialGrid>> iterateGrids() {
         return SpatialGrid.spatialGrids.entrySet();
+    }
+
+    public boolean useScreenCoordinates() {
+        return useScreenCoordinates;
     }
 
     public int getGridSize() {
@@ -47,32 +54,28 @@ public class SpatialGrid {
         return this.name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Vector2f getNearestGrid(Vector3f pos) {
         Vector2f offset = getInternalGridCellOffset(pos);
         return new Vector2f(pos.x - offset.x, pos.y - offset.y);
     }
 
-    public Vector2i worldToGrid(Vector3f pos) {
+    public Vector2i toGrid(Vector3f pos) {
         return new Vector2i(Math.floorDiv((int) pos.x, this.gridSize), Math.floorDiv((int) pos.y, this.gridSize));
     }
 
-    public Vector2i worldToGrid(Transform transform) {
-        return worldToGrid(transform.position);
-    }
-
-    public Vector2f gridToWorld(Vector2i pos) {
+    public Vector2f fromGrid(Vector2i pos) {
         return new Vector2f(pos.x * this.gridSize, pos.y * this.gridSize);
     }
 
     public Vector2f getInternalGridCellOffset(Vector3f pos) {
-        Vector2i gridPos = worldToGrid(pos);
-        Vector2f worldGridPos = gridToWorld(gridPos);
-        // return new Vector2f(pos.x - worldGridPos.x, pos.y - worldGridPos.y);
-        return new Vector2f(pos.x - worldGridPos.x, pos.y - worldGridPos.y);
-    }
-
-    public Vector2f getInternalGridCellOffset(Transform transform) {
-        return getInternalGridCellOffset(transform.position);
+        Vector2i gridPos = toGrid(pos);
+        Vector2f acutalPos = fromGrid(gridPos);
+        // return new Vector2f(pos.x - acutalPos.x, pos.y - acutalPos.y);
+        return new Vector2f(pos.x - acutalPos.x, pos.y - acutalPos.y);
     }
 
     public Vector2i getGridScale() {
@@ -88,16 +91,16 @@ public class SpatialGrid {
         return new Vector2i(x, y);
     }
 
-    public String gridToString(Vector2i xy) {
+    public String encodePos(Vector2i xy) {
         return xy.x + ";;" + xy.y;
     }
 
-    public Vector2f stringToWorld(String coords) {
-        return gridToWorld(stringToGrid(coords));
+    public Vector2f decodePos(String coords) {
+        return fromGrid(stringToGrid(coords));
     }
 
-    public String worldToString(Vector3f pos) {
-        return gridToString(worldToGrid(pos));
+    public String encodePos(Vector3f pos) {
+        return encodePos(toGrid(pos));
     }
 
     public List<Vector4f> getBoundriesArray(Set<String> positions) {
@@ -107,11 +110,11 @@ public class SpatialGrid {
         float yMin;
         float yMax;
         for (String pos : positions) {
-            Vector2f worldPos = stringToWorld(pos);
-            xMin = worldPos.x;
-            xMax = worldPos.x + gridSize;
-            yMin = worldPos.y;
-            yMax = worldPos.y + gridSize;
+            Vector2f actualPos = decodePos(pos);
+            xMin = actualPos.x;
+            xMax = actualPos.x + gridSize;
+            yMin = actualPos.y;
+            yMax = actualPos.y + gridSize;
 
             boundriesArray.add(new Vector4f(xMin, xMax, yMin, yMax));
         }
@@ -119,13 +122,18 @@ public class SpatialGrid {
         return boundriesArray;
     }
 
-    // TODO doesnt work with single cell objects??
-    public Set<String> getGridCoverage(Transform transform) {
-        Vector2i gridCoords = worldToGrid(transform);
-        Vector2f offset = getInternalGridCellOffset(transform);
+    public <GridObject extends Griddable> Set<String> getGridCoverage(GridObject obj) {
+        return getGridCoverage(obj.getPosition(), obj.getScale());
+    }
 
-        float halfWidth = Math.abs(0.5f * transform.scale.x);
-        float halfHeight = Math.abs(0.5f * transform.scale.y);
+    // TODO doesnt work with single cell objects??
+    // secretShrinkageFactor - should fix this
+    public Set<String> getGridCoverage(Vector3f pos, Vector3f scale) {
+        Vector2i gridCoords = toGrid(pos);
+        Vector2f offset = getInternalGridCellOffset(pos);
+
+        float halfWidth = Math.abs(0.5f * scale.x);
+        float halfHeight = Math.abs(0.5f * scale.y);
 
         int leftShift = Math.floorDiv((int) (halfWidth + gridSize - offset.x - secretShrinkageFactor), gridSize);
         int rightShift = Math.floorDiv((int) (halfWidth + offset.x - secretShrinkageFactor), gridSize);
@@ -142,45 +150,47 @@ public class SpatialGrid {
         return coverage;
     }
 
-    public List<GameObject> getObjects(GameObject go) {
-        String pos = worldToString(go.transform.position);
-        List<GameObject> gos = new ArrayList<>(objectGrid.getOrDefault(pos, new ArrayList<>()));
-        gos.remove(go);
-        return gos;
+    public <GridObject extends Griddable> List<GridObject> getObjects(GridObject obj, Class<GridObject> objClass) {
+        String pos = encodePos(obj.getPosition());
+        List<Griddable> foundObjs = new ArrayList<>(objectGrid.getOrDefault(pos, new ArrayList<>()));
+        List<GridObject> filteredObjs = new ArrayList<>();
+        for (Griddable foundObj : foundObjs) {
+            if (foundObj.isOfType(objClass)) {
+                filteredObjs.add(objClass.cast(foundObj));
+            }
+        }
+        return filteredObjs;
 
     }
 
     // TODO add a method for constraining movement within a cell
 
-    private void addObject(GameObject go, String pos) {
-        List<GameObject> gos = this.objectGrid.getOrDefault(pos, new ArrayList<GameObject>());
-        gos.add(go);
-        this.objectGrid.put(pos, gos);
+    private void addObject(Griddable obj, String pos) {
+        List<Griddable> objs = this.objectGrid.getOrDefault(pos, new ArrayList<Griddable>());
+        objs.add(obj);
+        this.objectGrid.put(pos, objs);
     }
 
-    private void addObject(GameObject go, Set<String> coverage) {
+    private void addObject(Griddable obj, Set<String> coverage) {
         for (String gridCellPos : coverage) {
-            addObject(go, gridCellPos);
+            addObject(obj, gridCellPos);
         }
     }
 
-    public void addObject(GameObject go) {
-        Set<String> coverage = getGridCoverage(go.transform);
-        GridMachine gm = go.getComponent(GridMachine.class);
-        if (gm == null) {
-            gm = new GridMachine().init().linkGrid(this);
-            go.addComponent(gm);
+    public <GridObject extends Griddable> void addObject(GridObject obj) {
+        Set<String> coverage = getGridCoverage(obj);
+        if (obj.isOfType(GridableObject.class)) {
+            GridableObject gridObj = GridableObject.class.cast(obj);
+            gridObj.linkGrid(this);
         }
-        GridState gs = new GridState(coverage, this);
-        gm.putGridState(name, gs);
-        addObject(go, coverage);
+        addObject(obj, coverage);
     }
 
-    private void removeObject(GameObject go, String pos) {
-        List<GameObject> objs = this.objectGrid.get(pos);
+    private <GridObject extends Griddable> void removeObject(GridObject obj, String pos) {
+        List<Griddable> objs = this.objectGrid.get(pos);
         if (objs != null) {
             for (int i = 0; i < objs.size(); i++) {
-                if (go.getObjectId() == objs.get(i).getObjectId()) {
+                if (obj.getObjectId() == objs.get(i).getObjectId()) {
                     objs.remove(i);
                     break;
                 }
@@ -188,28 +198,28 @@ public class SpatialGrid {
         }
     }
 
-    private void removeObject(GameObject go, Set<String> coverage) {
+    private <GridObject extends Griddable> void removeObject(GridObject obj, Set<String> coverage) {
         for (String gridCellPos : coverage) {
-            removeObject(go, gridCellPos);
+            removeObject(obj, gridCellPos);
         }
     }
 
-    public void removeObject(GameObject go) {
-        Set<String> coverage = getGridCoverage(go.transform);
-        GridMachine gs = go.getComponent(GridMachine.class);
-        if (gs == null) {
-            gs = new GridMachine().init();
-            go.addComponent(gs);
+    public <GridObject extends Griddable> void removeObject(GridObject obj) {
+        Set<String> coverage = getGridCoverage(obj);
+        if (obj.isOfType(GridableObject.class)) {
+            GridableObject gridObj = GridableObject.class.cast(obj);
+            gridObj.unlinkGrid(this);
         }
-        gs.removeGridState(name);
-        removeObject(go, coverage);
+        removeObject(obj, coverage);
     }
 
-    public void updateObject(GameObject go) {
-        GridMachine gm = go.getComponent(GridMachine.class);
-        GridState gs = gm.getGridState(name);
+    public <GridObject extends GridableObject> void updateObject(GridObject gridObj) {
+        // GridMachine gm = obj.getComponent(GridMachine.class);
+        // GridState gs = gm.getGridState(name);
+        GridState gs;
+        gs = gridObj.getGridState(this);
         Set<String> diffCells = gs.getCurrentGridCells();
-        Set<String> curCoverage = getGridCoverage(go.transform);
+        Set<String> curCoverage = getGridCoverage(gridObj);
         Set<String> curCells = new HashSet<>(curCoverage);
 
         Set<String> diffCoverage = new HashSet<>(diffCells);
@@ -218,15 +228,9 @@ public class SpatialGrid {
         diffCells.removeAll(diffCoverage);
         curCoverage.removeAll(diffCoverage);
 
-        removeObject(go, diffCells);
-        addObject(go, curCoverage);
+        removeObject(gridObj, diffCells);
+        addObject(gridObj, curCoverage);
 
         gs.update(curCells, diffCells);
-    }
-
-    // TODO add update object that can update several spatial grids continuously
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

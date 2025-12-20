@@ -1,23 +1,17 @@
 package secondEngine.objects.Tiles;
 
-import java.util.HashMap;
-
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
-import secondEngine.objects.Special.OverlayManager;
 import secondEngine.util.AssetPool;
-import secondEngine.util.PrefabFactory;
 import secondEngine.util.PrefabFactory.PrefabIds;
 import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs;
-import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs.Spring;
-import secondEngine.util.PrefabFactory.PrefabIds.MiscPrefabs;
-import secondEngine.util.PrefabFactory.PrefabBase;
+import secondEngine.util.PrefabFactory.PrefabManagerBase;
 
-public class GroundManager implements PrefabBase {
+public class GroundManager implements PrefabManagerBase {
 
     @Override
     public <GroundType extends PrefabIds> Sprite getSprite(GroundType objectId) {
-        if (this.isOfType(objectId, GroundPrefabs.Spring.class)) {
+        if (objectId.isOfType(GroundPrefabs.Spring.class)) {
             GroundPrefabs.Spring springId = GroundPrefabs.Spring.class.cast(objectId);
             SpriteSheet sheet = AssetPool.getSpriteSheet("background/spring_4_4_15.png");
             return sheet.getSprite(springId.ordinal());

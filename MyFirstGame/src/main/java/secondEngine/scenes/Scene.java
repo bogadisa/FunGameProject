@@ -12,11 +12,11 @@ import com.google.gson.GsonBuilder;
 
 import secondEngine.Camera;
 import secondEngine.Component;
-import secondEngine.SpatialGrid;
 import secondEngine.Window;
 import secondEngine.components.Overlay;
 import secondEngine.components.Transform;
 import secondEngine.data.UpdateHierarchy.Priority;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
 import secondEngine.renderer.Renderer;
 import secondEngine.util.ComponentDeserializer;

@@ -5,26 +5,24 @@ import org.joml.Vector3f;
 
 import secondEngine.Camera;
 import secondEngine.Config;
-import secondEngine.SpatialGrid;
 import secondEngine.Config.UIconfig;
 import secondEngine.Window;
 import secondEngine.components.CompositeSpriteRenderer;
-import secondEngine.components.GridMachine;
 import secondEngine.components.InteractiveStateMachine;
 import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.OverlayObject;
 // import secondEngine.objects.OverlayObject.Layouts;
 import secondEngine.objects.Special.Mouse;
 import secondEngine.objects.entities.Player;
+import secondEngine.objects.overlay.Layout;
 import secondEngine.util.AssetPool;
 import secondEngine.util.PrefabFactory;
-import secondEngine.util.Time;
-import secondEngine.util.InteractableFactory.InteractableIds;
 import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
 
 public class GameScene extends Scene {
@@ -46,7 +44,7 @@ public class GameScene extends Scene {
         }
 
         GameObject player = Player.generate();
-        player.transform.position.add(64, 80, 0);
+        // player.transform.position.add(64, 80, 0);
         this.addGameObjectToScene(player);
 
         // player.getComponent(GridMachine.class).toggleHighlight();
@@ -96,11 +94,16 @@ public class GameScene extends Scene {
                 stateMachine.refreshTextures();
             }
         }
-        int[][] standardLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
-                { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11],
-                { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11] };
-        AssetPool.addLayout(standardLayout, InventoryLayout.DEFAULT_27);
-        int[][] lineLayout = { new int[11], { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, new int[11] };
-        AssetPool.addLayout(lineLayout, InventoryLayout.DEFAULT_9);
+        Layout.SlotType.Other n = Layout.SlotType.Other.NULL;
+        Layout.SlotType.Interactable i = Layout.SlotType.Interactable.INVENTORY;
+        Layout.SlotType[][] standardLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },
+                { n, i, i, i, i, i, i, i, i, i, n }, { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11],
+                { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11] };
+        Layout standard = new Layout(standardLayout);
+        AssetPool.addLayout(standard, InventoryLayout.DEFAULT_27);
+        Layout.SlotType[][] lineLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },
+                new Layout.SlotType[11] };
+        Layout line = new Layout(lineLayout);
+        AssetPool.addLayout(line, InventoryLayout.DEFAULT_9);
     }
 }

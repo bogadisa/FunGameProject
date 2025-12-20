@@ -6,9 +6,9 @@ import java.util.Set;
 
 import secondEngine.Window;
 import secondEngine.components.AnimationStateMachine;
-import secondEngine.components.GridMachine;
 import secondEngine.components.SpriteRenderer;
-import secondEngine.components.helpers.GridState;
+import secondEngine.grid.GridState;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
 import secondEngine.util.InteractableFactory.InteractableIds.Misc;
 
@@ -110,25 +110,28 @@ public class InteractableFactory {
 
     private abstract class HighlightInteractableFunction extends InteractableFunction {
         private Set<String> getCoverage(GameObject go) {
-            GridMachine gm = go.getComponent(GridMachine.class);
-            GridState gs = gm.getGridState(Window.getScene().worldGrid().getName());
+            GridState gs = go.getGridState(Window.getScene().worldGrid());
             return new HashSet<>(gs.getCurrentGridCells());
         }
 
         protected boolean trigger(String trigger, GameObject thisGO, GameObject otherGO) {
             AnimationStateMachine sm = otherGO.getComponent(AnimationStateMachine.class);
+            System.out.println("ehllo");
             if (sm == null) {
                 return false;
             }
             // TODO make this part of GridMachine logic
             Set<String> otherCoverage = getCoverage(otherGO);
-            Set<String> thisCoverage = Window.getScene().worldGrid().getGridCoverage(thisGO.transform);
+            // TODO improve scene grid system
+            SpatialGrid grid = Window.getScene().worldGrid();
+            Set<String> thisCoverage = grid.getGridCoverage(thisGO);
             boolean overlap = otherCoverage.retainAll(thisCoverage);
             boolean triggered = false;
             if (overlap) {
-                GridMachine gm = otherGO.getComponent(GridMachine.class);
-                List<SpriteRenderer> sprRenderers = gm.getComponents(SpriteRenderer.class, otherCoverage,
-                        Window.getScene().worldGrid());
+                // GridMachine gm = otherGO.getComponent(GridMachine.class);
+                GridState otherGS = otherGO.getGridState(grid);
+                // TODO broken
+                List<SpriteRenderer> sprRenderers = otherGS.getObjects(SpriteRenderer.class, otherCoverage);
                 triggered = !sprRenderers.isEmpty();
                 for (SpriteRenderer spriteRenderer : sprRenderers) {
                     if (spriteRenderer.getCompositeIndex() >= 0) {

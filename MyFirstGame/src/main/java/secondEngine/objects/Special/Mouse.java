@@ -1,10 +1,7 @@
 package secondEngine.objects.Special;
 
-import org.joml.Vector3f;
-
 import secondEngine.Window;
 import secondEngine.components.InteractiveStateMachine;
-import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
 import secondEngine.components.helpers.InteractableState;
 import secondEngine.components.helpers.Sprite;
@@ -17,6 +14,7 @@ public class Mouse {
     public static GameObject generate() {
         Sprite sprite = PrefabFactory.getObjectSprite(PrefabFactory.PrefabIds.GroundPrefabs.Spring.GRASS_1);
         GameObject mouse = SpriteObject.generate(sprite, 32, 32);
+        mouse.setName("Mouse");
         // GameObject mouse = SpriteObject.generate(new Sprite().setTexture(null), 1,
         // 1);
 
@@ -28,8 +26,9 @@ public class Mouse {
 
         Window.setCursor("resources/textures/icons/cursor.png");
 
-        Inventory inventory = new Inventory().init(1, 1);
-        mouse.addComponent(inventory);
+        // Layout layout = new Layout(Layout.SlotType.Interactable.INVENTORY);
+        // Inventory inventory = new Inventory().init(layout, 1);
+        // mouse.addComponent(inventory);
 
         // mouse.transform.scale = new Vector3f(64, 64, 64);
 
@@ -53,7 +52,6 @@ public class Mouse {
 
         mouse.addComponent(stateMachine);
 
-        mouse.setName("Mouse");
         mouse.setSerializeOnSave(false);
 
         return mouse;

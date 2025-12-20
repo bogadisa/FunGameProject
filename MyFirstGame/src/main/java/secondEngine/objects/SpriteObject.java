@@ -7,11 +7,11 @@ import secondEngine.components.helpers.Sprite;
 public class SpriteObject {
     public static GameObject generate(Sprite sprite, float sizeX, float sizeY) {
         GameObject spriteObj = Window.getScene().createGameObject("SpriteObjectGen");
+        Window.getScene().worldGrid().addObject(spriteObj);
         spriteObj.transform.scale.x = sizeX;
         spriteObj.transform.scale.y = sizeY;
 
-        SpriteRenderer renderer = new SpriteRenderer()
-                                        .setSprite(sprite);
+        SpriteRenderer renderer = new SpriteRenderer().setSprite(sprite);
         spriteObj.addComponent(renderer);
 
         return spriteObj;

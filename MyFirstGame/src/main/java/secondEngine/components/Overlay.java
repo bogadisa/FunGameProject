@@ -9,24 +9,31 @@ import java.util.Set;
 import org.joml.Vector3f;
 
 import secondEngine.Component;
-import secondEngine.SpatialGrid;
+import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.components.helpers.GridState;
+import secondEngine.grid.GridState;
+import secondEngine.grid.GridableObject;
+import secondEngine.grid.Griddable;
+import secondEngine.grid.GriddableComponent;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
+import secondEngine.objects.overlay.Layout;
+import secondEngine.objects.overlay.Layout.SlotType;
 import secondEngine.util.PrefabFactory;
 
 public class Overlay extends Component {
+    private final int OVERLAY_Z_INDEX = 2;
     private boolean rescale = false;
 
     private Sprite corner, edge, fill;
     private boolean ignoreEdge = true;
     private boolean ignoreCorner = true;
 
-    private Map<String, Integer> spriteRenderers = new HashMap<>();
-
+    private Layout layout;
+    private Map<Layout.SlotType, Sprite> layoutSprites;
     private SpatialGrid overlayGrid;
-    private List<GameObject> linkedObjects = new ArrayList<>();
+    private List<Griddable> linkedObjects;
 
     private transient boolean isInitialized = false;
 
@@ -53,15 +60,12 @@ public class Overlay extends Component {
      *                      otherwise layoutSprites[layout[i][j]-1]
      * @return this
      */
-    public Overlay init(GameObject go, Sprite[] sprites, Sprite[] layoutSprites, int[][] layout) {
-        // TODO does this need to be initialized in another way?
-        this.overlayGrid = new SpatialGrid(go.getName());
-        this.initSprites(sprites);
-        this.gameObject = go;
-        this.buildCompositeSprite(layout, layoutSprites);
-        isInitialized = true;
-        return this;
-
+    public Overlay init(GameObject go, Sprite[] sprites, Map<Layout.SlotType, Sprite> layoutSprites, Layout layout) {
+        this.layout = layout;
+        this.layoutSprites = layoutSprites;
+        int numSpritesX = layout.getLayout()[0].length;
+        int numSpritesY = layout.getLayout().length;
+        return init(go, sprites, numSpritesX, numSpritesY);
     }
 
     /**
@@ -74,84 +78,73 @@ public class Overlay extends Component {
      */
     public Overlay init(GameObject go, Sprite[] sprites, int numSpritesX, int numSpritesY) {
         // TODO does this need to be initialized in another way?
-        this.overlayGrid = new SpatialGrid(go.getName());
+        this.overlayGrid = new SpatialGrid(go.getName(), true);
         this.initSprites(sprites);
         this.gameObject = go;
+        this.linkedObjects = new ArrayList<>();
         this.buildCompositeSprite(numSpritesX, numSpritesY);
         isInitialized = true;
         return this;
     }
 
-    public Overlay linkObjectToGrid(GameObject go) {
-        GridMachine gs = go.getComponent(GridMachine.class);
-        if (gs == null) {
-            gs = new GridMachine().init();
-            go.addComponent(gs);
+    private Overlay buildCompositeSprite(int numSpritesX, int numSpritesY) {
+        Layout.SlotType[][] layout;
+        if (this.layout != null) {
+            layout = this.layout.getLayout();
+        } else {
+            layout = new Layout.SlotType[numSpritesY][numSpritesX];
         }
-        linkedObjects.add(go);
-        return this;
+        return buildCompositeSprite(numSpritesX, numSpritesY, layout);
+
     }
 
-    private Overlay buildCompositeSprite(int numSpritesX, int numSpritesY) {
+    // TODO remove this testing stuff
+    int specialPiecesAdded = 0;
+
+    private Overlay buildCompositeSprite(int numSpritesX, int numSpritesY, Layout.SlotType[][] layout) {
+        // TODO might cause issues if a comp sprite already exists
         CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
         int scale = UIconfig.getScale();
-        Vector3f offset;
+
+        specialPiecesAdded = 0;
         for (int i = 1; i <= numSpritesX; i++) {
             for (int j = 1; j <= numSpritesY; j++) {
                 int[] rotation = { 0 };
                 boolean[] flip = { false };
 
                 Sprite piece = getSprite(i, j, numSpritesX, numSpritesY, rotation, flip);
-                offset = new Vector3f((i - 1) * scale, (j - 1) * scale, 2);
-                spriteRenderers.put(overlayGrid.worldToString(offset), compSprite.size());
+                Vector3f offset = new Vector3f((i - 1) * scale, (j - 1) * scale, OVERLAY_Z_INDEX);
                 compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), offset, rotation[0], flip[0]);
-            }
-        }
-
-        this.gameObject.addComponent(compSprite);
-        return this;
-    }
-
-    // private Overlay buildCompositeSprite(int[][] layout) {
-    // return buildCompositeSprite(layout, null);
-    // }
-
-    private Overlay buildCompositeSprite(int[][] layout, Sprite[] layoutSprites) {
-        int sizeY = layout.length;
-        int sizeX = layout[0].length;
-        // TODO might cause issues if a comp sprite already exists
-        CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
-        int scale = UIconfig.getScale();
-
-        int specialPiecesAdded = 0;
-        for (int i = 1; i <= sizeX; i++) {
-            for (int j = 1; j <= sizeY; j++) {
-                int[] rotation = { 0 };
-                boolean[] flip = { false };
-
-                Sprite piece = getSprite(i, j, sizeX, sizeY, rotation, flip);
-                compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece),
-                        new Vector3f((i - 1) * scale, (j - 1) * scale, 2), rotation[0], flip[0]);
-                if (layoutSprites != null && layout[sizeY - j][i - 1] > 0) {
-                    Vector3f offset = new Vector3f((i - 1) * scale, (j - 1) * scale, 2);
-                    spriteRenderers.put(overlayGrid.worldToString(offset), compSprite.size());
-                    compSprite.addSpriteRenderer(
-                            new SpriteRenderer().setSprite(layoutSprites[layout[sizeY - j][i - 1] - 1]), offset);
-
-                    // TODO remove this testing stuff
-                    PrefabFactory.PrefabIds.GroundPrefabs.Spring enumSpring = PrefabFactory
-                            .getEnum(PrefabFactory.PrefabIds.GroundPrefabs.Spring.class, specialPiecesAdded);
-                    if (enumSpring != null) {
-                        Sprite sprite = PrefabFactory.getObjectSprite(enumSpring);
-                        compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(sprite), offset);
+                Layout.SlotType slotType = layout[numSpritesY - j][i - 1];
+                if (slotType != null && !slotType.isOfType(Layout.SlotType.Other.class)) {
+                    if (layoutSprites != null) {
+                        addSpecialSprite(compSprite, offset, slotType);
                     }
-                    specialPiecesAdded++;
+
                 }
             }
         }
 
         this.gameObject.addComponent(compSprite);
         return this;
+
+    }
+
+    private void addSpecialSprite(CompositeSpriteRenderer compSprite, Vector3f offset, SlotType slotType) {
+        compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(layoutSprites.get(slotType)), new Vector3f(offset));
+
+        PrefabFactory.PrefabIds.GroundPrefabs.Spring enumSpring = PrefabFactory
+                .getEnum(PrefabFactory.PrefabIds.GroundPrefabs.Spring.class, specialPiecesAdded);
+        if (enumSpring != null) {
+            Sprite sprite = PrefabFactory.getObjectSprite(enumSpring);
+            SpriteRenderer spriteRenderer = new SpriteRenderer().setSprite(sprite);
+            compSprite.addSpriteRenderer(spriteRenderer, new Vector3f(offset));
+
+            if (slotType.isOfType(Layout.SlotType.Interactable.class)) {
+                this.linkedObjects.add(spriteRenderer);
+            }
+        }
+        specialPiecesAdded++;
 
     }
 
@@ -204,9 +197,9 @@ public class Overlay extends Component {
     @Override
     public void start() {
         overlayGrid.setName(this.gameObject.getName());
-        for (GameObject go : linkedObjects) {
-            go.getComponent(GridMachine.class).linkGrid(overlayGrid);
-            overlayGrid.addObject(go);
+        // Window.getScene().worldGrid().addObject(this.gameObject);
+        for (Griddable obj : linkedObjects) {
+            overlayGrid.addObject(obj);
         }
         assert isInitialized
                 : "The game component " + this.gameObject.getName() + " has not initialized its overlay component";
@@ -214,32 +207,33 @@ public class Overlay extends Component {
 
     @Override
     public void update(float dt) {
-        // TODO remove because better permanent system is needed
-        for (GameObject go : linkedObjects) {
-            GridMachine gm = go.getComponent(GridMachine.class);
-            if (gm.isDirty()) {
-                GridState gs = gm.getGridState(overlayGrid.getName());
-                AnimationStateMachine sm = gameObject.getComponent(AnimationStateMachine.class);
-                if (sm != null && gm.highlight()) {
-                    Set<String> currentGridCells = gs.getCurrentGridCells();
-                    Set<String> differenceGridCells = gs.getDifferenceGridCells();
-                    if (currentGridCells != null) {
-                        for (String pos : currentGridCells) {
-                            int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
-                            if (spriteRendererIndex > -1) {
-                                sm.trigger("addColor", spriteRendererIndex);
-                            }
-                        }
-                    }
-                    for (String lastPos : differenceGridCells) {
-                        int spriteRendererIndex = spriteRenderers.getOrDefault(lastPos, -1);
-                        if (spriteRendererIndex > -1) {
-                            sm.trigger("removeColor", spriteRendererIndex);
-                        }
-                    }
-                }
-            }
-        }
+        // // TODO remove because better permanent system is needed
+        // for (GameObject go : linkedObjects) {
+        // GridMachine gm = go.getComponent(GridMachine.class);
+        // if (gm.isDirty()) {
+        // GridState gs = gm.getGridState(overlayGrid.getName());
+        // AnimationStateMachine sm =
+        // gameObject.getComponent(AnimationStateMachine.class);
+        // if (sm != null && gm.highlight()) {
+        // Set<String> currentGridCells = gs.getCurrentGridCells();
+        // Set<String> differenceGridCells = gs.getDifferenceGridCells();
+        // if (currentGridCells != null) {
+        // for (String pos : currentGridCells) {
+        // int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
+        // if (spriteRendererIndex > -1) {
+        // sm.trigger("addColor", spriteRendererIndex);
+        // }
+        // }
+        // }
+        // for (String lastPos : differenceGridCells) {
+        // int spriteRendererIndex = spriteRenderers.getOrDefault(lastPos, -1);
+        // if (spriteRendererIndex > -1) {
+        // sm.trigger("removeColor", spriteRendererIndex);
+        // }
+        // }
+        // }
+        // }
+        // }
     }
 
     public Overlay addBackdrop() {

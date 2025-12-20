@@ -9,10 +9,9 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import secondEngine.Component;
-import secondEngine.SpatialGrid;
 import secondEngine.Window;
 import secondEngine.components.helpers.InteractableState;
-import secondEngine.components.helpers.OverlayState;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.listeners.MouseListener;
 import secondEngine.objects.GameObject;
 import secondEngine.util.PrefabFactory;
@@ -42,8 +41,9 @@ public class MouseTracker extends Component {
         this.gameObject.transform.position.x = mouseCoords.x;
         this.gameObject.transform.position.y = mouseCoords.y;
         SpatialGrid grid = Window.getScene().worldGrid();
-        Vector2i gridCoords = grid.worldToGrid(this.gameObject.transform);
-        Vector2f worldCoords = grid.gridToWorld(gridCoords);
+        grid.updateObject(this.gameObject);
+        Vector2i gridCoords = grid.toGrid(this.gameObject.transform.position);
+        Vector2f worldCoords = grid.fromGrid(gridCoords);
 
         if (this.gameObject.transform.gridLockX) {
             this.gameObject.transform.position.x = worldCoords.x;
@@ -53,7 +53,7 @@ public class MouseTracker extends Component {
         }
 
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_1)) {
-            List<GameObject> gos = grid.getObjects(this.gameObject);
+            List<GameObject> gos = grid.getObjects(this.gameObject, GameObject.class);
             InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
             // stateMachine.interact("Enlarge", this.gameObject);
             // String func = "NoHighlight";

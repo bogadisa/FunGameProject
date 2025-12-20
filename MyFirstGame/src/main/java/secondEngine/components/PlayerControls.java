@@ -2,7 +2,11 @@ package secondEngine.components;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.io.IOException;
+
 import secondEngine.Component;
+import secondEngine.Window;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.listeners.KeyListener;
 
 public class PlayerControls extends Component {
@@ -41,6 +45,18 @@ public class PlayerControls extends Component {
         } else if (KeyListener.isKeyPressed(GLFW_KEY_S)) {
             yDirection = -1.0f;
             this.stateMachine.trigger("runDown");
+        } else if (KeyListener.isKeyPressed(GLFW_KEY_C)) {
+            try {
+                try {
+                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         } else {
             this.stateMachine.trigger("idle");
         }
@@ -56,5 +72,7 @@ public class PlayerControls extends Component {
         // this.gameObject.transform.position.x += xSpeed;
         // this.gameObject.transform.position.y += ySpeed;
         this.gameObject.transform.position.add(xSpeed, ySpeed, 0);
+        SpatialGrid grid = Window.getScene().worldGrid();
+        grid.updateObject(this.gameObject);
     }
 }

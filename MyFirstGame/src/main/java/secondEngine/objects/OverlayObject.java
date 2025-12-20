@@ -1,5 +1,8 @@
 package secondEngine.objects;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -13,6 +16,7 @@ import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.Transform;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
+import secondEngine.objects.overlay.Layout;
 import secondEngine.components.helpers.AnimationState;
 import secondEngine.components.helpers.InteractableState;
 import secondEngine.util.AssetPool;
@@ -54,7 +58,7 @@ public class OverlayObject {
         Sprite inventory = spriteSheet.getSprite(2);
         Sprite fill = spriteSheet.getSprite(3);
         Sprite[] sprites = { fill, corner, edge };
-        Sprite[] layoutSprites = { inventory };
+        Map<Layout.SlotType, Sprite> layoutSprites = Map.of(Layout.SlotType.Interactable.INVENTORY, inventory);
         Overlay overlay = new Overlay().init(inventoryObject, sprites, layoutSprites, AssetPool.getLayout(layout));
         inventoryObject.setName("inventoryObj");
         inventoryObject.addComponent(overlay);

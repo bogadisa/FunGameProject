@@ -4,11 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.joml.Vector3f;
+
 import secondEngine.Component;
+import secondEngine.Window;
 import secondEngine.components.Transform;
 import secondEngine.data.UpdateHierarchy.Priority;
+import secondEngine.grid.GridState;
+import secondEngine.grid.GridableObject;
+import secondEngine.grid.GriddableComponent;
 
-public class GameObject {
+public class GameObject extends GridableObject {
 
     private String name;
     private transient int objectId;
@@ -62,6 +68,13 @@ public class GameObject {
         if (c.getClass().equals(Transform.class)) {
             this.transform = (Transform) c;
         }
+        if (this.getName().equals("SpriteObjectGen")) {
+            System.out.println("ye");
+        }
+        if (GriddableComponent.class.isAssignableFrom(c.getClass())) {
+            GridState gs = getGridState(Window.getScene().worldGrid());
+            gs.addObject(GriddableComponent.class.cast(c));
+        }
     }
 
     @Override
@@ -78,10 +91,6 @@ public class GameObject {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getObjectId() {
-        return objectId;
     }
 
     public boolean serializeOnSave() {
@@ -104,5 +113,20 @@ public class GameObject {
         for (int i = 0; i < componentsToUpdate.size(); i++) {
             componentsToUpdate.get(i).start();
         }
+    }
+
+    @Override
+    public Vector3f getPosition() {
+        return this.transform.position;
+    }
+
+    @Override
+    public Vector3f getScale() {
+        return this.transform.scale;
+    }
+
+    @Override
+    public int getObjectId() {
+        return objectId;
     }
 }

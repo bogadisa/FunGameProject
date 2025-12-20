@@ -1,16 +1,17 @@
 package secondEngine.util;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import secondEngine.SpatialGrid;
 import secondEngine.Window;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.OverlayObject;
 import secondEngine.objects.SpriteObject;
-import secondEngine.objects.Special.OverlayManager;
 import secondEngine.objects.Tiles.GroundManager;
+import secondEngine.objects.overlay.OverlayManager;
 import secondEngine.util.PrefabFactory.PrefabIds.Categories;
 import secondEngine.util.PrefabFactory.PrefabIds.MiscPrefabs;
 import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs.Spring;
@@ -61,24 +62,23 @@ public class PrefabFactory {
             }
         }
 
+        public default <WantedPrefabType extends PrefabIds> boolean isOfType(Class<WantedPrefabType> objectClass) {
+            return this.getClass().isAssignableFrom(objectClass);
+        }
+
     }
 
-    public interface PrefabBase {
+    public interface PrefabManagerBase {
         public abstract <PrefabType extends PrefabIds> Sprite getSprite(PrefabType objectId);
 
         public abstract <PrefabType extends PrefabIds> SpriteSheet getSpriteSheet(PrefabType objectId);
-
-        default <PrefabType extends PrefabIds, WantedPrefabType extends PrefabIds> boolean isOfType(PrefabType objectId,
-                Class<WantedPrefabType> objectClass) {
-            return objectId.getClass().isAssignableFrom(objectClass);
-        }
     }
 
     private static PrefabFactory prefabFactory;
     private GroundManager groundManager;
     private OverlayManager overlayManager;
 
-    private HashMap<Integer, PrefabIds[]> enumValues;
+    private Map<Integer, PrefabIds[]> enumValues;
 
     private PrefabFactory() {
         groundManager = new GroundManager();
