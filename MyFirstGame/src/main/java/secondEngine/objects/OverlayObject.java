@@ -11,6 +11,7 @@ import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.CompositeSpriteRenderer;
 import secondEngine.components.InteractiveStateMachine;
+import secondEngine.components.Inventory;
 import secondEngine.components.Overlay;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.Transform;
@@ -19,6 +20,7 @@ import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.overlay.Layout;
 import secondEngine.components.helpers.AnimationState;
 import secondEngine.components.helpers.InteractableState;
+import secondEngine.components.helpers.InventorySlot;
 import secondEngine.util.AssetPool;
 import secondEngine.util.InteractableFactory.InteractableIds;
 import secondEngine.util.PrefabFactory.PrefabIds;
@@ -29,12 +31,15 @@ public class OverlayObject {
 
     public static <OverlayType extends PrefabIds> GameObject generate(SpriteSheet spriteSheet,
             OverlayType overlayType) {
-        GameObject overlayObj = Window.getScene().createGameObject("OverlayObjectGen");
+        GameObject overlayObj = Window.getScene().createGameObject("OverlayObjectGen",
+                new Transform().init(new Vector3f(400, 400, 0)));
 
         if (overlayType.getClass().isAssignableFrom(OverlayPrefabs.InventoryLayout.class)) {
             InventoryLayout layout = InventoryLayout.class.cast(overlayType);
             overlayObj = generateInventory(overlayObj, spriteSheet, layout);
         }
+        overlayObj.transform.scale = overlayObj.getComponent(Overlay.class).getScale();
+        Window.getScene().worldGrid().addObject(overlayObj);
         return overlayObj;
     }
 
@@ -45,22 +50,25 @@ public class OverlayObject {
 
         Overlay overlay = new Overlay().init(overlayObj, sprites, numSpritesX, numSpritesY);
         overlayObj.addComponent(overlay);
+        overlayObj.transform.scale = overlayObj.getComponent(Overlay.class).getScale();
         return overlayObj;
     }
 
     private static GameObject generateInventory(GameObject inventoryObject, SpriteSheet spriteSheet,
             InventoryLayout layout) {
-        // int scale = UIconfig.getScale();
-        // inventoryObject.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale,
-        // scale, 1));
-        Sprite corner = spriteSheet.getSprite(0);
-        Sprite edge = spriteSheet.getSprite(1);
-        Sprite inventory = spriteSheet.getSprite(2);
-        Sprite fill = spriteSheet.getSprite(3);
-        Sprite[] sprites = { fill, corner, edge };
-        Map<Layout.SlotType, Sprite> layoutSprites = Map.of(Layout.SlotType.Interactable.INVENTORY, inventory);
-        Overlay overlay = new Overlay().init(inventoryObject, sprites, layoutSprites, AssetPool.getLayout(layout));
         inventoryObject.setName("inventoryObj");
+        Inventory inventory = new Inventory().init(layout.getNumSlots(), 64);
+        Inventory inventoryObj = new Inventory().init(2, 64);
+        InventorySlot slot1 = new InventorySlot(inventoryObj, PrefabIds.GroundPrefabs.Spring.DIRT_1, 1, 64);
+        inventory.transferFrom(slot1, 1);
+        inventoryObject.addComponent(inventory);
+        Sprite cornerSprite = spriteSheet.getSprite(0);
+        Sprite edgeSprite = spriteSheet.getSprite(1);
+        Sprite inventorySprite = spriteSheet.getSprite(2);
+        Sprite fillSprite = spriteSheet.getSprite(3);
+        Sprite[] sprites = { fillSprite, cornerSprite, edgeSprite };
+        Map<Layout.SlotType, Sprite> layoutSprites = Map.of(Layout.SlotType.Interactable.INVENTORY, inventorySprite);
+        Overlay overlay = new Overlay().init(inventoryObject, sprites, layoutSprites, AssetPool.getLayout(layout));
         inventoryObject.addComponent(overlay);
         return inventoryObject;
     }
@@ -85,6 +93,10 @@ public class OverlayObject {
 
         // a white grid to test
         CompositeSpriteRenderer spriteRenderer = gridObj.getComponent(CompositeSpriteRenderer.class);
+        if (spriteRenderer == null) {
+            spriteRenderer = new CompositeSpriteRenderer().init();
+            gridObj.addComponent(spriteRenderer);
+        }
         // a white grid to test
         // spriteRenderer.setColor(new Vector4f(1.0f, 1.0f, 1.0f, 0.5f));
         spriteRenderer.setColor(new Vector4f(0.0f, 0.0f, 0.0f, 0.1f));

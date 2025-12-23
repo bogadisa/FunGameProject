@@ -45,29 +45,31 @@ public class CompositeSpriteRenderer extends Component {
         }
     }
 
-    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr) {
-        return addSpriteRenderer(spr, new Vector3f(0, 0, 0));
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f scale) {
+        return addSpriteRenderer(spr, scale, new Vector3f(0, 0, 0));
     }
 
-    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset) {
-        return addSpriteRenderer(spr, offset, 0, false);
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f scale, Vector3f offset) {
+        return addSpriteRenderer(spr, scale, offset, 0, false);
     }
 
-    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, float rotation) {
-        return addSpriteRenderer(spr, new Vector3f(0, 0, 0), rotation, false);
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f scale, float rotation) {
+        return addSpriteRenderer(spr, scale, new Vector3f(0, 0, 0), rotation, false);
     }
 
-    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset, boolean flip) {
-        return addSpriteRenderer(spr, offset, 0, flip);
-    }
-
-    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset, float rotation) {
-        return addSpriteRenderer(spr, offset, rotation, false);
-    }
-
-    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f offset, float rotation,
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f scale, Vector3f offset,
             boolean flip) {
-        CompositeSpritePiece piece = new CompositeSpritePiece(spr);
+        return addSpriteRenderer(spr, scale, offset, 0, flip);
+    }
+
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f scale, Vector3f offset,
+            float rotation) {
+        return addSpriteRenderer(spr, scale, offset, rotation, false);
+    }
+
+    public CompositeSpriteRenderer addSpriteRenderer(SpriteRenderer spr, Vector3f scale, Vector3f offset,
+            float rotation, boolean flip) {
+        CompositeSpritePiece piece = new CompositeSpritePiece(spr, scale);
         piece.offset = offset;
         piece.rotation = rotation;
         piece.flip = flip;
@@ -95,6 +97,7 @@ public class CompositeSpriteRenderer extends Component {
         CompositeSpritePiece piece = spritePieces.get(index);
         transform.position.add(piece.offset);
         transform.rotation = piece.rotation;
+        transform.scale = piece.scale;
         if (piece.flip) {
             transform.scale.x = -transform.scale.x;
         }

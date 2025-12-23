@@ -1,8 +1,6 @@
 package secondEngine.components;
 
-import secondEngine.Component;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.grid.GridableObject;
 import secondEngine.grid.GriddableComponent;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
@@ -30,9 +28,7 @@ public class SpriteRenderer extends GriddableComponent {
 
     @Override
     public void start() {
-        if (this.sprite.getTexture() != null) {
-            this.sprite.setTexture(AssetPool.getTexture(this.sprite.getTexture().getFilepath()));
-        }
+        refreshTexture();
         // GridMachine gm = this.gameObject.getComponent(GridMachine.class);
         // if (gm == null) {
         // gm = new GridMachine().init();

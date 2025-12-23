@@ -1,68 +1,129 @@
 package secondEngine.components;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import secondEngine.Component;
 import secondEngine.components.helpers.InventorySlot;
-import secondEngine.objects.overlay.Layout;
 
 public class Inventory extends Component {
-    // public static int one = 1;
     // private Map<String, InventorySlot> slots;
+    private InventorySlot[] slots;
+    private SpriteRenderer[] sprites;
+    private Set<Integer> empty;
+    private Set<Integer> occupied;
     // private String[] takenSlots;
     // private int defaultSlotMaxAmount;
 
-    // public Inventory init(Layout layout, int defaultSlotMaxAmount) {
-    // this.nSlots = nSlots;
-    // this.slots = new InventorySlot[nSlots];
-    // this.slotIsTaken = new boolean[nSlots];
-    // this.defaultSlotMaxAmount = defaultSlotMaxAmount;
-    // return this;
-    // }
+    public Inventory init(int nInventorySlots, int defaultSlotMaxAmount) {
+        slots = new InventorySlot[nInventorySlots];
+        sprites = new SpriteRenderer[nInventorySlots];
+        empty = new HashSet<>();
+        occupied = new HashSet<>();
+        for (int i = 0; i < nInventorySlots; i++) {
+            slots[i] = new InventorySlot(this, defaultSlotMaxAmount);
+            empty.add(i);
+        }
+        return this;
+    }
 
-    // public boolean add(InventorySlot newObject, int index) {
-    // return slots[index].add(newObject);
-    // }
+    public void setInventorySlotEmpty(InventorySlot slotToEmpty) {
+        setInventorySlotStatus(slotToEmpty, true);
+    }
 
-    // public boolean add(InventorySlot newObject) {
-    // boolean added = false;
-    // int minIndexOpenSlot = -1;
-    // for (int i = 0; i < nSlots; i++) {
-    // if (slotIsTaken[i]) {
-    // added = slots[i].add(newObject);
-    // } else {
-    // if (minIndexOpenSlot == -1) {
-    // minIndexOpenSlot = i;
-    // }
-    // }
-    // }
-    // if (minIndexOpenSlot != -1) {
-    // slots[minIndexOpenSlot] = new InventorySlot(newObject,
-    // this.defaultSlotMaxAmount);
-    // slotIsTaken[minIndexOpenSlot] = true;
-    // if (newObject.amount == 0) {
-    // added = true;
-    // }
-    // }
-    // return added;
-    // }
+    public void setInventorySlotOccupied(InventorySlot slotToEmpty) {
+        setInventorySlotStatus(slotToEmpty, false);
+    }
 
-    // public boolean transfer(InventorySlot recipient, int index) {
-    // boolean transfered = slots[index].transfer(recipient);
-    // if (transfered) {
-    // // removing the object from the inventory
-    // slotIsTaken[index] = false;
-    // slots[index] = null;
-    // }
-    // return transfered;
-    // }
+    private void setInventorySlotStatus(InventorySlot slotToChange, boolean isEmpty) {
+        InventorySlot slot;
+        for (int i = 0; i < slots.length; i++) {
+            slot = slots[i];
+            if (slot == slotToChange) {
+                if (isEmpty && slotToChange.isEmpty()) {
+                    empty.add(i);
+                    occupied.remove((Integer) i);
+                }
+                if (!isEmpty && !slotToChange.isEmpty()) {
+                    empty.remove((Integer) i);
+                    occupied.add(i);
+                }
+            }
+        }
+    }
+
+    public InventorySlot getInventorySlot(int index) {
+        return slots[index];
+    }
+
+    public boolean isInventorySlotEmpty(int index) {
+        return empty.contains(index);
+    }
+
+    public InventorySlot[] getInventorySlots() {
+        return slots;
+    }
+
+    public boolean transferFrom(InventorySlot donator, int amount) {
+        boolean transferedAll = false;
+        int remainingAmount = donator.getAmount() - amount;
+        // TODO should look for a matching inventory slot before finding an empty slot
+        for (Integer index : occupied) {
+            if (slots[index].equals(donator)) {
+                transferedAll = slots[index].transferFrom(donator, amount);
+                if (transferedAll) {
+                    return true;
+                }
+                amount = donator.getAmount() - remainingAmount;
+            }
+        }
+        for (int i = 0; i < slots.length; i++) {
+            if (slots[i].equals(donator)) {
+                transferedAll = slots[i].transferFrom(donator, amount);
+                if (transferedAll) {
+                    return true;
+                }
+                amount = donator.getAmount() - remainingAmount;
+            }
+        }
+        return transferedAll;
+    }
+
+    public InventorySlot addSpriteRenderer(SpriteRenderer sprite) {
+        for (int i = 0; i < slots.length; i++) {
+            if (sprites[i] == null) {
+                sprites[i] = sprite;
+                return slots[i];
+            }
+        }
+        assert true : "More sprite renderers were added than there were inventory slots";
+        return null;
+    }
 
     @Override
     public void start() {
+        for (int i = 0; i < slots.length; i++) {
+            InventorySlot slot = slots[i];
+            SpriteRenderer sprite = sprites[i];
+            if (sprite != null) {
+                sprite.setSprite(slot.getSprite());
+                slot.setDirtySprite(false);
+            }
+        }
     }
 
     @Override
     public void update(float dt) {
+        for (int i = 0; i < slots.length; i++) {
+            InventorySlot slot = slots[i];
+            if (slot.isDirtySprite()) {
+                SpriteRenderer sprite = sprites[i];
+                if (sprite != null) {
+                    sprite.setSprite(slot.getSprite());
+                    slot.setDirtySprite(false);
+                }
+            }
+        }
     }
 
 }

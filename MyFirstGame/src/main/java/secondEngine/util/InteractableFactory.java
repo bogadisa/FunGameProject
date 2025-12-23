@@ -4,9 +4,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joml.Vector3f;
+
 import secondEngine.Window;
 import secondEngine.components.AnimationStateMachine;
+import secondEngine.components.Inventory;
+import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
+import secondEngine.components.helpers.InventorySlot;
 import secondEngine.grid.GridState;
 import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
@@ -27,7 +32,7 @@ public class InteractableFactory {
         }
 
         enum Misc implements InteractableIds {
-            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT;
+            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT, TEMP;
 
             @Override
             public Categories id() {
@@ -96,6 +101,25 @@ public class InteractableFactory {
                     return trigger("toggleColor", thisGO, otherGO);
                 }
             };
+        case TEMP:
+            return get().new InteractableFunction() {
+
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    Inventory thisInventory = thisGO.getComponent(Inventory.class);
+                    // Inventory otherInventory = otherGO.getComponent(Inventory.class);
+                    Overlay otherOverlay = otherGO.getComponent(Overlay.class);
+                    Vector3f thisPos = thisGO.getPosition();
+                    Vector3f otherPos = otherGO.getPosition();
+                    Vector3f newPos = new Vector3f(thisGO.getPosition()).sub(otherGO.getPosition());
+                    List<InventorySlot> slots = otherOverlay.getOverlayGrid()
+                            .getObjects(thisInventory.getInventorySlot(0), newPos, InventorySlot.class);
+                    InventorySlot otherSlot = slots.get(0);
+                    InventorySlot thisSlot = thisInventory.getInventorySlot(0);
+                    boolean transfered = otherSlot.transferTo(thisSlot, 1);
+                    return true;
+                }
+            };
 
         default:
             break;
@@ -116,7 +140,6 @@ public class InteractableFactory {
 
         protected boolean trigger(String trigger, GameObject thisGO, GameObject otherGO) {
             AnimationStateMachine sm = otherGO.getComponent(AnimationStateMachine.class);
-            System.out.println("ehllo");
             if (sm == null) {
                 return false;
             }
@@ -126,19 +149,17 @@ public class InteractableFactory {
             SpatialGrid grid = Window.getScene().worldGrid();
             Set<String> thisCoverage = grid.getGridCoverage(thisGO);
             boolean overlap = otherCoverage.retainAll(thisCoverage);
-            boolean triggered = false;
-            if (overlap) {
-                // GridMachine gm = otherGO.getComponent(GridMachine.class);
-                GridState otherGS = otherGO.getGridState(grid);
-                // TODO broken
-                List<SpriteRenderer> sprRenderers = otherGS.getObjects(SpriteRenderer.class, otherCoverage);
-                triggered = !sprRenderers.isEmpty();
-                for (SpriteRenderer spriteRenderer : sprRenderers) {
-                    if (spriteRenderer.getCompositeIndex() >= 0) {
-                        sm.trigger(trigger, spriteRenderer.getCompositeIndex());
-                    } else {
-                        sm.trigger(trigger);
-                    }
+            if (!overlap) {
+                return false;
+            }
+            GridState otherGS = otherGO.getGridState(grid);
+            List<SpriteRenderer> sprRenderers = otherGS.getObjects(SpriteRenderer.class, otherCoverage);
+            boolean triggered = !sprRenderers.isEmpty();
+            for (SpriteRenderer spriteRenderer : sprRenderers) {
+                if (spriteRenderer.getCompositeIndex() >= 0) {
+                    sm.trigger(trigger, spriteRenderer.getCompositeIndex());
+                } else {
+                    sm.trigger(trigger);
                 }
             }
             return triggered;

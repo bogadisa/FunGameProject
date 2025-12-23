@@ -5,6 +5,7 @@ import java.util.HashMap;
 import secondEngine.Component;
 import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
+import secondEngine.components.Overlay;
 import secondEngine.components.PlayerControls;
 
 public class UpdateHierarchy {
@@ -20,6 +21,7 @@ public class UpdateHierarchy {
         hierarchy.put(PlayerControls.class, Priority.FIRST);
         hierarchy.put(MouseTracker.class, Priority.FIRST);
         hierarchy.put(Inventory.class, Priority.SECOND);
+        hierarchy.put(Overlay.class, Priority.SECOND);
     }
 
     static public UpdateHierarchy get() {

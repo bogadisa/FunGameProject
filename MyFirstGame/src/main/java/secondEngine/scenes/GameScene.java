@@ -9,9 +9,11 @@ import secondEngine.Config.UIconfig;
 import secondEngine.Window;
 import secondEngine.components.CompositeSpriteRenderer;
 import secondEngine.components.InteractiveStateMachine;
+import secondEngine.components.Inventory;
 import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.components.AnimationStateMachine;
+import secondEngine.components.helpers.InventorySlot;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.grid.SpatialGrid;
@@ -21,8 +23,10 @@ import secondEngine.objects.OverlayObject;
 import secondEngine.objects.Special.Mouse;
 import secondEngine.objects.entities.Player;
 import secondEngine.objects.overlay.Layout;
+import secondEngine.tests.TestManager;
 import secondEngine.util.AssetPool;
 import secondEngine.util.PrefabFactory;
+import secondEngine.util.PrefabFactory.PrefabIds;
 import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
 
 public class GameScene extends Scene {
@@ -32,7 +36,8 @@ public class GameScene extends Scene {
         loadResources();
 
         this.camera = new Camera(new Vector2f());
-        this.worldGrid = new SpatialGrid("base");
+        this.worldGrid = new SpatialGrid("world");
+        this.screenGrid = new SpatialGrid("screen");
 
         GameObject grid = OverlayObject.generateGrid();
         this.addGameObjectToScene(grid);
@@ -47,8 +52,7 @@ public class GameScene extends Scene {
         // player.transform.position.add(64, 80, 0);
         this.addGameObjectToScene(player);
 
-        // player.getComponent(GridMachine.class).toggleHighlight();
-        // grid.getComponent(Overlay.class).linkObjectToGrid(player);
+        // TestManager.testComponent(Inventory.class);
 
         // GameObject obj = new GameObject("Obj");
         // CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer();
@@ -62,11 +66,10 @@ public class GameScene extends Scene {
         // this.addGameObjectToScene(obj);
 
         GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
-        inventory.transform.init(new Vector3f(16, 16, 0), new Vector3f(scale, scale, 10));
+        this.addGameObjectToScene(inventory);
 
         // Window.getScene().worldGrid().addObject(inventory);
 
-        this.addGameObjectToScene(inventory);
         // ui.getComponent(GridState.class).toggleHighlight();
 
     }
@@ -97,8 +100,7 @@ public class GameScene extends Scene {
         Layout.SlotType.Other n = Layout.SlotType.Other.NULL;
         Layout.SlotType.Interactable i = Layout.SlotType.Interactable.INVENTORY;
         Layout.SlotType[][] standardLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },
-                { n, i, i, i, i, i, i, i, i, i, n }, { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11],
-                { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11] };
+                { n, i, i, i, i, i, i, i, i, i, n }, { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11] };
         Layout standard = new Layout(standardLayout);
         AssetPool.addLayout(standard, InventoryLayout.DEFAULT_27);
         Layout.SlotType[][] lineLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },

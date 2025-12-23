@@ -151,11 +151,16 @@ public class SpatialGrid {
     }
 
     public <GridObject extends Griddable> List<GridObject> getObjects(GridObject obj, Class<GridObject> objClass) {
-        String pos = encodePos(obj.getPosition());
+        return getObjects(obj, obj.getPosition(), objClass);
+    }
+
+    public <GridObject extends Griddable> List<GridObject> getObjects(GridObject obj, Vector3f position,
+            Class<GridObject> objClass) {
+        String pos = encodePos(position);
         List<Griddable> foundObjs = new ArrayList<>(objectGrid.getOrDefault(pos, new ArrayList<>()));
         List<GridObject> filteredObjs = new ArrayList<>();
         for (Griddable foundObj : foundObjs) {
-            if (foundObj.isOfType(objClass)) {
+            if (foundObj.isOfType(objClass) && foundObj != obj) {
                 filteredObjs.add(objClass.cast(foundObj));
             }
         }
@@ -178,6 +183,12 @@ public class SpatialGrid {
     }
 
     public <GridObject extends Griddable> void addObject(GridObject obj) {
+        if (obj.isOfType(GridableObject.class)) {
+            GameObject gridObj = GameObject.class.cast(obj);
+            if (gridObj.getName().equals("inventoryObj")) {
+                System.out.println("yo");
+            }
+        }
         Set<String> coverage = getGridCoverage(obj);
         if (obj.isOfType(GridableObject.class)) {
             GridableObject gridObj = GridableObject.class.cast(obj);
@@ -188,12 +199,13 @@ public class SpatialGrid {
 
     private <GridObject extends Griddable> void removeObject(GridObject obj, String pos) {
         List<Griddable> objs = this.objectGrid.get(pos);
-        if (objs != null) {
-            for (int i = 0; i < objs.size(); i++) {
-                if (obj.getObjectId() == objs.get(i).getObjectId()) {
-                    objs.remove(i);
-                    break;
-                }
+        if (objs == null) {
+            return;
+        }
+        for (int i = 0; i < objs.size(); i++) {
+            if (obj.getObjectId() == objs.get(i).getObjectId()) {
+                objs.remove(i);
+                return;
             }
         }
     }

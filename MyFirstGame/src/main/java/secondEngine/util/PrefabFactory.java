@@ -12,6 +12,7 @@ import secondEngine.objects.OverlayObject;
 import secondEngine.objects.SpriteObject;
 import secondEngine.objects.Tiles.GroundManager;
 import secondEngine.objects.overlay.OverlayManager;
+import secondEngine.renderer.Texture;
 import secondEngine.util.PrefabFactory.PrefabIds.Categories;
 import secondEngine.util.PrefabFactory.PrefabIds.MiscPrefabs;
 import secondEngine.util.PrefabFactory.PrefabIds.GroundPrefabs.Spring;
@@ -53,7 +54,17 @@ public class PrefabFactory {
 
         public interface OverlayPrefabs extends PrefabIds {
             enum InventoryLayout implements GroundPrefabs {
-                DEFAULT_27, DEFAULT_9;
+                DEAFULT_1(1), DEFAULT_27(27), DEFAULT_9(9);
+
+                private int nSlots;
+
+                private InventoryLayout(int nSlots) {
+                    this.nSlots = nSlots;
+                }
+
+                public int getNumSlots() {
+                    return this.nSlots;
+                }
 
                 @Override
                 public Categories id() {
@@ -117,6 +128,9 @@ public class PrefabFactory {
     }
 
     private static <PrefabSubClass extends PrefabIds> Sprite getObjSprite(PrefabSubClass objectId) {
+        if (objectId == null) {
+            return new Sprite().setTexture(new Texture().init());
+        }
         Categories catEnum = objectId.id();
         Sprite sprite = null;
         switch (catEnum) {

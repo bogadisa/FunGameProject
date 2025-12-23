@@ -46,10 +46,10 @@ public class MouseTracker extends Component {
         Vector2f worldCoords = grid.fromGrid(gridCoords);
 
         if (this.gameObject.transform.gridLockX) {
-            this.gameObject.transform.position.x = worldCoords.x;
+            this.gameObject.transform.position.x = worldCoords.x + this.gameObject.transform.scale.x / 2;
         }
         if (this.gameObject.transform.gridLockY) {
-            this.gameObject.transform.position.y = worldCoords.y;
+            this.gameObject.transform.position.y = worldCoords.y + this.gameObject.transform.scale.x / 2;
         }
 
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_1)) {
@@ -57,7 +57,7 @@ public class MouseTracker extends Component {
             InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
             // stateMachine.interact("Enlarge", this.gameObject);
             // String func = "NoHighlight";
-            String func = "ToggleHighlight";
+            String func = "Temp";
             // if (temp) {
             // func = "ToggleHighlight";
             // }

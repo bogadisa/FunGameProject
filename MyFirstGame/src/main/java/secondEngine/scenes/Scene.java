@@ -31,7 +31,7 @@ public abstract class Scene {
     private List<GameObject> gameObjectToAdd = new ArrayList<>();
 
     protected SpatialGrid worldGrid = null;
-    protected SpatialGrid overlayGrid = null;
+    protected SpatialGrid screenGrid = null;
 
     protected Camera camera = null;
     protected float[] vertexArray;
@@ -100,6 +100,10 @@ public abstract class Scene {
 
     public SpatialGrid worldGrid() {
         return this.worldGrid;
+    }
+
+    public SpatialGrid screenGrid() {
+        return this.screenGrid;
     }
 
     public GameObject createGameObject(String name) {

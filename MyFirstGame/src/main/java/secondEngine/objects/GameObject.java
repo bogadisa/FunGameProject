@@ -68,12 +68,11 @@ public class GameObject extends GridableObject {
         if (c.getClass().equals(Transform.class)) {
             this.transform = (Transform) c;
         }
-        if (this.getName().equals("SpriteObjectGen")) {
-            System.out.println("ye");
-        }
         if (GriddableComponent.class.isAssignableFrom(c.getClass())) {
             GridState gs = getGridState(Window.getScene().worldGrid());
-            gs.addObject(GriddableComponent.class.cast(c));
+            if (gs != null) {
+                gs.addObject(GriddableComponent.class.cast(c));
+            }
         }
     }
 

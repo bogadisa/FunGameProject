@@ -2,7 +2,6 @@ package secondEngine.objects.entities;
 
 import org.joml.Vector4f;
 
-import secondEngine.Window;
 import secondEngine.components.PlayerControls;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.helpers.AnimationState;

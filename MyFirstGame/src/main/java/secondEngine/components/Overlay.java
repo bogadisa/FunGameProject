@@ -1,39 +1,34 @@
 package secondEngine.components;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joml.Vector3f;
 
 import secondEngine.Component;
-import secondEngine.Window;
 import secondEngine.Config.UIconfig;
+import secondEngine.components.helpers.InventorySlot;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.grid.GridState;
-import secondEngine.grid.GridableObject;
-import secondEngine.grid.Griddable;
-import secondEngine.grid.GriddableComponent;
 import secondEngine.grid.SpatialGrid;
+import secondEngine.grid.GriddableComponent;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.overlay.Layout;
 import secondEngine.objects.overlay.Layout.SlotType;
-import secondEngine.util.PrefabFactory;
 
-public class Overlay extends Component {
+public class Overlay extends GriddableComponent {
     private final int OVERLAY_Z_INDEX = 2;
+    private int UIscale;
     private boolean rescale = false;
 
     private Sprite corner, edge, fill;
     private boolean ignoreEdge = true;
     private boolean ignoreCorner = true;
 
+    private int height, width;
+    private Vector3f scale;
+
     private Layout layout;
     private Map<Layout.SlotType, Sprite> layoutSprites;
     private SpatialGrid overlayGrid;
-    private List<Griddable> linkedObjects;
 
     private transient boolean isInitialized = false;
 
@@ -50,7 +45,7 @@ public class Overlay extends Component {
     }
 
     /**
-     * Uses the game object scale transform for background, where layout <= 0,
+     * Uses the game object UIscale transform for background, where layout <= 0,
      * otherwise it doubles (quadruple area) the size
      * 
      * @param go            Needed for adding the composite sprite
@@ -63,88 +58,85 @@ public class Overlay extends Component {
     public Overlay init(GameObject go, Sprite[] sprites, Map<Layout.SlotType, Sprite> layoutSprites, Layout layout) {
         this.layout = layout;
         this.layoutSprites = layoutSprites;
-        int numSpritesX = layout.getLayout()[0].length;
-        int numSpritesY = layout.getLayout().length;
-        return init(go, sprites, numSpritesX, numSpritesY);
+        int width = layout.getLayout()[0].length;
+        int height = layout.getLayout().length;
+        return init(go, sprites, width, height);
     }
 
     /**
      * 
-     * @param go          Needed for adding the composite sprite
-     * @param sprites     The background
-     * @param numSpritesX
-     * @param numSpritesY
+     * @param go      Needed for adding the composite sprite
+     * @param sprites The background
+     * @param width
+     * @param height
      * @return this
      */
-    public Overlay init(GameObject go, Sprite[] sprites, int numSpritesX, int numSpritesY) {
+    public Overlay init(GameObject go, Sprite[] sprites, int width, int height) {
         // TODO does this need to be initialized in another way?
         this.overlayGrid = new SpatialGrid(go.getName(), true);
         this.initSprites(sprites);
         this.gameObject = go;
-        this.linkedObjects = new ArrayList<>();
-        this.buildCompositeSprite(numSpritesX, numSpritesY);
+        this.height = height;
+        this.width = width;
+        this.UIscale = UIconfig.getScale();
+        this.scale = new Vector3f(width * UIscale, height * UIscale, 1);
+        buildCompositeSprite();
         isInitialized = true;
         return this;
     }
 
-    private Overlay buildCompositeSprite(int numSpritesX, int numSpritesY) {
+    private Overlay buildCompositeSprite() {
         Layout.SlotType[][] layout;
         if (this.layout != null) {
             layout = this.layout.getLayout();
         } else {
-            layout = new Layout.SlotType[numSpritesY][numSpritesX];
+            layout = new Layout.SlotType[height][width];
         }
-        return buildCompositeSprite(numSpritesX, numSpritesY, layout);
-
-    }
-
-    // TODO remove this testing stuff
-    int specialPiecesAdded = 0;
-
-    private Overlay buildCompositeSprite(int numSpritesX, int numSpritesY, Layout.SlotType[][] layout) {
         // TODO might cause issues if a comp sprite already exists
-        CompositeSpriteRenderer compSprite = new CompositeSpriteRenderer().init();
-        int scale = UIconfig.getScale();
+        CompositeSpriteRenderer compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class);
+        if (compSprite == null) {
+            compSprite = new CompositeSpriteRenderer().init();
+            this.gameObject.addComponent(compSprite);
+        }
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
 
-        specialPiecesAdded = 0;
-        for (int i = 1; i <= numSpritesX; i++) {
-            for (int j = 1; j <= numSpritesY; j++) {
+        for (int i = 1; i <= width; i++) {
+            for (int j = 1; j <= height; j++) {
                 int[] rotation = { 0 };
                 boolean[] flip = { false };
 
-                Sprite piece = getSprite(i, j, numSpritesX, numSpritesY, rotation, flip);
-                Vector3f offset = new Vector3f((i - 1) * scale, (j - 1) * scale, OVERLAY_Z_INDEX);
-                compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), offset, rotation[0], flip[0]);
-                Layout.SlotType slotType = layout[numSpritesY - j][i - 1];
-                if (slotType != null && !slotType.isOfType(Layout.SlotType.Other.class)) {
-                    if (layoutSprites != null) {
-                        addSpecialSprite(compSprite, offset, slotType);
-                    }
-
+                Sprite piece = getSprite(i, j, width, height, rotation, flip);
+                Vector3f offset = new Vector3f((i - 1 - halfWidth) * UIscale, (j - 1 - halfHeight) * UIscale,
+                        OVERLAY_Z_INDEX);
+                Vector3f scale = new Vector3f(UIscale, UIscale, 1);
+                compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), scale, offset, rotation[0],
+                        flip[0]);
+                Layout.SlotType slotType = layout[height - j][i - 1];
+                if (slotType != null) {
+                    addSlot(compSprite, scale, offset, slotType);
                 }
             }
         }
 
-        this.gameObject.addComponent(compSprite);
         return this;
 
     }
 
-    private void addSpecialSprite(CompositeSpriteRenderer compSprite, Vector3f offset, SlotType slotType) {
-        compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(layoutSprites.get(slotType)), new Vector3f(offset));
-
-        PrefabFactory.PrefabIds.GroundPrefabs.Spring enumSpring = PrefabFactory
-                .getEnum(PrefabFactory.PrefabIds.GroundPrefabs.Spring.class, specialPiecesAdded);
-        if (enumSpring != null) {
-            Sprite sprite = PrefabFactory.getObjectSprite(enumSpring);
-            SpriteRenderer spriteRenderer = new SpriteRenderer().setSprite(sprite);
-            compSprite.addSpriteRenderer(spriteRenderer, new Vector3f(offset));
-
-            if (slotType.isOfType(Layout.SlotType.Interactable.class)) {
-                this.linkedObjects.add(spriteRenderer);
-            }
+    private void addSlot(CompositeSpriteRenderer compSprite, Vector3f scale, Vector3f offset, SlotType slotType) {
+        if (slotType.isOfType(SlotType.Other.class)) {
+            return;
         }
-        specialPiecesAdded++;
+        compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(layoutSprites.get(slotType)), new Vector3f(scale),
+                new Vector3f(offset));
+        if (slotType == SlotType.Interactable.INVENTORY) {
+            Inventory inventory = this.gameObject.getComponent(Inventory.class);
+            SpriteRenderer sprite = new SpriteRenderer();
+            InventorySlot slot = inventory.addSpriteRenderer(sprite);
+            slot.setOffset(offset);
+            overlayGrid.addObject(slot);
+            compSprite.addSpriteRenderer(sprite, new Vector3f(scale), new Vector3f(offset));
+        }
 
     }
 
@@ -166,7 +158,6 @@ public class Overlay extends Component {
                     rotation[0] = 0;
                 }
             }
-            ;
         } else if (j == y) {
             if (!ignoreEdge) {
                 piece = edge;
@@ -179,7 +170,6 @@ public class Overlay extends Component {
                     }
                 }
             }
-            ;
         } else {
             if (i == 1 || i == x) {
                 if (!ignoreEdge) {
@@ -198,9 +188,9 @@ public class Overlay extends Component {
     public void start() {
         overlayGrid.setName(this.gameObject.getName());
         // Window.getScene().worldGrid().addObject(this.gameObject);
-        for (Griddable obj : linkedObjects) {
-            overlayGrid.addObject(obj);
-        }
+        // for (Griddable obj : linkedObjects) {
+        // overlayGrid.addObject(obj);
+        // }
         assert isInitialized
                 : "The game component " + this.gameObject.getName() + " has not initialized its overlay component";
     }
@@ -236,6 +226,10 @@ public class Overlay extends Component {
         // }
     }
 
+    public SpatialGrid getOverlayGrid() {
+        return this.overlayGrid;
+    }
+
     public Overlay addBackdrop() {
         // TODO not sure what this is for
         return this;
@@ -247,7 +241,7 @@ public class Overlay extends Component {
      * Remake: The composite sprite of the overlay is dependent on the size of the
      * window E.g the grid
      * 
-     * Rescale: The composite sprite pieces' scale is dependent on the size of the
+     * Rescale: The composite sprite pieces' UIscale is dependent on the size of the
      * window E.g UI stuff
      */
     public void resize() {
@@ -258,5 +252,20 @@ public class Overlay extends Component {
 
     public void setRescale(boolean rescale) {
         this.rescale = rescale;
+    }
+
+    @Override
+    public Vector3f getPosition() {
+        return this.gameObject.getPosition();
+    }
+
+    @Override
+    public Vector3f getScale() {
+        return this.scale;
+    }
+
+    @Override
+    public int getObjectId() {
+        return this.hashCode();
     }
 }

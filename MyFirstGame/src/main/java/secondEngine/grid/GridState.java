@@ -139,9 +139,7 @@ public class GridState {
         List<GridObj> foundObjects = new ArrayList<>();
         List<Vector4f> boundriesArray = grid.getBoundriesArray(positions);
         List<ObjectCell> Objectells = getObjectCells(componentClass);
-        System.out.println("eh");
         for (ObjectCell cell : Objectells) {
-            System.out.println("eh");
             if (cell.intersects(boundriesArray)) {
                 foundObjects.add(componentClass.cast(cell.object));
             }
