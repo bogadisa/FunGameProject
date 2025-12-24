@@ -94,6 +94,10 @@ public abstract class Scene {
         newGameObjectsQueued = false;
     }
 
+    public Renderer renderer() {
+        return this.renderer;
+    }
+
     public Camera camera() {
         return this.camera;
     }

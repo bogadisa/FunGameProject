@@ -183,12 +183,6 @@ public class SpatialGrid {
     }
 
     public <GridObject extends Griddable> void addObject(GridObject obj) {
-        if (obj.isOfType(GridableObject.class)) {
-            GameObject gridObj = GameObject.class.cast(obj);
-            if (gridObj.getName().equals("inventoryObj")) {
-                System.out.println("yo");
-            }
-        }
         Set<String> coverage = getGridCoverage(obj);
         if (obj.isOfType(GridableObject.class)) {
             GridableObject gridObj = GridableObject.class.cast(obj);

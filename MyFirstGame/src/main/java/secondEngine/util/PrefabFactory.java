@@ -129,7 +129,7 @@ public class PrefabFactory {
 
     private static <PrefabSubClass extends PrefabIds> Sprite getObjSprite(PrefabSubClass objectId) {
         if (objectId == null) {
-            return new Sprite().setTexture(new Texture().init());
+            return new Sprite().setTexture(AssetPool.getTexture("default.png"));
         }
         Categories catEnum = objectId.id();
         Sprite sprite = null;

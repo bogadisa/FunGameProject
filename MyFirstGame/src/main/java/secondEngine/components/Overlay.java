@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 
 import secondEngine.Component;
 import secondEngine.Config.UIconfig;
+import secondEngine.Window;
 import secondEngine.components.helpers.InventorySlot;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.grid.SpatialGrid;
@@ -135,9 +136,8 @@ public class Overlay extends GriddableComponent {
             InventorySlot slot = inventory.addSpriteRenderer(sprite);
             slot.setOffset(offset);
             overlayGrid.addObject(slot);
-            compSprite.addSpriteRenderer(sprite, new Vector3f(scale), new Vector3f(offset));
+            compSprite.addSpriteRenderer(sprite, new Vector3f(scale), new Vector3f(offset).add(0, 0, 1));
         }
-
     }
 
     private Sprite getSprite(int i, int j, int x, int y, int[] rotation, boolean[] flip) {
@@ -197,6 +197,13 @@ public class Overlay extends GriddableComponent {
 
     @Override
     public void update(float dt) {
+        // if (this.gameObject.getName().equals("inventoryObj")) {
+        // float xSpeed = 2f * dt;
+        // float ySpeed = 1f * dt;
+        // this.gameObject.transform.position.add(xSpeed, ySpeed, 0);
+        // SpatialGrid grid = Window.getScene().worldGrid();
+        // grid.updateObject(this.gameObject);
+        // }
         // // TODO remove because better permanent system is needed
         // for (GameObject go : linkedObjects) {
         // GridMachine gm = go.getComponent(GridMachine.class);

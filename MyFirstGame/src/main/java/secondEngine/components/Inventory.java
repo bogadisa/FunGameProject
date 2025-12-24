@@ -107,7 +107,7 @@ public class Inventory extends Component {
             SpriteRenderer sprite = sprites[i];
             if (sprite != null) {
                 sprite.setSprite(slot.getSprite());
-                slot.setDirtySprite(false);
+                slot.setCleanSprite();
             }
         }
     }
@@ -120,7 +120,7 @@ public class Inventory extends Component {
                 SpriteRenderer sprite = sprites[i];
                 if (sprite != null) {
                     sprite.setSprite(slot.getSprite());
-                    slot.setDirtySprite(false);
+                    slot.setCleanSprite();
                 }
             }
         }

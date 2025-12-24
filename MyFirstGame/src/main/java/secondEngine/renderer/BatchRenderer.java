@@ -40,6 +40,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
 
     private SpriteRenderer[] sprites;
     private int numSprites;
+    private List<Integer> openSpriteSlots;
     private boolean hasRoom;
     private int zIndex;
 
@@ -52,6 +53,8 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
     private int maxBatchSize;
     private Shader shader;
 
+    private boolean manualRebuffer = false;
+
     public BatchRenderer(int maxBatchSize, int zIndex) {
         shader = AssetPool.getShader("/shaders/default.glsl");
         this.sprites = new SpriteRenderer[maxBatchSize];
@@ -62,6 +65,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
         // this.previousVert = new float[maxBatchSize * 4 * VERTEX_SIZE];
 
         this.numSprites = 0;
+        this.openSpriteSlots = new ArrayList<>();
         this.hasRoom = true;
         this.zIndex = zIndex;
         this.textures = new ArrayList<>();
@@ -99,12 +103,16 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
 
     public void render() {
         boolean rebufferData = false;
-        for (int i = 0; i < numSprites; i++) {
-            SpriteRenderer sprite = sprites[i];
-            if (sprite.isDirty()) {
-                loadVertexProperties(i);
-                sprite.setClean();
-                rebufferData = true;
+        if (manualRebuffer) {
+            rebufferData = true;
+            manualRebuffer = false;
+        } else {
+            for (SpriteRenderer sprite : sprites) {
+                if (sprite != null && sprite.isDirty()) {
+                    loadVertexProperties(sprite.getBatchIndex());
+                    sprite.setClean();
+                    rebufferData = true;
+                }
             }
         }
         if (rebufferData) {
@@ -157,7 +165,12 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
     public void addSprite(SpriteRenderer spr) {
         // TODO add overflow sprites to another batch renderer
         if (hasRoom) {
-            int index = this.numSprites;
+            int index;
+            if (this.openSpriteSlots.size() > 0) {
+                index = this.openSpriteSlots.remove(this.openSpriteSlots.size() - 1);
+            } else {
+                index = this.numSprites;
+            }
             this.sprites[index] = spr;
             this.numSprites++;
 
@@ -173,8 +186,19 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
             if (numSprites >= this.maxBatchSize) {
                 hasRoom = false;
             }
-            spr.setAddedToRenderer(true);
+            spr.setAddedToRenderer(true, this, index);
         }
+    }
+
+    public void removeSprite(SpriteRenderer spr) {
+        int index = spr.getBatchIndex();
+        this.sprites[index] = null;
+        resetVertexProperties(index);
+        spr.setAddedToRenderer(false, null);
+        this.openSpriteSlots.add(index);
+        this.numSprites--;
+
+        this.manualRebuffer = true;
     }
 
     public void loadVertexProperties(int index) {
@@ -247,6 +271,31 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
 
             // Load texture id
             vertices[offset + 9] = texId;
+            offset += VERTEX_SIZE;
+        }
+    }
+
+    private void resetVertexProperties(int index) {
+        int offset = index * 4 * VERTEX_SIZE;
+        for (int i = 0; i < 4; i++) {
+
+            // Load position
+            vertices[offset] = 0.0f;
+            vertices[offset + 1] = 0.0f;
+            vertices[offset + 2] = 0.0f;
+
+            // Load color
+            vertices[offset + 3] = 0.0f;
+            vertices[offset + 4] = 0.0f;
+            vertices[offset + 5] = 0.0f;
+            vertices[offset + 6] = 0.0f;
+
+            // Load texture coordinates
+            vertices[offset + 7] = 0.0f;
+            vertices[offset + 8] = 0.0f;
+
+            // Load texture id
+            vertices[offset + 9] = 0.0f;
             offset += VERTEX_SIZE;
         }
     }

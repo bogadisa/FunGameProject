@@ -37,7 +37,7 @@ public class Renderer {
     }
 
     public void add(SpriteRenderer spriteRenderer) {
-        int zIndex = (int) spriteRenderer.gameObject.transform.position.z;
+        int zIndex = (int) spriteRenderer.getTransform().position.z;
         add(spriteRenderer, zIndex);
 
     }

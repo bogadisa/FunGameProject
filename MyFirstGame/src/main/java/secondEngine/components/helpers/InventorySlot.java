@@ -121,8 +121,8 @@ public class InventorySlot extends GriddableSlot {
         return dirtySprite;
     }
 
-    public void setDirtySprite(boolean dirtySprite) {
-        this.dirtySprite = dirtySprite;
+    public void setCleanSprite() {
+        this.dirtySprite = false;
     }
 
     public boolean isDirtyAmount() {

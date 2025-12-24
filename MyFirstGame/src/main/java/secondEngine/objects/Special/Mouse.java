@@ -34,9 +34,10 @@ public class Mouse {
 
         Inventory inventory = new Inventory().init(1, 64);
         inventory.addSpriteRenderer(mouse.getComponent(SpriteRenderer.class));
-        Inventory inventoryObj = new Inventory().init(2, 64);
-        InventorySlot slot1 = new InventorySlot(inventoryObj, PrefabIds.GroundPrefabs.Spring.GRASS_1, 1, 64);
-        inventory.transferFrom(slot1, 1);
+        // Inventory inventoryObj = new Inventory().init(2, 64);
+        // InventorySlot slot1 = new InventorySlot(inventoryObj,
+        // PrefabIds.GroundPrefabs.Spring.GRASS_1, 1, 64);
+        // inventory.transferFrom(slot1, 1);
         mouse.addComponent(inventory);
 
         // mouse.transform.scale = new Vector3f(64, 64, 64);

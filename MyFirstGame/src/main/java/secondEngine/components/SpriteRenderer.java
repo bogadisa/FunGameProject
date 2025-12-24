@@ -1,7 +1,9 @@
 package secondEngine.components;
 
+import secondEngine.Window;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.grid.GriddableComponent;
+import secondEngine.renderer.BatchRenderer;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 
@@ -24,6 +26,8 @@ public class SpriteRenderer extends GriddableComponent {
     private transient CompositeSpriteRenderer compositeSpriteRenderer = null;
     private transient int compositeIndex = -1;
 
+    private transient int batchIndex = -1;
+    private transient BatchRenderer renderer;
     private transient boolean addedToRenderer = false;
 
     @Override
@@ -66,8 +70,17 @@ public class SpriteRenderer extends GriddableComponent {
         return this;
     }
 
+    private void updateRenderer(Texture texture) {
+        if (this.renderer == null || this.renderer.hasTexture(texture)) {
+            return;
+        }
+        this.renderer.removeSprite(this);
+        Window.getScene().renderer().add(this);
+    }
+
     public SpriteRenderer setTexture(Texture texture) {
         this.sprite.setTexture(texture);
+        updateRenderer(texture);
         this.isDirty = true;
         return this;
     }
@@ -80,6 +93,7 @@ public class SpriteRenderer extends GriddableComponent {
         // TODO needs to do something special for when the new sprite is in another
         // batch renderer?
         this.sprite = sprite;
+        updateRenderer(sprite.getTexture());
         this.isDirty = true;
         return this;
     }
@@ -127,8 +141,21 @@ public class SpriteRenderer extends GriddableComponent {
         return addedToRenderer;
     }
 
-    public void setAddedToRenderer(boolean addedToRenderer) {
+    public int getBatchIndex() {
+        return this.batchIndex;
+    }
+
+    public void setAddedToRenderer(boolean addedToRenderer, BatchRenderer renderer, int index) {
+        this.batchIndex = index;
+        setAddedToRenderer(addedToRenderer, renderer);
+    }
+
+    public void setAddedToRenderer(boolean addedToRenderer, BatchRenderer renderer) {
         this.addedToRenderer = addedToRenderer;
+        this.renderer = renderer;
+        if (!addedToRenderer) {
+            this.batchIndex = -1;
+        }
     }
 
     public int getCompositeIndex() {
