@@ -6,14 +6,17 @@ import java.util.List;
 
 import secondEngine.components.CompositeSpriteRenderer;
 import secondEngine.components.SpriteRenderer;
+import secondEngine.components.TextRenderer;
 import secondEngine.objects.GameObject;
 
 public class Renderer {
     private final int MAX_BATCH_SIZE = 1000;
-    private List<BatchRenderer> batches;
+    private List<BatchRenderer> spriteBatches;
+    private List<BatchRendererFont> textBatches;
 
     public Renderer() {
-        this.batches = new ArrayList<>();
+        this.spriteBatches = new ArrayList<>();
+        this.textBatches = new ArrayList<>();
     }
 
     public void add(GameObject go) {
@@ -25,6 +28,10 @@ public class Renderer {
         int zIndex = (int) go.transform.position.z;
         if (spr != null) {
             add(spr, zIndex);
+        }
+
+        if (go.getComponent(TextRenderer.class) != null) {
+            add(go.getComponent(TextRenderer.class));
         }
     }
 
@@ -47,7 +54,7 @@ public class Renderer {
             return;
         }
         boolean added = false;
-        for (BatchRenderer batch : batches) {
+        for (BatchRenderer batch : spriteBatches) {
             if (batch.hasRoom() && batch.getzIndex() == zIndex) {
                 Texture tex = sprite.getTexture();
                 if (tex == null || batch.hasTextureRoom() || batch.hasTexture(tex)) {
@@ -60,14 +67,30 @@ public class Renderer {
         if (!added) {
             BatchRenderer newBatch = new BatchRenderer(MAX_BATCH_SIZE, zIndex);
             newBatch.start();
-            batches.add(newBatch);
+            spriteBatches.add(newBatch);
             newBatch.addSprite(sprite);
-            Collections.sort(batches);
+            Collections.sort(spriteBatches);
         }
     }
 
+    public void add(TextRenderer text) {
+        if (text.isAddedToRenderer()) {
+            return;
+        }
+        if (textBatches.isEmpty()) {
+            BatchRendererFont newBatch = new BatchRendererFont(128);
+            newBatch.start();
+            textBatches.add(newBatch);
+        }
+        BatchRendererFont batch = textBatches.get(0);
+        batch.addText(text);
+    }
+
     public void render() {
-        for (BatchRenderer batch : batches) {
+        for (BatchRenderer batch : spriteBatches) {
+            batch.render();
+        }
+        for (BatchRendererFont batch : textBatches) {
             batch.render();
         }
     }

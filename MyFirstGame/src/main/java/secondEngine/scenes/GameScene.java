@@ -8,25 +8,25 @@ import secondEngine.Config;
 import secondEngine.Config.UIconfig;
 import secondEngine.Window;
 import secondEngine.components.CompositeSpriteRenderer;
-import secondEngine.components.InteractiveStateMachine;
-import secondEngine.components.Inventory;
-import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
-import secondEngine.components.AnimationStateMachine;
-import secondEngine.components.helpers.InventorySlot;
+import secondEngine.components.TextRenderer;
+import secondEngine.components.Transform;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.components.helpers.SpriteSheet;
+import secondEngine.components.helpers.Text;
+import secondEngine.components.helpers.TextBox;
+import secondEngine.components.AnimationStateMachine;
 import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.OverlayObject;
-// import secondEngine.objects.OverlayObject.Layouts;
+import secondEngine.objects.SpriteObject;
 import secondEngine.objects.Special.Mouse;
 import secondEngine.objects.entities.Player;
 import secondEngine.objects.overlay.Layout;
-import secondEngine.tests.TestManager;
+import secondEngine.renderer.Font;
+import secondEngine.renderer.GlyphMetrics;
+import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 import secondEngine.util.PrefabFactory;
-import secondEngine.util.PrefabFactory.PrefabIds;
 import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
 
 public class GameScene extends Scene {
@@ -39,18 +39,52 @@ public class GameScene extends Scene {
         this.worldGrid = new SpatialGrid("world");
         this.screenGrid = new SpatialGrid("screen");
 
-        GameObject grid = OverlayObject.generateGrid();
-        this.addGameObjectToScene(grid);
+        // GameObject grid = OverlayObject.generateGrid();
+        // this.addGameObjectToScene(grid);
 
         GameObject mouse = Mouse.generate();
         this.addGameObjectToScene(mouse);
-        if (Window.getScene().isLoaded()) {
+        // if (Window.getScene().isLoaded()) {
+        // return;
+        // }
+
+        // try {
+        // Font font = new Font().init("resources/fonts/Unifontexmono-lxY45.ttf");
+        // } catch (IOException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        if (false) {
+
+            Sprite sprite = new Sprite().setTexture(new Texture().initFromFont());
+            GameObject textObj2 = SpriteObject.generate(sprite, sprite.getTexture().getWidth(),
+                    sprite.getTexture().getHeight());
+            textObj2.transform.position.x = 400;
+            textObj2.transform.position.y = 400;
+            Font font = AssetPool.getFont("resources/fonts/Unifontexmono-lxY45.ttf");
+            GlyphMetrics c = font.getMetrics("h".charAt(0));
+            sprite.setTexCoords(c.texCoords);
+            this.addGameObjectToScene(textObj2);
+        } else {
+            new Texture().initFromFont();
+            GameObject textObj = this.createGameObject("text", new Transform().init(new Vector3f(1000, 400, 1)));
+
+            TextRenderer renderer = new TextRenderer();
+            TextBox textBox = renderer.getTextBox();
+            Text text = new Text("help");
+            textBox.addText(text);
+            textObj.addComponent(renderer);
+            this.addGameObjectToScene(textObj);
+
+        }
+
+        if (true) {
             return;
         }
 
-        GameObject player = Player.generate();
+        // GameObject player = Player.generate();
         // player.transform.position.add(64, 80, 0);
-        this.addGameObjectToScene(player);
+        // this.addGameObjectToScene(player);
 
         // TestManager.testComponent(Inventory.class);
 
@@ -65,8 +99,8 @@ public class GameScene extends Scene {
         // Vector3f(2*scale, 2*scale, 1)));
         // this.addGameObjectToScene(obj);
 
-        GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
-        this.addGameObjectToScene(inventory);
+        // GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
+        // this.addGameObjectToScene(inventory);
 
         // Window.getScene().worldGrid().addObject(inventory);
 
@@ -76,7 +110,11 @@ public class GameScene extends Scene {
 
     private void loadResources() {
         // TODO move this to a seperate initializer class
-        AssetPool.getShader("/shaders/default.glsl");
+        AssetPool.getShader("/shaders/sprites/default.glsl");
+        AssetPool.getShader("/shaders/fonts/default.glsl");
+
+        AssetPool.addFont("Unifontexmono-lxY45.ttf");
+        // AssetPool.addFont("HerculesPixelFontRegular-ovAX0.otf");
 
         AssetPool.addSpriteSheet("entities/player_3_3_9.png");
         AssetPool.addSpriteSheet("overlay/overlaySmallBasics_2_2_4.png");

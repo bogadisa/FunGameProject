@@ -33,13 +33,7 @@ public class SpriteRenderer extends GriddableComponent {
     @Override
     public void start() {
         refreshTexture();
-        // GridMachine gm = this.gameObject.getComponent(GridMachine.class);
-        // if (gm == null) {
-        // gm = new GridMachine().init();
-        // this.gameObject.addComponent(gm);
-        // }
-        // gm.addComponent(Window.getScene().worldGrid(), this, new Vector2f(0),
-        // getTransform().scale.xy(new Vector2f()));
+
         this.lastTransform = gameObject.transform.copy();
     }
 

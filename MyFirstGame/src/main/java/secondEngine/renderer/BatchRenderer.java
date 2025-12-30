@@ -56,13 +56,16 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
     private boolean manualRebuffer = false;
 
     public BatchRenderer(int maxBatchSize, int zIndex) {
-        shader = AssetPool.getShader("/shaders/default.glsl");
+        this(maxBatchSize, zIndex, AssetPool.getShader("/shaders/sprites/default.glsl"));
+    }
+
+    public BatchRenderer(int maxBatchSize, int zIndex, Shader shader) {
+        this.shader = shader;
         this.sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
 
         // 4 vertices quads
         this.vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
-        // this.previousVert = new float[maxBatchSize * 4 * VERTEX_SIZE];
 
         this.numSprites = 0;
         this.openSpriteSlots = new ArrayList<>();
@@ -144,6 +147,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
         // glEnableVertexAttribArray(3);
         // glEnableVertexAttribArray(4);
 
+        // TODO should this be multiplied by 4?
         glDrawElements(GL_TRIANGLES, this.numSprites * 6, GL_UNSIGNED_INT, 0);
         // Unbind everything
         // dont need?
@@ -254,6 +258,9 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
                 currentPos = new Vector4f(xAdd, yAdd, 1, 1).mul(transformMatrix);
             }
 
+            // for (int j = 0; j < 9; j++) {
+            // vertices[offset + j] = 1;
+            // }
             // Load position
             vertices[offset] = currentPos.x;
             vertices[offset + 1] = currentPos.y;

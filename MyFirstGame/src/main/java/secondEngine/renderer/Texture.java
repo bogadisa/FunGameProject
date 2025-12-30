@@ -1,12 +1,16 @@
 package secondEngine.renderer;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL31.GL_TEXTURE_BUFFER;
 import static org.lwjgl.stb.STBImage.*;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
+
+import secondEngine.util.AssetPool;
 
 public class Texture {
     private String filepath = "resources/textures/default.png";
@@ -67,6 +71,18 @@ public class Texture {
         return this;
     }
 
+    public Texture initFromFont() {
+        this.filepath = "resources/fonts/Unifontexmono-lxY45.ttf";
+        Font font = AssetPool.getFont(this.filepath);
+        GlyphMetrics c = font.getMetrics("h".charAt(0));
+        this.width = c.size.x;
+        this.height = c.size.y;
+        this.texID = font.getTexID();
+        isInitialized = true;
+        AssetPool.addTexture(filepath, this);
+        return this;
+    }
+
     public void bind() {
         glBindTexture(GL_TEXTURE_2D, texID);
     }
@@ -89,9 +105,5 @@ public class Texture {
 
     public String getFilepath() {
         return filepath;
-    }
-
-    public void setFilepath(String filepath) {
-        this.filepath = filepath;
     }
 }

@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL20;
 
 import secondEngine.renderer.Shader;
 
@@ -15,7 +14,6 @@ import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {
     private int shaderProgramID;
@@ -166,6 +164,7 @@ public class Shader {
         use();
         glUniform1i(varLocation, val);
     }
+
     public void uploadIntArray(String varName, int[] array) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         use();

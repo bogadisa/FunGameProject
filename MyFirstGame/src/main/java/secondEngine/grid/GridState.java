@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import secondEngine.Camera;
-import secondEngine.Component;
 import secondEngine.Window;
 
 public class GridState {

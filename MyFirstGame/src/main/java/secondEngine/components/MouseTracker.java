@@ -11,6 +11,8 @@ import org.joml.Vector3f;
 import secondEngine.Component;
 import secondEngine.Window;
 import secondEngine.components.helpers.InteractableState;
+import secondEngine.components.helpers.Text;
+import secondEngine.components.helpers.TextBox;
 import secondEngine.grid.SpatialGrid;
 import secondEngine.listeners.MouseListener;
 import secondEngine.objects.GameObject;
@@ -18,6 +20,8 @@ import secondEngine.util.PrefabFactory;
 
 public class MouseTracker extends Component {
     private transient Transform lastTransform = new Transform();
+    private transient TextRenderer textRenderer;
+    private transient Text text;
 
     // temp
 
@@ -33,6 +37,15 @@ public class MouseTracker extends Component {
         this.gameObject.transform.copy(lastTransform);
         MouseListener
                 .registerMouseScrollCallback((double xOffset, double yOffset) -> onScrollCallback(xOffset, yOffset));
+        this.textRenderer = this.gameObject.getComponent(TextRenderer.class);
+        if (this.textRenderer == null) {
+            this.textRenderer = new TextRenderer();
+            this.gameObject.addComponent(this.textRenderer);
+        }
+
+        TextBox textBox = this.textRenderer.getTextBox();
+        this.text = new Text("help");
+        textBox.addText(this.text);
     }
 
     @Override
@@ -66,7 +79,8 @@ public class MouseTracker extends Component {
                 temp = stateMachine.interact(func, go);
             }
         }
-
+        this.text.setText(
+                "(" + this.gameObject.transform.position.x + ", " + this.gameObject.transform.position.y + ")");
         // Window.getScene().worldGrid().removeObject(gameObject);
         // if (!MouseListener.mouseButtonStillDown(GLFW_MOUSE_BUTTON_2)) {
         // if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_2)) {

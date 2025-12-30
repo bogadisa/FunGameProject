@@ -44,7 +44,7 @@ public class EditorScene extends Scene {
     }
 
     private void loadResources() {
-        AssetPool.getShader("/shaders/default.glsl");
+        AssetPool.getShader("/shaders/sprites/default.glsl");
 
         // AssetPool.addSpriteSheet("entities/player_3_3_9.png");
     }

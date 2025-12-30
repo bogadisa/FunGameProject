@@ -26,6 +26,6 @@ public class Main {
     public static void main(String[] args) {
         Window window = Window.get();
         window.run();
-        // Shader shader = new Shader("../../shaders/default.glsl");
+        // Shader shader = new Shader("../../shaders/sprites/default.glsl");
     }
 }
