@@ -58,9 +58,12 @@ public class GameScene extends Scene {
         GameObject textObj = this.createGameObject("text", new Transform().init(new Vector3f(1000, 400, 1)));
 
         TextRenderer renderer = new TextRenderer();
-        TextBox textBox = new TextBox(100, 20);
+        TextBox textBox = new TextBox(100, 20, new Vector3f(200, 200, 0));
         renderer.addTextBox(textBox);
         textBox.addText("I love Anna");
+        TextBox textBox2 = new TextBox(100, 20, new Vector3f(200, 100, 0));
+        renderer.addTextBox(textBox2);
+        textBox2.addText("I love Anna");
         textObj.addComponent(renderer);
         this.addGameObjectToScene(textObj);
 

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import secondEngine.Window;
@@ -68,7 +69,7 @@ public class BatchRendererFont extends BatchRenderer {
         // Find offset within array (4 vertices per char)
         int offset = 4 * this.numObjects * VERTEX_SIZE;
 
-        Vector2f charPos = transform.position.xy(new Vector2f()).add(c.pos);
+        Vector3f charPos = new Vector3f(transform.position).add(c.pos);
         Vector2f[] texCoords = c.metrics.texCoords;
 
         float xAdd = 0.5f;
@@ -81,7 +82,8 @@ public class BatchRendererFont extends BatchRenderer {
             } else if (i == 3) {
                 yAdd = 0.5f;
             }
-            Vector4f currentPos = new Vector4f(charPos.x + (xAdd * c.scale.x), charPos.y + (yAdd * c.scale.y), 0, 1);
+            Vector3f currentPos = new Vector3f(charPos.x + (xAdd * c.scale.x), charPos.y + (yAdd * c.scale.y),
+                    charPos.z);
 
             // Load position
             // for (int j = 0; j < 9; j++) {

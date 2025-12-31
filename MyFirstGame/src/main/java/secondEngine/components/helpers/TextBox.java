@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import secondEngine.Config.UIconfig;
 import secondEngine.renderer.GlyphMetrics;
@@ -12,11 +13,11 @@ import secondEngine.renderer.GlyphMetrics;
 public class TextBox {
     public class CharacterInfo {
         public char c;
-        public Vector2f pos;
+        public Vector3f pos;
         public Vector2f scale;
         public GlyphMetrics metrics;
 
-        private CharacterInfo(char c, Vector2f pos, Vector2f scale, GlyphMetrics metrics) {
+        private CharacterInfo(char c, Vector3f pos, Vector2f scale, GlyphMetrics metrics) {
             this.c = c;
             this.pos = pos;
             this.scale = scale;
@@ -27,13 +28,21 @@ public class TextBox {
     private int width, height;
     private float x = 0;
     private float y = 0;
+    private Vector3f offset;
     private transient List<CharacterInfo> characters;
 
+    private transient boolean isDirty = false;
     private List<Text> texts;
 
     public TextBox(int width, int height) {
+        this(width, height, new Vector3f(0));
+    }
+
+    public TextBox(int width, int height, Vector3f offset) {
         this.width = width;
         this.height = height;
+
+        this.offset = offset;
 
         this.characters = new ArrayList<>();
         this.texts = new ArrayList<>();
@@ -52,13 +61,14 @@ public class TextBox {
             float advance = metric.advance * fontSize;
             if (x + advance > width) {
                 x = 0;
+                // TODO how to deal with overflow?
                 y -= UIconfig.getScale() * fontSize * 1.1;
             }
-            Vector2f pos = new Vector2f(x + metric.bearing.x * fontSize,
-                    y - (metric.size.y - metric.bearing.y) * fontSize);
+            Vector3f pos = new Vector3f(x + metric.bearing.x * fontSize,
+                    y - (metric.size.y - metric.bearing.y) * fontSize, 0).add(this.offset);
 
             Vector2f scale = new Vector2f(metric.size).mul(fontSize);
-            pos.add(new Vector2f(scale).mul(0.5f));
+            pos.add(new Vector3f(scale, 0).mul(0.5f));
             CharacterInfo charInfo = new CharacterInfo(c, pos, scale, metric);
             this.characters.add(charInfo);
             x += advance;
@@ -79,21 +89,28 @@ public class TextBox {
             text.setText(text.getText());
             this.addText(text);
         }
+        this.isDirty = false;
         return this;
     }
 
     public void updateText() {
-        boolean isDirty = false;
-        for (Text text : this.texts) {
-            if (text.isDirty()) {
-                isDirty = true;
-                break;
+        if (!isDirty) {
+            for (Text text : this.texts) {
+                if (text.isDirty()) {
+                    isDirty = true;
+                    break;
+                }
             }
         }
         if (!isDirty) {
             return;
         }
         refreshText();
+    }
+
+    public void setOffset(Vector3f offset) {
+        this.offset = offset;
+        this.isDirty = true;
     }
 
     public List<CharacterInfo> getCharacters() {

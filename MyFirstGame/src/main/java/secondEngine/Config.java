@@ -1,9 +1,5 @@
 package secondEngine;
 
-import static org.lwjgl.opengl.GL11.glViewport;
-
-import secondEngine.Config.CameraConfig;
-
 public class Config {
     public class CameraConfig {
         // Will be initialized by window
@@ -28,7 +24,7 @@ public class Config {
          * @return Font size in pixels
          */
         public static float getDefaultFontSize() {
-            return defaultFontSize * scale / fontScale;
+            return defaultFontSize * getScale() / fontScale;
         }
 
         public static int getFontScale() {

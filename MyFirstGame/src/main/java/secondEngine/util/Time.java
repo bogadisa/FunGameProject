@@ -52,7 +52,7 @@ public class Time {
     public static void update() {
         get().actualFPS = get().targetFPS * (get().currentTime - get().lastDrawTime) / get().drawInterval;
         get().lastDrawTime = System.nanoTime();
-        updatedScheduledCooldowns();
+        updateScheduledCooldowns();
         // TODO should it just set it to zero?
         get().delta--;
     }
@@ -106,7 +106,7 @@ public class Time {
         get().scheduledCooldowns.remove(identifier);
     }
 
-    private static void updatedScheduledCooldowns() {
+    private static void updateScheduledCooldowns() {
         double dt = get().delta;
         for (Entry<String, CooldownCallback> entrySet : get().scheduledCooldowns.entrySet()) {
             CooldownCallback callback = entrySet.getValue();
