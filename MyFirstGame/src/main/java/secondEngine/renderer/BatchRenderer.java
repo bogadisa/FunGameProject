@@ -1,8 +1,6 @@
 package secondEngine.renderer;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -10,68 +8,56 @@ import static org.lwjgl.opengl.GL30.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
+public abstract class BatchRenderer {
+    private class Attribute {
+        private int size, offset;
 
-import secondEngine.Window;
-import secondEngine.components.SpriteRenderer;
-import secondEngine.components.Transform;
-import secondEngine.util.AssetPool;
-
-public class BatchRenderer implements Comparable<BatchRenderer> {
-    // Vertex
-    // ======
-    // Pos Color tex coords tex id
-    // float, float, float float, float, float, float float, float float
-    private final int POS_SIZE = 3;
-    private final int COLOR_SIZE = 4;
-    private final int TEX_COORDS_SIZE = 2;
-    private final int TEX_ID_SIZE = 1;
-
-    private final int POS_OFFSET = 0;
-    private final int COLOR_OFFSET = POS_OFFSET + POS_SIZE * Float.BYTES;
-    private final int TEX_COORDS_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
-    private final int TEX_ID_OFFSET = TEX_COORDS_OFFSET + TEX_COORDS_SIZE * Float.BYTES;
-
-    private final int VERTEX_SIZE = POS_SIZE + COLOR_SIZE + TEX_COORDS_SIZE + TEX_ID_SIZE;
-
-    private final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
-
-    private SpriteRenderer[] sprites;
-    private int numSprites;
-    private List<Integer> openSpriteSlots;
-    private boolean hasRoom;
-    private int zIndex;
-
-    private float[] vertices;
-    private int[] texSlots = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-    private List<Texture> textures;
-
-    private int vaoID, vboID;
-    private int maxBatchSize;
-    private Shader shader;
-
-    private boolean manualRebuffer = false;
-
-    public BatchRenderer(int maxBatchSize, int zIndex) {
-        this(maxBatchSize, zIndex, AssetPool.getShader("/shaders/sprites/default.glsl"));
+        private Attribute(int size, int offset) {
+            this.size = size;
+            this.offset = offset;
+        }
     }
 
-    public BatchRenderer(int maxBatchSize, int zIndex, Shader shader) {
+    protected final static int POS_SIZE = 3;
+    protected final static int COLOR_SIZE = 4;
+    protected final static int TEX_COORDS_SIZE = 2;
+
+    protected final static int POS_OFFSET = 0;
+    protected final static int COLOR_OFFSET = POS_OFFSET + POS_SIZE * Float.BYTES;
+    protected final static int TEX_COORDS_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
+
+    protected final int VERTEX_SIZE;
+
+    protected final int VERTEX_SIZE_BYTES;
+
+    protected int numObjects;
+    protected float[] vertices;
+
+    protected int vaoID, vboID;
+    protected int maxBatchSize;
+    protected Shader shader;
+
+    private List<Attribute> attributes;
+
+    public BatchRenderer(int maxBatchSize, Shader shader) {
+        this(maxBatchSize, shader, POS_SIZE + COLOR_SIZE + TEX_COORDS_SIZE);
+    }
+
+    public BatchRenderer(int maxBatchSize, Shader shader, int vertex_size) {
+        this.VERTEX_SIZE = vertex_size;
+        this.VERTEX_SIZE_BYTES = this.VERTEX_SIZE * Float.BYTES;
+
         this.shader = shader;
-        this.sprites = new SpriteRenderer[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
 
         // 4 vertices quads
         this.vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
 
-        this.numSprites = 0;
-        this.openSpriteSlots = new ArrayList<>();
-        this.hasRoom = true;
-        this.zIndex = zIndex;
-        this.textures = new ArrayList<>();
+        this.numObjects = 0;
+        this.attributes = new ArrayList<>();
+        attributes.add(new Attribute(POS_SIZE, POS_OFFSET));
+        attributes.add(new Attribute(COLOR_SIZE, COLOR_OFFSET));
+        attributes.add(new Attribute(TEX_COORDS_SIZE, TEX_COORDS_OFFSET));
     }
 
     public void start() {
@@ -90,221 +76,16 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
-        // Enable the buffer attribute pointers
-        glVertexAttribPointer(0, POS_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, POS_OFFSET);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, COLOR_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, COLOR_OFFSET);
-        glEnableVertexAttribArray(1);
-
-        glVertexAttribPointer(2, TEX_COORDS_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, TEX_COORDS_OFFSET);
-        glEnableVertexAttribArray(2);
-
-        glVertexAttribPointer(3, TEX_ID_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, TEX_ID_OFFSET);
-        glEnableVertexAttribArray(3);
-    }
-
-    public void render() {
-        boolean rebufferData = false;
-        if (manualRebuffer) {
-            rebufferData = true;
-            manualRebuffer = false;
-        } else {
-            for (SpriteRenderer sprite : sprites) {
-                if (sprite != null && sprite.isDirty()) {
-                    loadVertexProperties(sprite.getBatchIndex());
-                    sprite.setClean();
-                    rebufferData = true;
-                }
-            }
+        for (int i = 0; i < attributes.size(); i++) {
+            Attribute atr = attributes.get(i);
+            glVertexAttribPointer(i, atr.size, GL_FLOAT, false, VERTEX_SIZE_BYTES, atr.offset);
+            glEnableVertexAttribArray(i);
         }
-        if (rebufferData) {
-            // FOR now, we will rebuffer all data every time something is dirty
-            glBindBuffer(GL_ARRAY_BUFFER, vboID);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
-        }
-
-        // Bind shader program
-        shader.use();
-
-        // Upload texture to shader
-        shader.uploadMat4f("uProjection", Window.getScene().camera().getProjectionMatrix());
-        shader.uploadMat4f("uView", Window.getScene().camera().getViewMatrix());
-        for (int i = 0; i < textures.size(); i++) {
-            // sets the first element to no texture
-            glActiveTexture(GL_TEXTURE0 + i + 1);
-            textures.get(i).bind();
-        }
-        shader.uploadIntArray("uTextures", texSlots);
-        // Bind the VAO that we're using
-        glBindVertexArray(vaoID);
-
-        // Enable the vertex attribute pointers
-        // dont need?
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        // glEnableVertexAttribArray(2);
-        // glEnableVertexAttribArray(3);
-        // glEnableVertexAttribArray(4);
-
-        // TODO should this be multiplied by 4?
-        glDrawElements(GL_TRIANGLES, this.numSprites * 6, GL_UNSIGNED_INT, 0);
-        // Unbind everything
-        // dont need?
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        // glDisableVertexAttribArray(2);
-        // glDisableVertexAttribArray(3);
-        // glDisableVertexAttribArray(4);
-
-        glBindVertexArray(0);
-
-        for (int i = 0; i < textures.size(); i++) {
-            textures.get(i).unbind();
-        }
-        shader.detatch();
 
     }
 
-    public void addSprite(SpriteRenderer spr) {
-        // TODO add overflow sprites to another batch renderer
-        if (hasRoom) {
-            int index;
-            if (this.openSpriteSlots.size() > 0) {
-                index = this.openSpriteSlots.remove(this.openSpriteSlots.size() - 1);
-            } else {
-                index = this.numSprites;
-            }
-            this.sprites[index] = spr;
-            this.numSprites++;
-
-            if (spr.getTexture() != null) {
-                if (!textures.contains(spr.getTexture())) {
-                    textures.add(spr.getTexture());
-                }
-            }
-
-            // Add properties to local vertices array
-            loadVertexProperties(index);
-
-            if (numSprites >= this.maxBatchSize) {
-                hasRoom = false;
-            }
-            spr.setAddedToRenderer(true, this, index);
-        }
-    }
-
-    public void removeSprite(SpriteRenderer spr) {
-        int index = spr.getBatchIndex();
-        this.sprites[index] = null;
-        resetVertexProperties(index);
-        spr.setAddedToRenderer(false, null);
-        this.openSpriteSlots.add(index);
-        this.numSprites--;
-
-        this.manualRebuffer = true;
-    }
-
-    public void loadVertexProperties(int index) {
-        SpriteRenderer sprite = this.sprites[index];
-        Transform transform = sprite.getTransform();
-
-        // Find offset within array (4 vertices per sprite)
-        int offset = index * 4 * VERTEX_SIZE;
-
-        Vector4f color = sprite.getColor();
-        Vector2f[] texCoords = sprite.getTexCoords();
-
-        int texId = 0;
-        if (sprite.getTexture() != null) {
-            for (int i = 0; i < textures.size(); i++) {
-                if (textures.get(i) == sprite.getTexture()) {
-                    // sets the first element to no texture
-                    if (sprite.isHidden()) {
-                        break;
-                    }
-                    texId = i + 1;
-                    break;
-                }
-            }
-        }
-
-        boolean isRotated = transform.rotation != 0.0f;
-        Matrix4f transformMatrix = new Matrix4f().identity();
-        if (isRotated) {
-            // scale (flipping) must happen after rotating
-            // meaning further left in the equation
-            // meaning applied to the matrix before rotate
-            transformMatrix.translate(transform.position);
-            transformMatrix.scale(transform.scale);
-            transformMatrix.rotate((float) Math.toRadians(transform.rotation), 0, 0, 1);
-        }
-
-        float xAdd = 0.5f;
-        float yAdd = 0.5f;
-        for (int i = 0; i < 4; i++) {
-            if (i == 1) {
-                yAdd = -0.5f;
-            } else if (i == 2) {
-                xAdd = -0.5f;
-            } else if (i == 3) {
-                yAdd = 0.5f;
-            }
-
-            // May be a source of z trouble
-            Vector4f currentPos = new Vector4f(transform.position.x + (xAdd * transform.scale.x),
-                    transform.position.y + (yAdd * transform.scale.y), transform.position.z, 1);
-            if (isRotated) {
-                currentPos = new Vector4f(xAdd, yAdd, 1, 1).mul(transformMatrix);
-            }
-
-            // for (int j = 0; j < 9; j++) {
-            // vertices[offset + j] = 1;
-            // }
-            // Load position
-            vertices[offset] = currentPos.x;
-            vertices[offset + 1] = currentPos.y;
-            vertices[offset + 2] = currentPos.z;
-
-            // Load color
-            vertices[offset + 3] = color.x;
-            vertices[offset + 4] = color.y;
-            vertices[offset + 5] = color.z;
-            vertices[offset + 6] = color.w;
-
-            // Load texture coordinates
-            vertices[offset + 7] = texCoords[i].x;
-            vertices[offset + 8] = texCoords[i].y;
-
-            // Load texture id
-            vertices[offset + 9] = texId;
-            offset += VERTEX_SIZE;
-        }
-    }
-
-    private void resetVertexProperties(int index) {
-        int offset = index * 4 * VERTEX_SIZE;
-        for (int i = 0; i < 4; i++) {
-
-            // Load position
-            vertices[offset] = 0.0f;
-            vertices[offset + 1] = 0.0f;
-            vertices[offset + 2] = 0.0f;
-
-            // Load color
-            vertices[offset + 3] = 0.0f;
-            vertices[offset + 4] = 0.0f;
-            vertices[offset + 5] = 0.0f;
-            vertices[offset + 6] = 0.0f;
-
-            // Load texture coordinates
-            vertices[offset + 7] = 0.0f;
-            vertices[offset + 8] = 0.0f;
-
-            // Load texture id
-            vertices[offset + 9] = 0.0f;
-            offset += VERTEX_SIZE;
-        }
+    protected void addAttribute(int size, int offset) {
+        attributes.add(new Attribute(size, offset));
     }
 
     private int[] generateIndices() {
@@ -333,24 +114,19 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
         elements[offsetArrayIndex + 5] = offset + 1;
     }
 
-    public boolean hasRoom() {
-        return this.hasRoom;
-    }
+    public abstract void render();
 
-    public int getzIndex() {
-        return this.zIndex;
-    }
-
-    public boolean hasTextureRoom() {
-        return this.textures.size() < this.texSlots.length;
-    }
-
-    public boolean hasTexture(Texture tex) {
-        return this.textures.contains(tex);
-    }
-
-    @Override
-    public int compareTo(BatchRenderer o) {
-        return Integer.compare(this.zIndex, o.getzIndex());
+    public void draw() {
+        // Bind the VAO that we're using
+        glBindVertexArray(vaoID);
+        for (int i = 0; i < attributes.size(); i++) {
+            glEnableVertexAttribArray(i);
+        }
+        glDrawElements(GL_TRIANGLES, this.numObjects * 6, GL_UNSIGNED_INT, 0);
+        for (int i = 0; i < attributes.size(); i++) {
+            glDisableVertexAttribArray(i);
+        }
+        // Unbind the VAO that we're using
+        glBindVertexArray(0);
     }
 }

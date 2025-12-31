@@ -11,7 +11,7 @@ import secondEngine.objects.GameObject;
 
 public class Renderer {
     private final int MAX_BATCH_SIZE = 1000;
-    private List<BatchRenderer> spriteBatches;
+    private List<BatchRendererSprite> spriteBatches;
     private List<BatchRendererFont> textBatches;
 
     public Renderer() {
@@ -54,7 +54,7 @@ public class Renderer {
             return;
         }
         boolean added = false;
-        for (BatchRenderer batch : spriteBatches) {
+        for (BatchRendererSprite batch : spriteBatches) {
             if (batch.hasRoom() && batch.getzIndex() == zIndex) {
                 Texture tex = sprite.getTexture();
                 if (tex == null || batch.hasTextureRoom() || batch.hasTexture(tex)) {
@@ -65,7 +65,7 @@ public class Renderer {
             }
         }
         if (!added) {
-            BatchRenderer newBatch = new BatchRenderer(MAX_BATCH_SIZE, zIndex);
+            BatchRendererSprite newBatch = new BatchRendererSprite(MAX_BATCH_SIZE, zIndex);
             newBatch.start();
             spriteBatches.add(newBatch);
             newBatch.addSprite(sprite);
@@ -87,7 +87,7 @@ public class Renderer {
     }
 
     public void render() {
-        for (BatchRenderer batch : spriteBatches) {
+        for (BatchRendererSprite batch : spriteBatches) {
             batch.render();
         }
         for (BatchRendererFont batch : textBatches) {

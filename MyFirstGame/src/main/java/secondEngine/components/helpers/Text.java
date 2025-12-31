@@ -38,6 +38,10 @@ public class Text {
         return this;
     }
 
+    public boolean isDirty() {
+        return this.isDirty;
+    }
+
     public void setClean() {
         this.isDirty = false;
     }

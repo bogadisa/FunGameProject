@@ -71,7 +71,7 @@ public class GameScene extends Scene {
 
             TextRenderer renderer = new TextRenderer();
             TextBox textBox = renderer.getTextBox();
-            Text text = new Text("help");
+            Text text = new Text("I love Anna");
             textBox.addText(text);
             textObj.addComponent(renderer);
             this.addGameObjectToScene(textObj);

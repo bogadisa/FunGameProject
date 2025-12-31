@@ -31,7 +31,7 @@ public class TextRenderer extends Component {
     @Override
     public void update(float dt) {
 
-        refreshText();
+        this.textBox.updateText();
         if (!this.lastTransform.equals(gameObject.transform)) {
             gameObject.transform.copy(lastTransform);
             isDirty = true;

@@ -28,14 +28,14 @@ public class TextBox {
     private float y = 0;
     private transient List<CharacterInfo> characters;
 
-    private List<Text> text;
+    private List<Text> texts;
 
     public TextBox(int width, int height) {
         this.width = width;
         this.height = height;
 
         this.characters = new ArrayList<>();
-        this.text = new ArrayList<>();
+        this.texts = new ArrayList<>();
     }
 
     public TextBox addText(Text text) {
@@ -53,22 +53,36 @@ public class TextBox {
             this.characters.add(charInfo);
             x += metric.advance;
         }
-        this.text.add(text);
+        this.texts.add(text);
 
         return this;
     }
 
     public TextBox refreshText() {
         // TODO optimize this so that it isn't updated every frame, using dirty flags
-        Text[] texts = this.text.toArray(new Text[this.text.size()]);
+        Text[] texts = this.texts.toArray(new Text[this.texts.size()]);
         this.x = 0;
-        this.text.clear();
+        this.texts.clear();
         this.characters.clear();
         for (Text text : texts) {
             text.setText(text.getText());
             this.addText(text);
         }
         return this;
+    }
+
+    public void updateText() {
+        boolean isDirty = false;
+        for (Text text : this.texts) {
+            if (text.isDirty()) {
+                isDirty = true;
+                break;
+            }
+        }
+        if (!isDirty) {
+            return;
+        }
+        refreshText();
     }
 
     public List<CharacterInfo> getCharacters() {

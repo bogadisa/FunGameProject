@@ -3,7 +3,7 @@ package secondEngine.components;
 import secondEngine.Window;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.grid.GriddableComponent;
-import secondEngine.renderer.BatchRenderer;
+import secondEngine.renderer.BatchRendererSprite;
 import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 
@@ -27,7 +27,7 @@ public class SpriteRenderer extends GriddableComponent {
     private transient int compositeIndex = -1;
 
     private transient int batchIndex = -1;
-    private transient BatchRenderer renderer;
+    private transient BatchRendererSprite renderer;
     private transient boolean addedToRenderer = false;
 
     @Override
@@ -139,12 +139,12 @@ public class SpriteRenderer extends GriddableComponent {
         return this.batchIndex;
     }
 
-    public void setAddedToRenderer(boolean addedToRenderer, BatchRenderer renderer, int index) {
+    public void setAddedToRenderer(boolean addedToRenderer, BatchRendererSprite renderer, int index) {
         this.batchIndex = index;
         setAddedToRenderer(addedToRenderer, renderer);
     }
 
-    public void setAddedToRenderer(boolean addedToRenderer, BatchRenderer renderer) {
+    public void setAddedToRenderer(boolean addedToRenderer, BatchRendererSprite renderer) {
         this.addedToRenderer = addedToRenderer;
         this.renderer = renderer;
         if (!addedToRenderer) {
