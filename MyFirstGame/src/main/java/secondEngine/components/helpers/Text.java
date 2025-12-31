@@ -21,7 +21,7 @@ public class Text {
     }
 
     public Text(String text) {
-        this(text, UIconfig.getFontSize());
+        this(text, UIconfig.getDefaultFontSize());
     }
 
     public Text(String text, float fontSize) {

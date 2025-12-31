@@ -16,20 +16,23 @@ public class Config {
 
     public class UIconfig {
         private static int scale = 32;
-        private static int fontSize = 6;
+        private static int fontScale = 32;
+        private static float defaultFontSize = 0.5f;
         public static float scalePercentage = 1;
 
         public static int getScale() {
-            return (int) scalePercentage * scale;
+            return (int) (scalePercentage * scale);
         }
 
         /**
          * @return Font size in pixels
          */
-        public static int getFontSize() {
-            // return fontSize * 5;// * getScale();
-            // return getScale();
-            return 1;
+        public static float getDefaultFontSize() {
+            return defaultFontSize * scale / fontScale;
+        }
+
+        public static int getFontScale() {
+            return fontScale;
         }
     }
 

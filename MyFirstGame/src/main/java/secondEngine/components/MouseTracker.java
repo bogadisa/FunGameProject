@@ -42,10 +42,10 @@ public class MouseTracker extends Component {
             this.textRenderer = new TextRenderer();
             this.gameObject.addComponent(this.textRenderer);
         }
-
-        TextBox textBox = this.textRenderer.getTextBox();
-        this.text = new Text("help");
+        TextBox textBox = new TextBox(200, 20);
+        this.text = new Text();
         textBox.addText(this.text);
+        this.textRenderer.addTextBox(textBox);
     }
 
     @Override

@@ -54,29 +54,15 @@ public class GameScene extends Scene {
         // // TODO Auto-generated catch block
         // e.printStackTrace();
         // }
-        if (false) {
+        new Texture().initFromFont();
+        GameObject textObj = this.createGameObject("text", new Transform().init(new Vector3f(1000, 400, 1)));
 
-            Sprite sprite = new Sprite().setTexture(new Texture().initFromFont());
-            GameObject textObj2 = SpriteObject.generate(sprite, sprite.getTexture().getWidth(),
-                    sprite.getTexture().getHeight());
-            textObj2.transform.position.x = 400;
-            textObj2.transform.position.y = 400;
-            Font font = AssetPool.getFont("resources/fonts/Unifontexmono-lxY45.ttf");
-            GlyphMetrics c = font.getMetrics("h".charAt(0));
-            sprite.setTexCoords(c.texCoords);
-            this.addGameObjectToScene(textObj2);
-        } else {
-            new Texture().initFromFont();
-            GameObject textObj = this.createGameObject("text", new Transform().init(new Vector3f(1000, 400, 1)));
-
-            TextRenderer renderer = new TextRenderer();
-            TextBox textBox = renderer.getTextBox();
-            Text text = new Text("I love Anna");
-            textBox.addText(text);
-            textObj.addComponent(renderer);
-            this.addGameObjectToScene(textObj);
-
-        }
+        TextRenderer renderer = new TextRenderer();
+        TextBox textBox = new TextBox(100, 20);
+        renderer.addTextBox(textBox);
+        textBox.addText("I love Anna");
+        textObj.addComponent(renderer);
+        this.addGameObjectToScene(textObj);
 
         if (true) {
             return;

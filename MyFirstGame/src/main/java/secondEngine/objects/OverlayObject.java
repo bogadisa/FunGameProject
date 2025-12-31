@@ -1,6 +1,5 @@
 package secondEngine.objects;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.joml.Vector2i;
@@ -10,7 +9,6 @@ import org.joml.Vector4f;
 import secondEngine.Window;
 import secondEngine.Config.UIconfig;
 import secondEngine.components.CompositeSpriteRenderer;
-import secondEngine.components.InteractiveStateMachine;
 import secondEngine.components.Inventory;
 import secondEngine.components.Overlay;
 import secondEngine.components.AnimationStateMachine;
@@ -19,10 +17,8 @@ import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.overlay.Layout;
 import secondEngine.components.helpers.AnimationState;
-import secondEngine.components.helpers.InteractableState;
 import secondEngine.components.helpers.InventorySlot;
 import secondEngine.util.AssetPool;
-import secondEngine.util.InteractableFactory.InteractableIds;
 import secondEngine.util.PrefabFactory.PrefabIds;
 import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs;
 import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;

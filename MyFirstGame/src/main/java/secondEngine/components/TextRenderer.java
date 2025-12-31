@@ -1,5 +1,6 @@
 package secondEngine.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Vector4f;
@@ -11,11 +12,10 @@ import secondEngine.renderer.BatchRendererFont;
 
 public class TextRenderer extends Component {
     private Vector4f color = new Vector4f(1, 1, 0, 1);
-    private TextBox textBox = new TextBox(0, 0);
+    private List<TextBox> textBoxes = new ArrayList<>();
 
     private transient Transform lastTransform;
 
-    private boolean isHidden = false;
     private transient boolean isDirty = true;
 
     private BatchRendererFont renderer;
@@ -30,8 +30,9 @@ public class TextRenderer extends Component {
 
     @Override
     public void update(float dt) {
-
-        this.textBox.updateText();
+        for (TextBox box : textBoxes) {
+            box.updateText();
+        }
         if (!this.lastTransform.equals(gameObject.transform)) {
             gameObject.transform.copy(lastTransform);
             isDirty = true;
@@ -39,7 +40,9 @@ public class TextRenderer extends Component {
     }
 
     public void refreshText() {
-        this.textBox.refreshText();
+        for (TextBox box : textBoxes) {
+            box.refreshText();
+        }
     }
 
     public Vector4f getColor() {
@@ -55,18 +58,22 @@ public class TextRenderer extends Component {
         return this;
     }
 
-    public TextBox getTextBox() {
-        return this.textBox;
+    public List<TextBox> getTextBoxes() {
+        return this.textBoxes;
     }
 
-    public TextRenderer setTextBox(TextBox textBox) {
-        this.textBox = textBox;
+    public TextRenderer addTextBox(TextBox textBox) {
+        this.textBoxes.add(textBox);
         this.isDirty = true;
         return this;
     }
 
     public List<CharacterInfo> getCharacters() {
-        return this.textBox.getCharacters();
+        List<CharacterInfo> characters = new ArrayList<>();
+        for (TextBox box : textBoxes) {
+            characters.addAll(box.getCharacters());
+        }
+        return characters;
     }
 
     public boolean isDirty() {
