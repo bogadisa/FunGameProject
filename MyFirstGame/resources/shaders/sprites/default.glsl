@@ -31,7 +31,6 @@ in float fTexId;
 uniform sampler2D uTextures[8];
 
 out vec4 color;
-// out vec3 color;
 
 void main()
 {
@@ -43,40 +42,25 @@ void main()
             color = fColor;
             break;
         case 1:
-            // color = vec4(fTexCoords, 1, 1);
-            // color = fColor * texture(uTextures[1], fTexCoords);
-            // color = texture(uTextures[1], fTexCoords);
-            float c = texture(uTextures[1], fTexCoords).r;
-            color = vec4(0, c, 0, 1.0);
-            // color = vec4(1, 1, 1, c) * vec4(fColor.rgb, 1);
-            // color = fColor*vec4(1.0, 1.0, 1.0, texture(uTextures[1], fTexCoords).r);
-            // vec4 c = texture(uTextures[1], fTexCoords);
-            // color = c* fColor;
+            color = fColor * texture(uTextures[1], fTexCoords);
             break;
         case 2:
-            // color = fColor * texture(uTextures[2], fTexCoords);
-            color = vec4(fTexCoords, 1.0, 1.0);
-            // color = vec4(texture(uTextures[2], fTexCoords).r, 0, 0, 1);
+            color = fColor * texture(uTextures[2], fTexCoords);
             break;
         case 3:
             color = fColor * texture(uTextures[3], fTexCoords);
-            // color = vec4(texture(uTextures[3], fTexCoords).r, 0, 0, 1);
             break;
         case 4:
             color = fColor * texture(uTextures[4], fTexCoords);
-            // color = vec4(texture(uTextures[4], fTexCoords).r, 0, 0, 1);
             break;
         case 5:
             color = fColor * texture(uTextures[5], fTexCoords);
-            // color = vec4(texture(uTextures[5], fTexCoords).r, 0, 0, 1);
             break;
         case 6:
             color = fColor * texture(uTextures[6], fTexCoords);
-            // color = vec4(texture(uTextures[6], fTexCoords).r, 0, 0, 1);
             break;
         case 7:
             color = fColor * texture(uTextures[7], fTexCoords);
-            // color = vec4(texture(uTextures[7], fTexCoords).r, 0, 0, 1);
             break;
     }
 }

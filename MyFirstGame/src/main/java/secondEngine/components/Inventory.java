@@ -16,6 +16,10 @@ public class Inventory extends Component {
     // private int defaultSlotMaxAmount;
 
     public Inventory init(int nInventorySlots, int defaultSlotMaxAmount) {
+        return init(nInventorySlots, defaultSlotMaxAmount, false);
+    }
+
+    public Inventory init(int nInventorySlots, int defaultSlotMaxAmount, boolean hasOverlay) {
         slots = new InventorySlot[nInventorySlots];
         sprites = new SpriteRenderer[nInventorySlots];
         empty = new HashSet<>();
@@ -23,6 +27,15 @@ public class Inventory extends Component {
         for (int i = 0; i < nInventorySlots; i++) {
             slots[i] = new InventorySlot(this, defaultSlotMaxAmount);
             empty.add(i);
+        }
+        if (hasOverlay) {
+            Overlay overlay = this.gameObject.getComponent(Overlay.class);
+            for (int i = 0; i < slots.length; i++) {
+                boolean wasAdded = overlay.addSlot(slots[i]);
+                assert wasAdded : "Ran out of room when adding inventory slots: Needed " + slots.length
+                        + ", only found " + (i + 1);
+            }
+
         }
         return this;
     }
@@ -102,14 +115,28 @@ public class Inventory extends Component {
 
     @Override
     public void start() {
+        SpriteRenderer sprite;
+        CompositeSpriteRenderer compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class);
+        if (compSprite != null) {
+            for (int i = 0; i < slots.length; i++) {
+                InventorySlot slot = slots[i];
+                if (sprites[i] == null) {
+                    sprite = new SpriteRenderer();
+                    sprites[i] = sprite;
+                    compSprite.addSpriteRenderer(sprite, slot.getScale(), slot.getOffset());
+                }
+            }
+        }
         for (int i = 0; i < slots.length; i++) {
             InventorySlot slot = slots[i];
-            SpriteRenderer sprite = sprites[i];
-            if (sprite != null) {
-                sprite.setSprite(slot.getSprite());
+
+            sprite = sprites[i];
+            if (sprite != null && slot.getSprite().isPresent()) {
+                sprite.setSprite(slot.getSprite().get());
                 slot.setCleanSprite();
             }
         }
+
     }
 
     @Override
@@ -118,8 +145,8 @@ public class Inventory extends Component {
             InventorySlot slot = slots[i];
             if (slot.isDirtySprite()) {
                 SpriteRenderer sprite = sprites[i];
-                if (sprite != null) {
-                    sprite.setSprite(slot.getSprite());
+                if (sprite != null && slot.getSprite().isPresent()) {
+                    sprite.setSprite(slot.getSprite().get());
                     slot.setCleanSprite();
                 }
             }

@@ -66,18 +66,9 @@ public class MouseTracker extends Component {
         }
 
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_1)) {
-            List<GameObject> gos = grid.getObjects(this.gameObject, GameObject.class);
             InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
-            // stateMachine.interact("Enlarge", this.gameObject);
-            // String func = "NoHighlight";
             String func = "Temp";
-            // if (temp) {
-            // func = "ToggleHighlight";
-            // }
-            for (GameObject go : gos) {
-                // stateMachine.interact("enlarge", go);
-                temp = stateMachine.interact(func, go);
-            }
+            stateMachine.interact(func);
         }
         this.text.setText(
                 "(" + this.gameObject.transform.position.x + ", " + this.gameObject.transform.position.y + ")");

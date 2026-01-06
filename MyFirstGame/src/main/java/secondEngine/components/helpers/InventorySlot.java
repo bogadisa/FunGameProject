@@ -1,5 +1,7 @@
 package secondEngine.components.helpers;
 
+import java.util.Optional;
+
 import org.joml.Vector3f;
 
 import secondEngine.components.Inventory;
@@ -113,7 +115,7 @@ public class InventorySlot extends GriddableSlot {
         return stackable;
     }
 
-    public Sprite getSprite() {
+    public Optional<Sprite> getSprite() {
         return PrefabFactory.getObjectSprite(objectId);
     }
 
@@ -140,11 +142,6 @@ public class InventorySlot extends GriddableSlot {
         }
         InventorySlot other = (InventorySlot) o;
         return this.objectId == null || this.objectId.equals(other.objectId);
-    }
-
-    @Override
-    public Vector3f getScale() {
-        return this.inventory.gameObject.transform.scale;
     }
 
     @Override

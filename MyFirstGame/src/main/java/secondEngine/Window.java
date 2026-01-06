@@ -53,10 +53,9 @@ public class Window {
         this.width = CameraConfig.resWidth;
         this.height = CameraConfig.resHeight;
 
-        r = 0;
-        // r = 0;
-        g = 0;
-        b = 0;
+        r = 1;
+        g = 1;
+        b = 1;
         a = 1;
 
         this.title = "Fun game!";
@@ -217,7 +216,7 @@ public class Window {
         if (Time.readyToDraw()) {
             get().render();
         }
-        Window.currentScene.resize();
+        // Window.currentScene.resize();
 
         Time.increment();
     }

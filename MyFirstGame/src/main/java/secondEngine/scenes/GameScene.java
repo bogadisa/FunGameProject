@@ -1,33 +1,31 @@
 package secondEngine.scenes;
 
+import java.util.Map;
+
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import secondEngine.Camera;
 import secondEngine.Config;
 import secondEngine.Config.UIconfig;
-import secondEngine.Window;
 import secondEngine.components.CompositeSpriteRenderer;
+import secondEngine.components.Inventory;
+import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
-import secondEngine.components.TextRenderer;
 import secondEngine.components.Transform;
+import secondEngine.components.helpers.InventorySlot;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.components.helpers.Text;
-import secondEngine.components.helpers.TextBox;
+import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
-import secondEngine.objects.OverlayObject;
-import secondEngine.objects.SpriteObject;
 import secondEngine.objects.Special.Mouse;
-import secondEngine.objects.entities.Player;
+import secondEngine.objects.Tiles.GroundManager.GroundPrefabs;
 import secondEngine.objects.overlay.Layout;
-import secondEngine.renderer.Font;
-import secondEngine.renderer.GlyphMetrics;
-import secondEngine.renderer.Texture;
 import secondEngine.util.AssetPool;
 import secondEngine.util.PrefabFactory;
-import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
+import secondEngine.objects.overlay.OverlayManager.OverlayPrefabs;
+import secondEngine.objects.overlay.OverlayManager.OverlayPrefabs.InventoryLayout;
 
 public class GameScene extends Scene {
     public void init() {
@@ -39,11 +37,33 @@ public class GameScene extends Scene {
         this.worldGrid = new SpatialGrid("world");
         this.screenGrid = new SpatialGrid("screen");
 
-        // GameObject grid = OverlayObject.generateGrid();
-        // this.addGameObjectToScene(grid);
+        GameObject grid = PrefabFactory.getObject(OverlayPrefabs.Special.GRID);
+        this.addGameObjectToScene(grid);
 
         GameObject mouse = Mouse.generate();
         this.addGameObjectToScene(mouse);
+
+        GameObject someOverlay = this.createGameObject("someOverlay", new Transform().init(new Vector3f(256, 256, 0)));
+
+        SpriteSheet sprites = AssetPool.getSpriteSheet("overlay/inventory_2_2_4.png");
+        Sprite cornerSprite = sprites.getSprite(0);
+        Sprite edgeSprite = sprites.getSprite(1);
+        Sprite inventorySprite = sprites.getSprite(2);
+        Sprite fillSprite = sprites.getSprite(3);
+        Sprite[] overlaySprites = { fillSprite, cornerSprite, edgeSprite };
+        Overlay overlay = someOverlay.addComponent(new Overlay()).init(11, 5, 0.25f, overlaySprites, false);
+        Map<Layout.SlotType, Sprite> layoutSprites = Map.of(Layout.SlotType.Interactable.INVENTORY, inventorySprite);
+        InventoryLayout layout = InventoryLayout.DEFAULT_27;
+        overlay.addLayout(AssetPool.getLayout(layout), layoutSprites);
+        Inventory inventory = someOverlay.addComponent(new Inventory()).init(layout.getNumSlots(), 64, true);
+        Inventory inventoryObj = new Inventory().init(2, 64);
+        InventorySlot slot1 = new InventorySlot(inventoryObj, GroundPrefabs.Spring.DIRT_1, 1, 64);
+        inventory.transferFrom(slot1, 1);
+        this.addGameObjectToScene(someOverlay);
+        worldGrid.addObject(someOverlay);
+        // GameObject infoObject =
+        // PrefabFactory.getObject(OverlayPrefabs.Special.F3_INFO);
+        // this.addGameObjectToScene(infoObject);
         // if (Window.getScene().isLoaded()) {
         // return;
         // }
@@ -54,22 +74,18 @@ public class GameScene extends Scene {
         // // TODO Auto-generated catch block
         // e.printStackTrace();
         // }
-        new Texture().initFromFont();
-        GameObject textObj = this.createGameObject("text", new Transform().init(new Vector3f(1000, 400, 1)));
+        // GameObject textObj = this.createGameObject("text", new Transform().init(new
+        // Vector3f(1000, 400, 1)));
 
-        TextRenderer renderer = new TextRenderer();
-        TextBox textBox = new TextBox(100, 20, new Vector3f(200, 200, 0));
-        renderer.addTextBox(textBox);
-        textBox.addText("I love Anna");
-        TextBox textBox2 = new TextBox(100, 20, new Vector3f(200, 100, 0));
-        renderer.addTextBox(textBox2);
-        textBox2.addText("I love Anna");
-        textObj.addComponent(renderer);
-        this.addGameObjectToScene(textObj);
-
-        if (true) {
-            return;
-        }
+        // TextRenderer renderer = new TextRenderer();
+        // TextBox textBox = new TextBox(100, 20, new Vector3f(200, 200, 0));
+        // renderer.addTextBox(textBox);
+        // textBox.addText("I love Anna");
+        // TextBox textBox2 = new TextBox(100, 20, new Vector3f(200, 100, 0));
+        // renderer.addTextBox(textBox2);
+        // textBox2.addText("I love Anna");
+        // textObj.addComponent(renderer);
+        // this.addGameObjectToScene(textObj);
 
         // GameObject player = Player.generate();
         // player.transform.position.add(64, 80, 0);
@@ -88,7 +104,8 @@ public class GameScene extends Scene {
         // Vector3f(2*scale, 2*scale, 1)));
         // this.addGameObjectToScene(obj);
 
-        // GameObject inventory = PrefabFactory.getObject(InventoryLayout.DEFAULT_27);
+        // GameObject inventory =
+        // PrefabFactory.getObject(OverlayPrefabs.InventoryLayout.DEFAULT_27);
         // this.addGameObjectToScene(inventory);
 
         // Window.getScene().worldGrid().addObject(inventory);
@@ -124,6 +141,7 @@ public class GameScene extends Scene {
                 stateMachine.refreshTextures();
             }
         }
+
         Layout.SlotType.Other n = Layout.SlotType.Other.NULL;
         Layout.SlotType.Interactable i = Layout.SlotType.Interactable.INVENTORY;
         Layout.SlotType[][] standardLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },

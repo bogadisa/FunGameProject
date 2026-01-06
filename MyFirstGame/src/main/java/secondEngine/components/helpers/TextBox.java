@@ -3,6 +3,7 @@ package secondEngine.components.helpers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -25,6 +26,8 @@ public class TextBox {
         }
     }
 
+    private Optional<String> name = Optional.empty();
+
     private int width, height;
     private float x = 0;
     private float y = 0;
@@ -46,6 +49,26 @@ public class TextBox {
 
         this.characters = new ArrayList<>();
         this.texts = new ArrayList<>();
+    }
+
+    public TextBox setName(String name) {
+        this.name = Optional.of(name);
+        return this;
+    }
+
+    public Optional<String> getName() {
+        return name;
+    }
+
+    public TextBox setText(String text) {
+        return setText(new Text(text));
+    }
+
+    public TextBox setText(Text text) {
+        texts.clear();
+        texts.add(text);
+        refreshText();
+        return this;
     }
 
     public TextBox addText(String text) {

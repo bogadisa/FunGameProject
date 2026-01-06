@@ -1,37 +1,78 @@
 package secondEngine.components;
 
+import java.util.ArrayList;
+import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 
 import org.joml.Vector3f;
 
-import secondEngine.Component;
 import secondEngine.Config.UIconfig;
-import secondEngine.Window;
-import secondEngine.components.helpers.InventorySlot;
+import secondEngine.components.helpers.SlotLayout;
 import secondEngine.components.helpers.Sprite;
-import secondEngine.grid.SpatialGrid;
+import secondEngine.components.helpers.TextBox;
 import secondEngine.grid.GriddableComponent;
-import secondEngine.objects.GameObject;
+import secondEngine.grid.GriddableSlot;
+import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.overlay.Layout;
 import secondEngine.objects.overlay.Layout.SlotType;
 
 public class Overlay extends GriddableComponent {
-    private final int OVERLAY_Z_INDEX = 2;
-    private int UIscale;
-    private boolean rescale = false;
-
     private Sprite corner, edge, fill;
     private boolean ignoreEdge = true;
     private boolean ignoreCorner = true;
 
+    private int UIscale;
+
     private int height, width;
+    private float padding;
+    private float scaledHeight, scaledWidth;
     private Vector3f scale;
 
-    private Layout layout;
-    private Map<Layout.SlotType, Sprite> layoutSprites;
+    private CompositeSpriteRenderer compSprite;
+    private List<SlotLayout> slotLayouts;
+
     private SpatialGrid overlayGrid;
 
-    private transient boolean isInitialized = false;
+    /**
+     * @param width             specifies units of UI scale
+     * @param height            -""-
+     * @param padding           Specifies the percentage of extra padding per
+     *                          internal unit
+     * @param sprites           Fill, corner and edge sprite respectively
+     * @param individualSprites Wether or not the overlay background should be built
+     *                          with individual sprites or not
+     * @return
+     */
+    public Overlay init(int width, int height, float padding, Sprite[] sprites, boolean individualSprites) {
+        this.width = width;
+        this.height = height;
+        this.padding = padding;
+
+        initSprites(sprites);
+
+        this.slotLayouts = new ArrayList<>();
+
+        this.compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class);
+        if (this.compSprite == null) {
+            this.compSprite = new CompositeSpriteRenderer().init();
+            this.gameObject.addComponent(this.compSprite);
+        }
+        this.UIscale = UIconfig.getScale();
+        this.overlayGrid = new SpatialGrid(this.gameObject.getName(), true);
+        // TODO will this mess up because of origin?
+        this.overlayGrid.setGridSize((int) (UIscale * (1 + padding)));
+
+        this.scaledWidth = UIscale * width + padding * UIscale * Math.max(width - 2, 0);
+        this.scaledHeight = UIscale * height + padding * UIscale * Math.max(height - 2, 0);
+        this.scale = new Vector3f(scaledWidth, scaledHeight, 1);
+        this.gameObject.transform.scale = this.scale;
+
+        buildBackground(individualSprites);
+        compSprite.refreshTextures();
+
+        return this;
+    }
 
     private void initSprites(Sprite[] sprites) {
         fill = sprites[0];
@@ -45,137 +86,49 @@ public class Overlay extends GriddableComponent {
         }
     }
 
-    /**
-     * Uses the game object UIscale transform for background, where layout <= 0,
-     * otherwise it doubles (quadruple area) the size
-     * 
-     * @param go            Needed for adding the composite sprite
-     * @param sprites       The background
-     * @param layoutSprites Sprites to use when layout[i][j] > 0
-     * @param layout        A NxM matrix where layout[i][j]=0 does nothing,
-     *                      otherwise layoutSprites[layout[i][j]-1]
-     * @return this
-     */
-    public Overlay init(GameObject go, Sprite[] sprites, Map<Layout.SlotType, Sprite> layoutSprites, Layout layout) {
-        this.layout = layout;
-        this.layoutSprites = layoutSprites;
-        int width = layout.getLayout()[0].length;
-        int height = layout.getLayout().length;
-        return init(go, sprites, width, height);
-    }
-
-    /**
-     * 
-     * @param go      Needed for adding the composite sprite
-     * @param sprites The background
-     * @param width
-     * @param height
-     * @return this
-     */
-    public Overlay init(GameObject go, Sprite[] sprites, int width, int height) {
-        // TODO does this need to be initialized in another way?
-        this.overlayGrid = new SpatialGrid(go.getName(), true);
-        this.initSprites(sprites);
-        this.gameObject = go;
-        this.height = height;
-        this.width = width;
-        this.UIscale = UIconfig.getScale();
-        this.scale = new Vector3f(width * UIscale, height * UIscale, 1);
-        buildCompositeSprite();
-        isInitialized = true;
-        return this;
-    }
-
-    private Overlay buildCompositeSprite() {
-        Layout.SlotType[][] layout;
-        if (this.layout != null) {
-            layout = this.layout.getLayout();
-        } else {
-            layout = new Layout.SlotType[height][width];
-        }
-        // TODO might cause issues if a comp sprite already exists
-        CompositeSpriteRenderer compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class);
-        if (compSprite == null) {
-            compSprite = new CompositeSpriteRenderer().init();
-            this.gameObject.addComponent(compSprite);
-        }
-        int halfWidth = width / 2;
-        int halfHeight = height / 2;
-
-        for (int i = 1; i <= width; i++) {
-            for (int j = 1; j <= height; j++) {
-                int[] rotation = { 0 };
-                boolean[] flip = { false };
-
-                Sprite piece = getSprite(i, j, width, height, rotation, flip);
-                Vector3f offset = new Vector3f((i - 1 - halfWidth) * UIscale, (j - 1 - halfHeight) * UIscale,
-                        OVERLAY_Z_INDEX);
-                Vector3f scale = new Vector3f(UIscale, UIscale, 1);
-                compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), scale, offset, rotation[0],
-                        flip[0]);
-                Layout.SlotType slotType = layout[height - j][i - 1];
-                if (slotType != null) {
-                    addSlot(compSprite, scale, offset, slotType);
-                }
-            }
-        }
-
-        return this;
-
-    }
-
-    private void addSlot(CompositeSpriteRenderer compSprite, Vector3f scale, Vector3f offset, SlotType slotType) {
-        if (slotType.isOfType(SlotType.Other.class)) {
-            return;
-        }
-        compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(layoutSprites.get(slotType)), new Vector3f(scale),
-                new Vector3f(offset));
-        if (slotType == SlotType.Interactable.INVENTORY) {
-            Inventory inventory = this.gameObject.getComponent(Inventory.class);
-            SpriteRenderer sprite = new SpriteRenderer();
-            InventorySlot slot = inventory.addSpriteRenderer(sprite);
-            slot.setOffset(offset);
-            overlayGrid.addObject(slot);
-            compSprite.addSpriteRenderer(sprite, new Vector3f(scale), new Vector3f(offset).add(0, 0, 1));
-        }
+    @Override
+    public void start() {
+        overlayGrid.setName(this.gameObject.getName());
+        buildLayout();
     }
 
     private Sprite getSprite(int i, int j, int x, int y, int[] rotation, boolean[] flip) {
         Sprite piece = fill;
-        if (j == 1) {
+        if (j == 0) {
             rotation[0] = 180;
 
             if (!ignoreEdge) {
                 piece = edge;
             }
-            if (i == 1 || i == x) {
+            if (i == 0 || i == x - 1) {
                 if (!ignoreCorner) {
                     piece = corner;
-                    if (i == 1) {
+                    if (i == 0) {
                         flip[0] = true;
                     }
-                } else {
-                    rotation[0] = 0;
                 }
+                // else {
+                // rotation[0] = 0;
+                // }
             }
-        } else if (j == y) {
+        } else if (j == y - 1) {
             if (!ignoreEdge) {
                 piece = edge;
             }
-            if (i == 1 || i == x) {
+            if (i == 0 || i == x - 1) {
                 if (!ignoreCorner) {
                     piece = corner;
-                    if (i == x) {
+                    if (i == x - 1) {
                         flip[0] = true;
                     }
                 }
             }
         } else {
-            if (i == 1 || i == x) {
+            if (i == 0 || i == x - 1) {
                 if (!ignoreEdge) {
                     piece = edge;
                     rotation[0] = 90;
-                    if (i == x) {
+                    if (i == x - 1) {
                         flip[0] = true;
                     }
                 }
@@ -184,81 +137,186 @@ public class Overlay extends GriddableComponent {
         return piece;
     }
 
-    @Override
-    public void start() {
-        overlayGrid.setName(this.gameObject.getName());
-        // Window.getScene().worldGrid().addObject(this.gameObject);
-        // for (Griddable obj : linkedObjects) {
-        // overlayGrid.addObject(obj);
-        // }
-        assert isInitialized
-                : "The game component " + this.gameObject.getName() + " has not initialized its overlay component";
+    private void buildBackground(boolean individualSprites) {
+        // TODO should this all be shifted a bit to the left?
+        Vector3f scale, offset;
+        int[] rotation = { 0 };
+        boolean[] flip = { false };
+        int nSpritesX = 3;
+        int nSpritesY = 3;
+        if (individualSprites) {
+            nSpritesX = width;
+            nSpritesY = height;
+        }
+
+        Sprite piece = fill;
+        for (int i = 0; i < nSpritesX; i++) {
+            for (int j = 0; j < nSpritesY; j++) {
+                rotation[0] = 0;
+                flip[0] = false;
+                piece = getSprite(i, j, nSpritesX, nSpritesY, rotation, flip);
+                scale = getScale(i, j, individualSprites);
+                if (individualSprites) {
+                    offset = getOffset(i, j);
+                } else {
+                    offset = getOffset(0.5f * i * (width - 1), 0.5f * j * (height - 1));
+                }
+                compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(piece), scale, offset, rotation[0],
+                        flip[0]);
+            }
+        }
+        // scale = new Vector3f(scaledWidth - 2 * UIscale, scaledHeight - 2 * UIscale,
+        // 1);
+        // offset = new Vector3f(scaledWidth / 2, scaledHeight / 2, 0);
+        // compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(fill), scale,
+        // offset, rotation, flip);
     }
 
-    @Override
-    public void update(float dt) {
-        // if (this.gameObject.getName().equals("inventoryObj")) {
-        // float xSpeed = 2f * dt;
-        // float ySpeed = 1f * dt;
-        // this.gameObject.transform.position.add(xSpeed, ySpeed, 0);
-        // SpatialGrid grid = Window.getScene().worldGrid();
-        // grid.updateObject(this.gameObject);
-        // }
-        // // TODO remove because better permanent system is needed
-        // for (GameObject go : linkedObjects) {
-        // GridMachine gm = go.getComponent(GridMachine.class);
-        // if (gm.isDirty()) {
-        // GridState gs = gm.getGridState(overlayGrid.getName());
-        // AnimationStateMachine sm =
-        // gameObject.getComponent(AnimationStateMachine.class);
-        // if (sm != null && gm.highlight()) {
-        // Set<String> currentGridCells = gs.getCurrentGridCells();
-        // Set<String> differenceGridCells = gs.getDifferenceGridCells();
-        // if (currentGridCells != null) {
-        // for (String pos : currentGridCells) {
-        // int spriteRendererIndex = spriteRenderers.getOrDefault(pos, -1);
-        // if (spriteRendererIndex > -1) {
-        // sm.trigger("addColor", spriteRendererIndex);
-        // }
-        // }
-        // }
-        // for (String lastPos : differenceGridCells) {
-        // int spriteRendererIndex = spriteRenderers.getOrDefault(lastPos, -1);
-        // if (spriteRendererIndex > -1) {
-        // sm.trigger("removeColor", spriteRendererIndex);
-        // }
-        // }
-        // }
-        // }
-        // }
+    public <Slot extends GriddableSlot> boolean addSlot(Slot slot) {
+        Vector3f scale = new Vector3f(UIscale, UIscale, 1);
+        for (SlotLayout slotLayout : slotLayouts) {
+            Layout layout = slotLayout.layout;
+            SlotType[][] slots = layout.getLayout();
+            for (int i = 0; i < layout.getScale().x; i++) {
+                for (int j = 0; j < layout.getScale().y; j++) {
+                    if (slots[j][i] == slot.slotType && !layout.isOccupied(i, j)) {
+                        Vector3f offset = getOffset(i, j, 2);
+                        slot.setOffset(offset);
+                        slot.setScale(scale);
+                        layout.setOccupied(i, j, true);
+                        overlayGrid.addObject(slot);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
-    public SpatialGrid getOverlayGrid() {
-        return this.overlayGrid;
+    public void addLayout(Layout layout, Map<Layout.SlotType, Sprite> sprites) {
+        slotLayouts.add(new SlotLayout(layout, sprites));
     }
 
-    public Overlay addBackdrop() {
-        // TODO not sure what this is for
-        return this;
+    private Vector3f getScale(float i, float j, boolean individualSprites) {
+        float xScale, yScale;
+        if (i == 0) {
+            xScale = UIscale;
+        } else {
+            if (individualSprites) {
+                if (i == width - 1) {
+                    xScale = UIscale;
+                } else {
+                    xScale = UIscale * (1 + padding);
+                }
+            } else {
+                if (i == 2) {
+                    xScale = UIscale;
+                } else {
+                    xScale = scaledWidth - 2 * UIscale;
+                }
+            }
+        }
+
+        if (j == 0) {
+            yScale = UIscale;
+        } else {
+            if (individualSprites) {
+                if (j == height - 1) {
+                    yScale = UIscale;
+                } else {
+                    yScale = UIscale * (1 + padding);
+                }
+            } else {
+                if (j == 2) {
+                    yScale = UIscale;
+                } else {
+                    yScale = scaledHeight - 2 * UIscale;
+                }
+            }
+        }
+
+        return new Vector3f(xScale, yScale, 1);
     }
 
-    /**
-     * Can remake and rescale the overlay.
-     * 
-     * Remake: The composite sprite of the overlay is dependent on the size of the
-     * window E.g the grid
-     * 
-     * Rescale: The composite sprite pieces' UIscale is dependent on the size of the
-     * window E.g UI stuff
-     */
-    public void resize() {
-        if (rescale) {
+    private Vector3f getOffset(float i, float j) {
+        return getOffset(i, j, 1);
+    }
 
+    private Vector3f getOffset(float i, float j, int zIndexOffset) {
+        float x = 0.5f * UIscale;
+        float y = 0.5f * UIscale;
+        if (i == width - 1) {
+            x = scaledWidth - x;
+        } else if (i != 0) {
+            x += UIscale * (1 + padding) * (i - 1);
+            x += UIscale * (1 + 0.5f * padding);
+        }
+        if (j == height - 1) {
+            y = scaledHeight - y;
+        } else if (j != 0) {
+            y += UIscale * (1 + padding) * (j - 1);
+            y += UIscale * (1 + 0.5f * padding);
+        }
+
+        return new Vector3f(x, y, zIndexOffset);
+    }
+
+    private void buildLayout() {
+        for (int i = 0; i < slotLayouts.size(); i++) {
+            SlotLayout slotLayout = slotLayouts.get(i);
+            if (!slotLayout.initialized) {
+                buildLayout(slotLayout);
+                slotLayout.initialized = true;
+            }
         }
     }
 
-    public void setRescale(boolean rescale) {
-        this.rescale = rescale;
+    private void buildLayout(SlotLayout slotLayout) {
+        SlotType[][] slots = slotLayout.layout.getLayout();
+
+        Vector3f scale, offset;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                scale = new Vector3f(UIscale, UIscale, 1);
+                offset = getOffset(i, j);
+
+                SlotType slotType = slots[j][i];
+                if (slotType != SlotType.Other.NULL) {
+                    if (slotType.isOfType(SlotType.Text.class)) {
+                        addTextSlot(scale, offset, slotType);
+                    } else {
+                        addSlot(compSprite, scale, offset, slotType, slotLayout.layoutSprites);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addSlot(CompositeSpriteRenderer compSprite, Vector3f scale, Vector3f offset, SlotType slotType,
+            Map<Layout.SlotType, Sprite> sprites) {
+        if (slotType.isOfType(SlotType.Other.class)) {
+            return;
+        }
+        if (slotType == SlotType.Interactable.INVENTORY) {
+            SpriteRenderer sprite = new SpriteRenderer().setSprite(sprites.get(slotType));
+            compSprite.addSpriteRenderer(sprite, new Vector3f(scale), new Vector3f(offset).add(0, 0, 1));
+        }
+    }
+
+    private void addTextSlot(Vector3f scale, Vector3f offset, SlotType slotType) {
+        if (slotType == SlotType.Text.POS) {
+            TextRenderer text = this.gameObject.getComponent(TextRenderer.class);
+            if (text == null) {
+                text = new TextRenderer();
+            }
+            TextBox posTextBox = new TextBox(100, 100, offset);
+            posTextBox.setName("pos");
+            text.addTextBox(posTextBox);
+        }
+    }
+
+    public SpatialGrid getOverlayGrid() {
+        return overlayGrid;
     }
 
     @Override
@@ -275,4 +333,9 @@ public class Overlay extends GriddableComponent {
     public int getObjectId() {
         return this.hashCode();
     }
+
+    @Override
+    public void update(float dt) {
+    }
+
 }

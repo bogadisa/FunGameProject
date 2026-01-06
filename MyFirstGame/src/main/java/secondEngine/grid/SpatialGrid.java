@@ -38,6 +38,10 @@ public class SpatialGrid {
         this.useScreenCoordinates = useScreenCoordinates;
     }
 
+    public void setGridSize(int gridsize) {
+        this.gridSize = gridsize;
+    }
+
     public static Set<Entry<String, SpatialGrid>> iterateGrids() {
         return SpatialGrid.spatialGrids.entrySet();
     }

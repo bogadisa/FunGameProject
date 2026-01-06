@@ -71,18 +71,6 @@ public class Texture {
         return this;
     }
 
-    public Texture initFromFont() {
-        this.filepath = "resources/fonts/Unifontexmono-lxY45.ttf";
-        Font font = AssetPool.getFont(this.filepath);
-        GlyphMetrics c = font.getMetrics("h".charAt(0));
-        this.width = c.size.x;
-        this.height = c.size.y;
-        this.texID = font.getTexID();
-        isInitialized = true;
-        AssetPool.addTexture(filepath, this);
-        return this;
-    }
-
     public void bind() {
         glBindTexture(GL_TEXTURE_2D, texID);
     }

@@ -1,19 +1,15 @@
 package secondEngine.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import secondEngine.components.helpers.SpriteSheet;
 import secondEngine.objects.overlay.Layout;
-import secondEngine.renderer.GlyphMetrics;
 import secondEngine.renderer.Font;
 import secondEngine.renderer.Shader;
 import secondEngine.renderer.Texture;
-import secondEngine.util.PrefabFactory.PrefabIds.OverlayPrefabs.InventoryLayout;
+import secondEngine.objects.overlay.OverlayManager.OverlayPrefabs.InventoryLayout;
 
 public class AssetPool {
     // Preferably these should be loaded during loading scenes
@@ -106,6 +102,6 @@ public class AssetPool {
         if (!AssetPool.InventoryLayout.containsKey(layout)) {
             assert false : "Error: Tried to use an unsupported layout '" + layout + "'.";
         }
-        return AssetPool.InventoryLayout.get(layout);
+        return AssetPool.InventoryLayout.get(layout).copy();
     }
 }

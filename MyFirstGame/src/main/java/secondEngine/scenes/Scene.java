@@ -13,7 +13,6 @@ import com.google.gson.GsonBuilder;
 import secondEngine.Camera;
 import secondEngine.Component;
 import secondEngine.Window;
-import secondEngine.components.Overlay;
 import secondEngine.components.Transform;
 import secondEngine.data.UpdateHierarchy.Priority;
 import secondEngine.grid.SpatialGrid;
@@ -140,14 +139,14 @@ public abstract class Scene {
 
     }
 
-    public void resize() {
-        for (GameObject go : gameObjects) {
-            Overlay overlay = go.getComponent(Overlay.class);
-            if (overlay != null) {
-                overlay.resize();
-            }
-        }
-    }
+    // public void resize() {
+    // for (GameObject go : gameObjects) {
+    // Overlay overlay = go.getComponent(Overlay.class);
+    // if (overlay != null) {
+    // overlay.resize();
+    // }
+    // }
+    // }
 
     public boolean isLoaded() {
         return this.sceneIsLoaded;

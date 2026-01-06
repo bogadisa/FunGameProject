@@ -35,7 +35,7 @@ public class InteractableState {
 
     private void refreshInteractables() {
         for (InteractableFrame interactableFrame : interactableFrames) {
-            interactableFrame.interactable = InteractableFactory.getInteractable(interactableFrame.interactId);
+            interactableFrame.refresh();
         }
     }
 
@@ -70,7 +70,7 @@ public class InteractableState {
         }
         boolean interacted = false;
         for (InteractableFrame interactableFrame : interactableFrames) {
-            interacted = interactableFrame.interactable.interact(this.gameObject, otherGo);
+            interacted = interactableFrame.interact(this.gameObject, otherGo);
             if (!interacted) {
                 return false;
             }

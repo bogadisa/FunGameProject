@@ -1,7 +1,9 @@
 package secondEngine.components;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joml.Vector4f;
 
@@ -11,8 +13,9 @@ import secondEngine.components.helpers.TextBox.CharacterInfo;
 import secondEngine.renderer.BatchRendererFont;
 
 public class TextRenderer extends Component {
-    private Vector4f color = new Vector4f(1, 1, 0, 1);
+    private Vector4f color = new Vector4f(0, 1, 0, 1);
     private List<TextBox> textBoxes = new ArrayList<>();
+    private Map<String, TextBox> namedTextBoxes = new HashMap<>();
 
     private transient Transform lastTransform;
 
@@ -62,8 +65,15 @@ public class TextRenderer extends Component {
         return this.textBoxes;
     }
 
+    public TextBox getNamedTextBox(String name) {
+        return this.namedTextBoxes.get(name);
+    }
+
     public TextRenderer addTextBox(TextBox textBox) {
         this.textBoxes.add(textBox);
+        if (textBox.getName().isPresent()) {
+            this.namedTextBoxes.put(textBox.getName().get(), textBox);
+        }
         this.isDirty = true;
         return this;
     }

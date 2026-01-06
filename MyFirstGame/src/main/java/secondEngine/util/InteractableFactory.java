@@ -10,7 +10,9 @@ import secondEngine.Window;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.Inventory;
 import secondEngine.components.Overlay;
+import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
+import secondEngine.components.TextRenderer;
 import secondEngine.components.helpers.InventorySlot;
 import secondEngine.grid.GridState;
 import secondEngine.grid.SpatialGrid;
@@ -32,7 +34,7 @@ public class InteractableFactory {
         }
 
         enum Misc implements InteractableIds {
-            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT, TEMP;
+            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT, TEMP, READ_POSITION;
 
             @Override
             public Categories id() {
@@ -112,13 +114,29 @@ public class InteractableFactory {
                     Vector3f thisPos = thisGO.getPosition();
                     Vector3f otherPos = otherGO.getPosition();
                     Vector3f newPos = new Vector3f(thisGO.getPosition()).sub(otherGO.getPosition());
-                    List<InventorySlot> slots = otherOverlay.getOverlayGrid()
-                            .getObjects(thisInventory.getInventorySlot(0), newPos, InventorySlot.class);
+                    SpatialGrid grid = otherOverlay.getOverlayGrid();
+                    List<InventorySlot> slots = grid.getObjects(thisInventory.getInventorySlot(0), newPos,
+                            InventorySlot.class);
+                    if (slots.size() < 1) {
+                        return false;
+                    }
                     InventorySlot otherSlot = slots.get(0);
                     InventorySlot thisSlot = thisInventory.getInventorySlot(0);
                     boolean transfered = otherSlot.transferTo(thisSlot, 1);
                     return true;
                 }
+            };
+        case READ_POSITION:
+            return get().new InteractableFunction() {
+
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    String pos = otherGO.transform.position.toString();
+                    TextRenderer text = thisGO.getComponent(TextRenderer.class);
+                    text.getNamedTextBox("pos").setText(pos);
+                    return true;
+                }
+
             };
 
         default:

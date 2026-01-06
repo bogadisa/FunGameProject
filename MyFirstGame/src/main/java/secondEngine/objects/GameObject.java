@@ -35,6 +35,15 @@ public class GameObject extends GridableObject {
         }
     }
 
+    public <T extends Component> boolean hasComponent(Class<T> componentClass) {
+        for (Component c : components) {
+            if (componentClass.isAssignableFrom(c.getClass())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public <T extends Component> T getComponent(Class<T> componentClass) {
         for (Component c : components) {
             if (componentClass.isAssignableFrom(c.getClass())) {
@@ -60,7 +69,8 @@ public class GameObject extends GridableObject {
         }
     }
 
-    public void addComponent(Component c) {
+    public <C extends Component> C addComponent(C c) {
+        assert !hasComponent(c.getClass()) : "Game object already has the component";
         this.components.add(c);
         this.priorityComponenets.get(c.getPriority()).add(c);
         c.gameObject = this;
@@ -74,6 +84,7 @@ public class GameObject extends GridableObject {
                 gs.addObject(GriddableComponent.class.cast(c));
             }
         }
+        return c;
     }
 
     @Override
