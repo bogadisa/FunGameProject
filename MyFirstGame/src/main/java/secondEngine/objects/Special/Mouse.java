@@ -8,6 +8,7 @@ import secondEngine.components.Inventory;
 import secondEngine.components.MouseTracker;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.components.helpers.InteractableState;
+import secondEngine.components.helpers.InventorySlot;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.objects.GameObject;
 import secondEngine.objects.SpriteObject;
@@ -24,24 +25,24 @@ public class Mouse {
         }
         Optional<Sprite> sprite = PrefabFactory.getObjectSprite(GroundPrefabs.Spring.GRASS_1);
         mouse = SpriteObject.generate(sprite, 32, 32);
+        mouse.transform.position.z = 10;
+        mouse.getComponent(SpriteRenderer.class).ifPresent(spriteRenderer -> spriteRenderer.refreshTexture());
         mouse.setName("Mouse");
-        // GameObject mouse = SpriteObject.generate(new Sprite().setTexture(null), 1,
-        // 1);
 
         MouseTracker mouseTracker = new MouseTracker();
         mouse.addComponent(mouseTracker);
 
-        mouse.transform.gridLockX = true;
-        mouse.transform.gridLockY = true;
+        // mouse.transform.gridLockX = true;
+        // mouse.transform.gridLockY = true;
 
         Window.setCursor("resources/textures/icons/cursor.png");
 
         Inventory inventory = mouse.addComponent(new Inventory().init(1, 64));
-        inventory.addSpriteRenderer(mouse.getComponent(SpriteRenderer.class));
-        // Inventory inventoryObj = new Inventory().init(2, 64);
-        // InventorySlot slot1 = new InventorySlot(inventoryObj,
-        // PrefabIds.GroundPrefabs.Spring.GRASS_1, 1, 64);
-        // inventory.transferFrom(slot1, 1);
+        mouse.getComponent(SpriteRenderer.class)
+                .ifPresent(spriteRenderer -> inventory.addSpriteRenderer(spriteRenderer));
+        Inventory inventoryObj = new Inventory().init(2, 64);
+        InventorySlot slot1 = new InventorySlot(inventoryObj, GroundPrefabs.Spring.GRASS_1, 1, 64);
+        inventory.transferFrom(slot1, 1);
 
         // mouse.transform.scale = new Vector3f(64, 64, 64);
 
@@ -57,15 +58,15 @@ public class Mouse {
         InteractableState toggleHighlight = new InteractableState().init("ToggleHighlight");
         toggleHighlight.addFrame(InteractableIds.Misc.TOGGLE_HIGHLIGHT);
 
-        InteractableState temp = new InteractableState().init("Temp");
-        temp.addFrame(InteractableIds.Misc.TEMP);
+        InteractableState exchangeWith = new InteractableState().init("ExchangeWith");
+        exchangeWith.addFrame(InteractableIds.MouseInteractables.EXCHANGE_WITH);
 
         InteractiveStateMachine stateMachine = new InteractiveStateMachine();
         stateMachine.addState(enlarge);
         stateMachine.addState(highlight);
         stateMachine.addState(noHighlight);
         stateMachine.addState(toggleHighlight);
-        stateMachine.addState(temp);
+        stateMachine.addState(exchangeWith);
 
         mouse.addComponent(stateMachine);
 

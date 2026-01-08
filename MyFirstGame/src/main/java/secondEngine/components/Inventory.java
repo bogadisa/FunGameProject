@@ -1,6 +1,7 @@
 package secondEngine.components;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import secondEngine.Component;
@@ -10,6 +11,7 @@ public class Inventory extends Component {
     // private Map<String, InventorySlot> slots;
     private InventorySlot[] slots;
     private SpriteRenderer[] sprites;
+    private TextRenderer[] texts; // TODO make into text box instead
     private Set<Integer> empty;
     private Set<Integer> occupied;
     // private String[] takenSlots;
@@ -22,6 +24,7 @@ public class Inventory extends Component {
     public Inventory init(int nInventorySlots, int defaultSlotMaxAmount, boolean hasOverlay) {
         slots = new InventorySlot[nInventorySlots];
         sprites = new SpriteRenderer[nInventorySlots];
+        texts = new TextRenderer[nInventorySlots];
         empty = new HashSet<>();
         occupied = new HashSet<>();
         for (int i = 0; i < nInventorySlots; i++) {
@@ -29,7 +32,9 @@ public class Inventory extends Component {
             empty.add(i);
         }
         if (hasOverlay) {
-            Overlay overlay = this.gameObject.getComponent(Overlay.class);
+            Optional<Overlay> optionalOverlay = this.gameObject.getComponent(Overlay.class);
+            assert optionalOverlay.isPresent() : "Inventory was initialized with 'hasOverlay=true', but has no overlay";
+            Overlay overlay = optionalOverlay.get();
             for (int i = 0; i < slots.length; i++) {
                 boolean wasAdded = overlay.addSlot(slots[i]);
                 assert wasAdded : "Ran out of room when adding inventory slots: Needed " + slots.length
@@ -63,6 +68,13 @@ public class Inventory extends Component {
                 }
             }
         }
+    }
+
+    /**
+     * @return The default inventory slot (index = 0)
+     */
+    public InventorySlot getInventorySlot() {
+        return slots[0];
     }
 
     public InventorySlot getInventorySlot(int index) {
@@ -115,18 +127,19 @@ public class Inventory extends Component {
 
     @Override
     public void start() {
-        SpriteRenderer sprite;
-        CompositeSpriteRenderer compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class);
-        if (compSprite != null) {
+        // CompositeSpriteRenderer compSprite =
+        // this.gameObject.getComponent(CompositeSpriteRenderer.class);
+        this.gameObject.getComponent(CompositeSpriteRenderer.class).ifPresent(compSprite -> {
             for (int i = 0; i < slots.length; i++) {
                 InventorySlot slot = slots[i];
                 if (sprites[i] == null) {
-                    sprite = new SpriteRenderer();
+                    SpriteRenderer sprite = new SpriteRenderer();
                     sprites[i] = sprite;
                     compSprite.addSpriteRenderer(sprite, slot.getScale(), slot.getOffset());
                 }
             }
-        }
+        });
+        SpriteRenderer sprite;
         for (int i = 0; i < slots.length; i++) {
             InventorySlot slot = slots[i];
 
@@ -134,6 +147,7 @@ public class Inventory extends Component {
             if (sprite != null && slot.getSprite().isPresent()) {
                 sprite.setSprite(slot.getSprite().get());
                 slot.setCleanSprite();
+                // texts[i] = new TextRenderer();
             }
         }
 

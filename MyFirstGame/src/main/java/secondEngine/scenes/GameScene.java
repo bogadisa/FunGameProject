@@ -43,6 +43,12 @@ public class GameScene extends Scene {
         GameObject mouse = Mouse.generate();
         this.addGameObjectToScene(mouse);
 
+        // GameObject centre = PrefabFactory.getObject(GroundPrefabs.Spring.DIRT_BONE);
+        // centre.transform.position.x = 256;
+        // centre.transform.position.y = 256;
+        // centre.transform.position.z = 11;
+        // this.addGameObjectToScene(centre);
+
         GameObject someOverlay = this.createGameObject("someOverlay", new Transform().init(new Vector3f(256, 256, 0)));
 
         SpriteSheet sprites = AssetPool.getSpriteSheet("overlay/inventory_2_2_4.png");
@@ -51,9 +57,9 @@ public class GameScene extends Scene {
         Sprite inventorySprite = sprites.getSprite(2);
         Sprite fillSprite = sprites.getSprite(3);
         Sprite[] overlaySprites = { fillSprite, cornerSprite, edgeSprite };
-        Overlay overlay = someOverlay.addComponent(new Overlay()).init(11, 5, 0.25f, overlaySprites, false);
+        Overlay overlay = someOverlay.addComponent(new Overlay()).init(11, 6, 0.25f, overlaySprites, false);
         Map<Layout.SlotType, Sprite> layoutSprites = Map.of(Layout.SlotType.Interactable.INVENTORY, inventorySprite);
-        InventoryLayout layout = InventoryLayout.DEFAULT_27;
+        InventoryLayout layout = InventoryLayout.TEST_36;
         overlay.addLayout(AssetPool.getLayout(layout), layoutSprites);
         Inventory inventory = someOverlay.addComponent(new Inventory()).init(layout.getNumSlots(), 64, true);
         Inventory inventoryObj = new Inventory().init(2, 64);
@@ -129,16 +135,14 @@ public class GameScene extends Scene {
 
         for (GameObject go : this.gameObjects) {
             if (go.getComponent(CompositeSpriteRenderer.class) != null) {
-                CompositeSpriteRenderer compSpr = go.getComponent(CompositeSpriteRenderer.class);
-                compSpr.refreshTextures();
+                go.getComponent(CompositeSpriteRenderer.class).ifPresent(compSpr -> compSpr.refreshTextures());
+                ;
             } else if (go.getComponent(SpriteRenderer.class) != null) {
-                SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
-                spr.refreshTexture();
+                go.getComponent(SpriteRenderer.class).ifPresent(spr -> spr.refreshTexture());
             }
 
             if (go.getComponent(AnimationStateMachine.class) != null) {
-                AnimationStateMachine stateMachine = go.getComponent(AnimationStateMachine.class);
-                stateMachine.refreshTextures();
+                go.getComponent(AnimationStateMachine.class).ifPresent(sm -> sm.refreshTextures());
             }
         }
 
@@ -148,6 +152,11 @@ public class GameScene extends Scene {
                 { n, i, i, i, i, i, i, i, i, i, n }, { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11] };
         Layout standard = new Layout(standardLayout);
         AssetPool.addLayout(standard, InventoryLayout.DEFAULT_27);
+        Layout.SlotType[][] testLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },
+                { n, i, i, i, i, i, i, i, i, i, n }, { n, i, i, i, i, i, i, i, i, i, n },
+                { n, i, i, i, i, i, i, i, i, i, n }, new Layout.SlotType[11] };
+        Layout test = new Layout(testLayout);
+        AssetPool.addLayout(test, InventoryLayout.TEST_36);
         Layout.SlotType[][] lineLayout = { new Layout.SlotType[11], { n, i, i, i, i, i, i, i, i, i, n },
                 new Layout.SlotType[11] };
         Layout line = new Layout(lineLayout);

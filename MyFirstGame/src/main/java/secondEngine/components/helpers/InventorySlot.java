@@ -12,8 +12,9 @@ import secondEngine.util.PrefabFactory.PrefabIds;
 
 public class InventorySlot extends GriddableSlot {
     private Inventory inventory;
-    private PrefabIds objectId;
+    private PrefabIds prefabId;
     private int amount;
+
     private int maxAmount;
     private boolean stackable = true;
 
@@ -24,12 +25,12 @@ public class InventorySlot extends GriddableSlot {
         this(inventory, null, 0, maxAmount);
     }
 
-    public InventorySlot(Inventory inventory, PrefabIds objectId, int amount, int maxAmount) {
+    public InventorySlot(Inventory inventory, PrefabIds prefabId, int amount, int maxAmount) {
         assert maxAmount > 0 : "Inventory slots cannot store a negative amount";
         assert amount < maxAmount : "Inventory slots cannot store more than the max amount";
         this.slotType = SlotType.Interactable.INVENTORY;
         this.inventory = inventory;
-        this.objectId = objectId;
+        this.prefabId = prefabId;
         this.amount = amount;
         this.maxAmount = maxAmount;
 
@@ -39,26 +40,46 @@ public class InventorySlot extends GriddableSlot {
     }
 
     public boolean isEmpty() {
-        return amount == 0 && objectId == null;
+        return amount == 0 && prefabId == null;
     }
 
     private boolean setToEmpty(boolean override) {
         if (!override && amount != 0) {
             return false;
         }
-        this.objectId = null;
-        this.dirtySprite = true;
+        this.setPrefabId(null);
         this.inventory.setInventorySlotEmpty(this);
         return true;
     }
 
-    private boolean setToOccupied(PrefabIds objectId) {
-        if (this.objectId != null || objectId == null) {
+    private boolean setToOccupied(PrefabIds prefabId) {
+        if (this.prefabId != null || prefabId == null) {
             return false;
         }
-        this.objectId = objectId;
-        this.dirtySprite = true;
+        this.setPrefabId(prefabId);
         this.inventory.setInventorySlotOccupied(this);
+        return true;
+    }
+
+    public boolean exchangeWith(InventorySlot recipient) {
+        return exchange(this, recipient);
+    }
+
+    private boolean exchange(InventorySlot donator, InventorySlot recipient) {
+        if (donator.prefabId != null && donator.maxAmount < recipient.amount
+                || recipient.prefabId != null && recipient.maxAmount < donator.amount) {
+            return false;
+        }
+        if (donator.prefabId == recipient.prefabId) {
+            return transfer(donator, recipient, donator.amount);
+        }
+        PrefabIds id1 = donator.getPrefabId();
+        donator.setPrefabId(recipient.getPrefabId());
+        recipient.setPrefabId(id1);
+
+        int amount1 = donator.getAmount();
+        donator.setAmount(recipient.getAmount());
+        recipient.setAmount(amount1);
         return true;
     }
 
@@ -68,7 +89,7 @@ public class InventorySlot extends GriddableSlot {
         if (amount <= 0 || donator.isEmpty()) {
             return false;
         } else if (recipient.isEmpty()) {
-            recipient.setToOccupied(donator.objectId);
+            recipient.setToOccupied(donator.prefabId);
         } else if (!recipient.equals(donator)) {
             return false;
         }
@@ -81,13 +102,13 @@ public class InventorySlot extends GriddableSlot {
         }
         int combinedAmount = amount + recipient.amount;
         if (combinedAmount <= recipient.maxAmount) {
-            recipient.amount = combinedAmount;
-            donator.amount -= amount;
+            recipient.setAmount(combinedAmount);
+            donator.setAmount(donator.getAmount() - amount);
             return transferedAll;
         }
         transferedAll = false;
-        recipient.amount = recipient.maxAmount;
-        donator.amount = combinedAmount - recipient.maxAmount;
+        recipient.setAmount(recipient.maxAmount);
+        donator.setAmount(combinedAmount - recipient.maxAmount);
         return transferedAll;
     }
 
@@ -107,8 +128,22 @@ public class InventorySlot extends GriddableSlot {
         return transfer(this, recipient, amount);
     }
 
+    public void setAmount(int amount) {
+        this.amount = amount;
+        this.dirtyAmount = true;
+    }
+
     public int getAmount() {
         return this.amount;
+    }
+
+    public void setPrefabId(PrefabIds prefabId) {
+        this.prefabId = prefabId;
+        this.dirtySprite = true;
+    }
+
+    public PrefabIds getPrefabId() {
+        return this.prefabId;
     }
 
     public boolean isStackable() {
@@ -116,7 +151,7 @@ public class InventorySlot extends GriddableSlot {
     }
 
     public Optional<Sprite> getSprite() {
-        return PrefabFactory.getObjectSprite(objectId);
+        return PrefabFactory.getObjectSprite(prefabId);
     }
 
     public boolean isDirtySprite() {
@@ -141,7 +176,7 @@ public class InventorySlot extends GriddableSlot {
             return false;
         }
         InventorySlot other = (InventorySlot) o;
-        return this.objectId == null || this.objectId.equals(other.objectId);
+        return this.prefabId == null || this.prefabId.equals(other.prefabId);
     }
 
     @Override

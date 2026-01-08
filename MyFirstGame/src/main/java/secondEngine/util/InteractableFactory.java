@@ -2,14 +2,12 @@ package secondEngine.util;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
-import org.joml.Vector3f;
 
 import secondEngine.Window;
 import secondEngine.components.AnimationStateMachine;
 import secondEngine.components.Inventory;
-import secondEngine.components.Overlay;
 import secondEngine.components.Overlay;
 import secondEngine.components.SpriteRenderer;
 import secondEngine.components.TextRenderer;
@@ -18,6 +16,7 @@ import secondEngine.grid.GridState;
 import secondEngine.grid.SpatialGrid;
 import secondEngine.objects.GameObject;
 import secondEngine.util.InteractableFactory.InteractableIds.Misc;
+import secondEngine.util.InteractableFactory.InteractableIds.MouseInteractables;;
 
 /**
  * <pre>
@@ -30,11 +29,21 @@ public class InteractableFactory {
         public abstract Categories id();
 
         enum Categories {
-            MISC
+            MISC, MOUSE
+        }
+
+        enum MouseInteractables implements InteractableIds {
+            EXCHANGE_WITH, TRANSFER_TO, READ_POSITION;
+
+            @Override
+            public Categories id() {
+                return Categories.MOUSE;
+            }
+
         }
 
         enum Misc implements InteractableIds {
-            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT, TEMP, READ_POSITION;
+            ENLARGE, HIGHLIGHT, NO_HIGHLIGHT, TOGGLE_HIGHLIGHT,;
 
             @Override
             public Categories id() {
@@ -58,8 +67,12 @@ public class InteractableFactory {
     public static InteractableFunction getInteractable(InteractableIds interactable) {
         InteractableFunction func = null;
         switch (interactable.id()) {
+        case MOUSE:
+            func = InteractableFactory.getMouse(interactable);
+            break;
         case MISC:
             func = InteractableFactory.getMisc(interactable);
+            break;
         default:
             break;
         }
@@ -67,6 +80,72 @@ public class InteractableFactory {
             throw new IllegalArgumentException("Argument of type '" + interactable + "' is not supported");
         }
         return func;
+    }
+
+    private static InteractableFunction getMouse(InteractableIds subcategory) {
+        switch (MouseInteractables.class.cast(subcategory)) {
+        case EXCHANGE_WITH:
+            return get().new InteractableFunction() {
+
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    Inventory thisInventory = thisGO.getComponent(Inventory.class).orElseThrow();
+                    Optional<Overlay> optionalOtherOverlay = otherGO.getComponent(Overlay.class);
+                    if (optionalOtherOverlay.isEmpty()) {
+                        return false;
+                    }
+                    Overlay otherOverlay = optionalOtherOverlay.get();
+                    List<InventorySlot> slots = otherOverlay.getObjects(thisInventory.getInventorySlot(),
+                            thisGO.getPosition(), InventorySlot.class);
+                    if (slots.isEmpty()) {
+                        return false;
+                    }
+                    InventorySlot otherSlot = slots.get(0);
+                    InventorySlot thisSlot = thisInventory.getInventorySlot();
+                    return otherSlot.exchangeWith(thisSlot);
+                }
+
+            };
+        // case TRANSFER_TO:
+        // return get().new InteractableFunction() {
+
+        // @Override
+        // public boolean interact(GameObject thisGO, GameObject otherGO) {
+        // Inventory thisInventory = thisGO.getComponent(Inventory.class);
+        // Overlay otherOverlay = otherGO.getComponent(Overlay.class);
+        // Vector3f thisPos = thisGO.getPosition();
+        // Vector3f otherPos = otherGO.getPosition();
+        // Vector3f newPos = new
+        // Vector3f(thisGO.getPosition()).sub(otherGO.getPosition());
+        // SpatialGrid grid = otherOverlay.getOverlayGrid();
+        // List<InventorySlot> slots =
+        // grid.getObjects(thisInventory.getInventorySlot(0), newPos,
+        // InventorySlot.class);
+        // if (slots.size() < 1) {
+        // return false;
+        // }
+        // InventorySlot otherSlot = slots.get(0);
+        // InventorySlot thisSlot = thisInventory.getInventorySlot(0);
+        // boolean transfered = otherSlot.transferTo(thisSlot, 1);
+        // return true;
+        // }
+        // };
+        case READ_POSITION:
+            return get().new InteractableFunction() {
+
+                @Override
+                public boolean interact(GameObject thisGO, GameObject otherGO) {
+                    String pos = otherGO.transform.position.toString();
+                    thisGO.getComponent(TextRenderer.class).ifPresent(text -> text.getNamedTextBox("pos").setText(pos));
+                    return true;
+                }
+
+            };
+
+        default:
+            break;
+        }
+        return null;
     }
 
     private static InteractableFunction getMisc(InteractableIds subcategory) {
@@ -103,41 +182,6 @@ public class InteractableFactory {
                     return trigger("toggleColor", thisGO, otherGO);
                 }
             };
-        case TEMP:
-            return get().new InteractableFunction() {
-
-                @Override
-                public boolean interact(GameObject thisGO, GameObject otherGO) {
-                    Inventory thisInventory = thisGO.getComponent(Inventory.class);
-                    // Inventory otherInventory = otherGO.getComponent(Inventory.class);
-                    Overlay otherOverlay = otherGO.getComponent(Overlay.class);
-                    Vector3f thisPos = thisGO.getPosition();
-                    Vector3f otherPos = otherGO.getPosition();
-                    Vector3f newPos = new Vector3f(thisGO.getPosition()).sub(otherGO.getPosition());
-                    SpatialGrid grid = otherOverlay.getOverlayGrid();
-                    List<InventorySlot> slots = grid.getObjects(thisInventory.getInventorySlot(0), newPos,
-                            InventorySlot.class);
-                    if (slots.size() < 1) {
-                        return false;
-                    }
-                    InventorySlot otherSlot = slots.get(0);
-                    InventorySlot thisSlot = thisInventory.getInventorySlot(0);
-                    boolean transfered = otherSlot.transferTo(thisSlot, 1);
-                    return true;
-                }
-            };
-        case READ_POSITION:
-            return get().new InteractableFunction() {
-
-                @Override
-                public boolean interact(GameObject thisGO, GameObject otherGO) {
-                    String pos = otherGO.transform.position.toString();
-                    TextRenderer text = thisGO.getComponent(TextRenderer.class);
-                    text.getNamedTextBox("pos").setText(pos);
-                    return true;
-                }
-
-            };
 
         default:
             break;
@@ -157,10 +201,11 @@ public class InteractableFactory {
         }
 
         protected boolean trigger(String trigger, GameObject thisGO, GameObject otherGO) {
-            AnimationStateMachine sm = otherGO.getComponent(AnimationStateMachine.class);
-            if (sm == null) {
+            Optional<AnimationStateMachine> optionalSM = otherGO.getComponent(AnimationStateMachine.class);
+            if (optionalSM.isEmpty()) {
                 return false;
             }
+            AnimationStateMachine sm = optionalSM.get();
             // TODO make this part of GridMachine logic
             Set<String> otherCoverage = getCoverage(otherGO);
             // TODO improve scene grid system

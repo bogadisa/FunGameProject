@@ -14,9 +14,9 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import secondEngine.Config.CameraConfig;
-import secondEngine.objects.GameObject;
 
 public class SpatialGrid {
+    private Vector2f gridOffset = new Vector2f(0);
     private int gridSize = 32;
     // used for when a position lines up exactly with the grid
     private final float secretShrinkageFactor = 0.00001f;
@@ -38,8 +38,24 @@ public class SpatialGrid {
         this.useScreenCoordinates = useScreenCoordinates;
     }
 
+    public void setOffset(Vector2f offset) {
+        this.gridOffset = offset;
+    }
+
+    public void setOffset(float x, float y) {
+        this.gridOffset = new Vector2f(x, y);
+    }
+
+    public Vector2f getOffset() {
+        return this.gridOffset;
+    }
+
     public void setGridSize(int gridsize) {
         this.gridSize = gridsize;
+    }
+
+    public int getGridSize() {
+        return this.gridSize;
     }
 
     public static Set<Entry<String, SpatialGrid>> iterateGrids() {
@@ -50,10 +66,6 @@ public class SpatialGrid {
         return useScreenCoordinates;
     }
 
-    public int getGridSize() {
-        return this.gridSize;
-    }
-
     public String getName() {
         return this.name;
     }
@@ -62,24 +74,41 @@ public class SpatialGrid {
         this.name = name;
     }
 
+    private Vector2f getRelativePos(Vector3f pos) {
+        return getRelativePos(pos.xy(new Vector2f()));
+    }
+
+    private Vector2f getRelativePos(Vector2f pos) {
+        return new Vector2f(pos).add(gridOffset);
+    }
+
     public Vector2f getNearestGrid(Vector3f pos) {
+        Vector2f relativePos = getRelativePos(pos);
         Vector2f offset = getInternalGridCellOffset(pos);
-        return new Vector2f(pos.x - offset.x, pos.y - offset.y);
+        return new Vector2f(relativePos.x - offset.x, relativePos.y - offset.y);
     }
 
     public Vector2i toGrid(Vector3f pos) {
-        return new Vector2i(Math.floorDiv((int) pos.x, this.gridSize), Math.floorDiv((int) pos.y, this.gridSize));
+        return toGrid(pos, true);
+    }
+
+    public Vector2i toGrid(Vector3f pos, boolean useOffset) {
+        Vector2f relativePos = getRelativePos(pos);
+        return new Vector2i(Math.floorDiv((int) relativePos.x, this.gridSize),
+                Math.floorDiv((int) relativePos.y, this.gridSize));
     }
 
     public Vector2f fromGrid(Vector2i pos) {
-        return new Vector2f(pos.x * this.gridSize, pos.y * this.gridSize);
+        Vector2f otherPos = new Vector2f(pos.x * this.gridSize, pos.y * this.gridSize);
+        return otherPos;
     }
 
     public Vector2f getInternalGridCellOffset(Vector3f pos) {
         Vector2i gridPos = toGrid(pos);
-        Vector2f acutalPos = fromGrid(gridPos);
-        // return new Vector2f(pos.x - acutalPos.x, pos.y - acutalPos.y);
-        return new Vector2f(pos.x - acutalPos.x, pos.y - acutalPos.y);
+        Vector2f relativePos = getRelativePos(pos);
+        Vector2f gridDecoded = fromGrid(gridPos);
+
+        return relativePos.sub(gridDecoded);
     }
 
     public Vector2i getGridScale() {
@@ -95,16 +124,16 @@ public class SpatialGrid {
         return new Vector2i(x, y);
     }
 
+    public String encodePos(Vector3f pos) {
+        return encodePos(toGrid(pos));
+    }
+
     public String encodePos(Vector2i xy) {
         return xy.x + ";;" + xy.y;
     }
 
     public Vector2f decodePos(String coords) {
         return fromGrid(stringToGrid(coords));
-    }
-
-    public String encodePos(Vector3f pos) {
-        return encodePos(toGrid(pos));
     }
 
     public List<Vector4f> getBoundriesArray(Set<String> positions) {
@@ -130,8 +159,6 @@ public class SpatialGrid {
         return getGridCoverage(obj.getPosition(), obj.getScale());
     }
 
-    // TODO doesnt work with single cell objects??
-    // secretShrinkageFactor - should fix this
     public Set<String> getGridCoverage(Vector3f pos, Vector3f scale) {
         Vector2i gridCoords = toGrid(pos);
         Vector2f offset = getInternalGridCellOffset(pos);
@@ -148,7 +175,7 @@ public class SpatialGrid {
         Set<String> coverage = new HashSet<>();
         for (int i = -leftShift; i <= rightShift; i++) {
             for (int j = -upShift; j <= downShift; j++) {
-                coverage.add((gridCoords.x + i) + ";;" + (gridCoords.y + j));
+                coverage.add(encodePos(new Vector2i(gridCoords).add(i, j)));
             }
         }
         return coverage;

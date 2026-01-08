@@ -3,6 +3,7 @@ package secondEngine.objects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.joml.Vector3f;
 
@@ -44,11 +45,11 @@ public class GameObject extends GridableObject {
         return false;
     }
 
-    public <T extends Component> T getComponent(Class<T> componentClass) {
+    public <T extends Component> Optional<T> getComponent(Class<T> componentClass) {
         for (Component c : components) {
             if (componentClass.isAssignableFrom(c.getClass())) {
                 try {
-                    return componentClass.cast(c);
+                    return Optional.of(componentClass.cast(c));
                 } catch (ClassCastException e) {
                     e.printStackTrace();
                     assert false : "Error: Casting component.";
@@ -56,7 +57,7 @@ public class GameObject extends GridableObject {
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public <T extends Component> void removeComponent(Class<T> componentClass) {

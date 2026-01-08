@@ -20,19 +20,11 @@ public class Renderer {
     }
 
     public void add(GameObject go) {
-        if (go.getComponent(CompositeSpriteRenderer.class) != null) {
-            add(go.getComponent(CompositeSpriteRenderer.class));
-        }
+        go.getComponent(CompositeSpriteRenderer.class).ifPresent(compSprite -> add(compSprite));
 
-        SpriteRenderer spr = go.getComponent(SpriteRenderer.class);
-        int zIndex = (int) go.transform.position.z;
-        if (spr != null) {
-            add(spr, zIndex);
-        }
+        go.getComponent(SpriteRenderer.class).ifPresent(spr -> add(spr, (int) go.transform.position.z));
 
-        if (go.getComponent(TextRenderer.class) != null) {
-            add(go.getComponent(TextRenderer.class));
-        }
+        go.getComponent(TextRenderer.class).ifPresent(text -> add(text));
     }
 
     public void add(CompositeSpriteRenderer compSprite) {

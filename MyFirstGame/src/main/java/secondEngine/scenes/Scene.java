@@ -116,8 +116,7 @@ public abstract class Scene {
     public GameObject createGameObject(String name, Transform transform) {
         GameObject go = new GameObject(name, Window.incrementAndGetCurrentObjectId());
 
-        go.addComponent(transform);
-        go.transform = go.getComponent(Transform.class);
+        go.transform = go.addComponent(transform);
         return go;
     }
 

@@ -1,16 +1,17 @@
 package secondEngine.components;
 
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import secondEngine.Config.UIconfig;
 import secondEngine.components.helpers.SlotLayout;
 import secondEngine.components.helpers.Sprite;
 import secondEngine.components.helpers.TextBox;
+import secondEngine.grid.Griddable;
 import secondEngine.grid.GriddableComponent;
 import secondEngine.grid.GriddableSlot;
 import secondEngine.grid.SpatialGrid;
@@ -45,28 +46,29 @@ public class Overlay extends GriddableComponent {
      * @return
      */
     public Overlay init(int width, int height, float padding, Sprite[] sprites, boolean individualSprites) {
+        this.UIscale = UIconfig.getScale();
+
         this.width = width;
         this.height = height;
         this.padding = padding;
+
+        this.scaledWidth = UIscale * Math.min(2, width) + (1 + padding) * UIscale * Math.max(width - 2, 0);
+        this.scaledHeight = UIscale * Math.min(2, height) + (1 + padding) * UIscale * Math.max(height - 2, 0);
 
         initSprites(sprites);
 
         this.slotLayouts = new ArrayList<>();
 
-        this.compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class);
-        if (this.compSprite == null) {
-            this.compSprite = new CompositeSpriteRenderer().init();
-            this.gameObject.addComponent(this.compSprite);
-        }
-        this.UIscale = UIconfig.getScale();
+        this.compSprite = this.gameObject.getComponent(CompositeSpriteRenderer.class)
+                .orElseGet(() -> this.gameObject.addComponent(new CompositeSpriteRenderer()).init());
         this.overlayGrid = new SpatialGrid(this.gameObject.getName(), true);
-        // TODO will this mess up because of origin?
-        this.overlayGrid.setGridSize((int) (UIscale * (1 + padding)));
 
-        this.scaledWidth = UIscale * width + padding * UIscale * Math.max(width - 2, 0);
-        this.scaledHeight = UIscale * height + padding * UIscale * Math.max(height - 2, 0);
+        int gridSize = (int) (UIscale * (1 + padding));
+        this.overlayGrid.setGridSize(gridSize);
+        this.overlayGrid.setOffset(new Vector2f(0.5f * (1 + padding) * UIscale).mul(width % 2, height % 2));
+
         this.scale = new Vector3f(scaledWidth, scaledHeight, 1);
-        this.gameObject.transform.scale = this.scale;
+        this.gameObject.transform.scale.set(this.scale);
 
         buildBackground(individualSprites);
         compSprite.refreshTextures();
@@ -107,9 +109,6 @@ public class Overlay extends GriddableComponent {
                         flip[0] = true;
                     }
                 }
-                // else {
-                // rotation[0] = 0;
-                // }
             }
         } else if (j == y - 1) {
             if (!ignoreEdge) {
@@ -138,7 +137,6 @@ public class Overlay extends GriddableComponent {
     }
 
     private void buildBackground(boolean individualSprites) {
-        // TODO should this all be shifted a bit to the left?
         Vector3f scale, offset;
         int[] rotation = { 0 };
         boolean[] flip = { false };
@@ -165,11 +163,6 @@ public class Overlay extends GriddableComponent {
                         flip[0]);
             }
         }
-        // scale = new Vector3f(scaledWidth - 2 * UIscale, scaledHeight - 2 * UIscale,
-        // 1);
-        // offset = new Vector3f(scaledWidth / 2, scaledHeight / 2, 0);
-        // compSprite.addSpriteRenderer(new SpriteRenderer().setSprite(fill), scale,
-        // offset, rotation, flip);
     }
 
     public <Slot extends GriddableSlot> boolean addSlot(Slot slot) {
@@ -191,10 +184,6 @@ public class Overlay extends GriddableComponent {
             }
         }
         return false;
-    }
-
-    public void addLayout(Layout layout, Map<Layout.SlotType, Sprite> sprites) {
-        slotLayouts.add(new SlotLayout(layout, sprites));
     }
 
     private Vector3f getScale(float i, float j, boolean individualSprites) {
@@ -246,19 +235,23 @@ public class Overlay extends GriddableComponent {
         float x = 0.5f * UIscale;
         float y = 0.5f * UIscale;
         if (i == width - 1) {
-            x = scaledWidth - x;
+            x = scaledWidth - 0.5f * UIscale;
         } else if (i != 0) {
             x += UIscale * (1 + padding) * (i - 1);
             x += UIscale * (1 + 0.5f * padding);
         }
         if (j == height - 1) {
-            y = scaledHeight - y;
+            y = scaledHeight - 0.5f * UIscale;
         } else if (j != 0) {
             y += UIscale * (1 + padding) * (j - 1);
             y += UIscale * (1 + 0.5f * padding);
         }
 
-        return new Vector3f(x, y, zIndexOffset);
+        return new Vector3f(x - scaledWidth / 2, y - scaledHeight / 2, zIndexOffset);
+    }
+
+    public void addLayout(Layout layout, Map<Layout.SlotType, Sprite> sprites) {
+        slotLayouts.add(new SlotLayout(layout, sprites));
     }
 
     private void buildLayout() {
@@ -285,14 +278,14 @@ public class Overlay extends GriddableComponent {
                     if (slotType.isOfType(SlotType.Text.class)) {
                         addTextSlot(scale, offset, slotType);
                     } else {
-                        addSlot(compSprite, scale, offset, slotType, slotLayout.layoutSprites);
+                        addSpriteSlot(compSprite, scale, offset, slotType, slotLayout.layoutSprites);
                     }
                 }
             }
         }
     }
 
-    private void addSlot(CompositeSpriteRenderer compSprite, Vector3f scale, Vector3f offset, SlotType slotType,
+    private void addSpriteSlot(CompositeSpriteRenderer compSprite, Vector3f scale, Vector3f offset, SlotType slotType,
             Map<Layout.SlotType, Sprite> sprites) {
         if (slotType.isOfType(SlotType.Other.class)) {
             return;
@@ -305,10 +298,9 @@ public class Overlay extends GriddableComponent {
 
     private void addTextSlot(Vector3f scale, Vector3f offset, SlotType slotType) {
         if (slotType == SlotType.Text.POS) {
-            TextRenderer text = this.gameObject.getComponent(TextRenderer.class);
-            if (text == null) {
-                text = new TextRenderer();
-            }
+
+            TextRenderer text = this.gameObject.getComponent(TextRenderer.class)
+                    .orElseGet(() -> this.gameObject.addComponent(new TextRenderer()));
             TextBox posTextBox = new TextBox(100, 100, offset);
             posTextBox.setName("pos");
             text.addTextBox(posTextBox);
@@ -317,6 +309,12 @@ public class Overlay extends GriddableComponent {
 
     public SpatialGrid getOverlayGrid() {
         return overlayGrid;
+    }
+
+    public <GridObject extends Griddable> List<GridObject> getObjects(GridObject obj, Vector3f objPos,
+            Class<GridObject> objClass) {
+        Vector3f pos = new Vector3f(objPos).sub(this.getPosition());
+        return overlayGrid.getObjects(obj, pos, objClass);
     }
 
     @Override

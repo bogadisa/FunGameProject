@@ -178,23 +178,20 @@ public class AnimationStateMachine extends Component {
         }
     }
 
-    private void updateComposite(float dt) {
-        CompositeSpriteRenderer compSprite = gameObject.getComponent(CompositeSpriteRenderer.class);
-        if (compSprite != null) {
-            boolean[] isFinished = new boolean[compositeSpriteIndexToAnimation.size()];
-            Integer[] keys = compositeSpriteIndexToAnimation.keySet().toArray(new Integer[isFinished.length]);
-            int i = 0;
-            for (int index : keys) {
-                AnimationState[] animationState = compositeSpriteIndexToAnimation.get(index);
-                AnimationState colorState = animationState[0];
-                AnimationState spriteState = animationState[1];
-                isFinished[i] = updateStates(dt, colorState, spriteState);
-                i++;
-            }
-            for (int j = 0; j < keys.length; j++) {
-                if (isFinished[j]) {
-                    compositeSpriteIndexToAnimation.remove(keys[j]);
-                }
+    private void updateComposite(CompositeSpriteRenderer compSprite, float dt) {
+        boolean[] isFinished = new boolean[compositeSpriteIndexToAnimation.size()];
+        Integer[] keys = compositeSpriteIndexToAnimation.keySet().toArray(new Integer[isFinished.length]);
+        int i = 0;
+        for (int index : keys) {
+            AnimationState[] animationState = compositeSpriteIndexToAnimation.get(index);
+            AnimationState colorState = animationState[0];
+            AnimationState spriteState = animationState[1];
+            isFinished[i] = updateStates(dt, colorState, spriteState);
+            i++;
+        }
+        for (int j = 0; j < keys.length; j++) {
+            if (isFinished[j]) {
+                compositeSpriteIndexToAnimation.remove(keys[j]);
             }
         }
     }
@@ -206,22 +203,23 @@ public class AnimationStateMachine extends Component {
     }
 
     private boolean updateStates(float dt, AnimationState colorState, AnimationState spriteState) {
-        SpriteRenderer sprite = gameObject.getComponent(SpriteRenderer.class);
-        if (colorState != null) {
-            if (colorState != null && this.colorAnimation) {
-                this.colorAnimation = !colorState.update(dt);
-                if (sprite != null) {
+        Optional<SpriteRenderer> optionalSprite = gameObject.getComponent(SpriteRenderer.class);
+        if (optionalSprite.isPresent()) {
+            SpriteRenderer sprite = optionalSprite.get();
+            if (colorState != null) {
+                if (colorState != null && this.colorAnimation) {
+                    this.colorAnimation = !colorState.update(dt);
                     sprite.setColor(colorState.getCurrentColor());
                 }
             }
-        }
-        if (spriteState != null) {
-            this.spriteAnimation = !spriteState.update(dt);
-            if (sprite != null && this.spriteAnimation) {
-                // TODO Why do we need to set texture when the sprite already contains the
-                // texture?
-                sprite.setSprite(spriteState.getCurrentSprite());
-                // sprite.setTexture(spriteState.getCurrentSprite().getTexture());
+            if (spriteState != null) {
+                this.spriteAnimation = !spriteState.update(dt);
+                if (this.spriteAnimation) {
+                    // TODO Why do we need to set texture when the sprite already contains the
+                    // texture?
+                    sprite.setSprite(spriteState.getCurrentSprite());
+                    // sprite.setTexture(spriteState.getCurrentSprite().getTexture());
+                }
             }
         }
         return !(spriteAnimation || colorAnimation);
@@ -231,7 +229,8 @@ public class AnimationStateMachine extends Component {
     public void update(float dt) {
         // TODO should these happen at the same time ever?
         if (!compositeSpriteIndexToAnimation.isEmpty()) {
-            updateComposite(dt);
+            this.gameObject.getComponent(CompositeSpriteRenderer.class)
+                    .ifPresent(compSprite -> updateComposite(compSprite, dt));
         } else if (colorAnimation || spriteAnimation) {
             updateRegular(dt);
         }

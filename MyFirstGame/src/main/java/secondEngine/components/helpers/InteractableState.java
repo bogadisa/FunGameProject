@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import secondEngine.objects.GameObject;
-import secondEngine.util.InteractableFactory;
-import secondEngine.util.Time;
 import secondEngine.util.Callback;
 import secondEngine.util.InteractableFactory.InteractableIds;
+import secondEngine.util.Time;
 
 public class InteractableState {
     private String title;
@@ -72,7 +71,7 @@ public class InteractableState {
         for (InteractableFrame interactableFrame : interactableFrames) {
             interacted = interactableFrame.interact(this.gameObject, otherGo);
             if (!interacted) {
-                return false;
+                break;
             }
         }
         this.cooldownCallback = Time.scheduleCooldown(title, this.cooldown);

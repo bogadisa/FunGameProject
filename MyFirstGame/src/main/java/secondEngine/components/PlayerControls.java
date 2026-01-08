@@ -24,7 +24,7 @@ public class PlayerControls extends Component {
     @Override
     public void start() {
         // this.gameObject.transform.position.set(new Vector3f(100, 100, 0));
-        this.stateMachine = this.gameObject.getComponent(AnimationStateMachine.class);
+        this.stateMachine = this.gameObject.getComponent(AnimationStateMachine.class).orElseThrow();
     }
 
     @Override

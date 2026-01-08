@@ -8,6 +8,7 @@ import secondEngine.components.Transform;
 import secondEngine.objects.GameObject;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 public class GameObjectDeserializer implements JsonDeserializer<GameObject> {
     @Override
@@ -23,7 +24,9 @@ public class GameObjectDeserializer implements JsonDeserializer<GameObject> {
             go.addComponent(c);
         }
 
-        go.transform = go.getComponent(Transform.class);
+        Optional<Transform> transform = go.getComponent(Transform.class);
+        assert transform.isPresent() : "Somehow an object was serialized without a transform";
+        go.transform = transform.get();
         return go;
     }
 }

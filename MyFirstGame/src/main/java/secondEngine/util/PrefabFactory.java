@@ -107,7 +107,7 @@ public class PrefabFactory {
         default:
             break;
         }
-        if (sprite == null) {
+        if (sprite.isEmpty()) {
             throw new IllegalArgumentException("Argument of type '" + objectId + "' is not supported");
         }
         return sprite;
@@ -137,8 +137,10 @@ public class PrefabFactory {
         switch (catEnum) {
         case GROUND:
             go = SpriteObject.generate(PrefabFactory.getObjSprite(objectId), grid.getGridSize(), grid.getGridSize());
+            break;
         case OVERLAY:
             go = OverlayObject.generate(PrefabFactory.getObjSpriteSheet(objectId), objectId);
+            break;
         default:
             break;
         }

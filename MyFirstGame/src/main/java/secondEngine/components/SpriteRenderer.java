@@ -33,6 +33,7 @@ public class SpriteRenderer extends GriddableComponent {
     @Override
     public void start() {
         refreshTexture();
+        updateZIndex((int) gameObject.transform.position.z);
 
         this.lastTransform = gameObject.transform.copy();
     }
@@ -40,6 +41,9 @@ public class SpriteRenderer extends GriddableComponent {
     @Override
     public void update(float dt) {
         if (!this.lastTransform.equals(gameObject.transform)) {
+            if (this.lastTransform.position.z != gameObject.transform.position.z) {
+                updateZIndex((int) gameObject.transform.position.z);
+            }
             gameObject.transform.copy(lastTransform);
             isDirty = true;
         }
@@ -62,6 +66,14 @@ public class SpriteRenderer extends GriddableComponent {
         }
 
         return this;
+    }
+
+    private void updateZIndex(int zIndex) {
+        if (this.renderer == null || this.renderer.getzIndex() == zIndex) {
+            return;
+        }
+        this.renderer.removeSprite(this);
+        Window.getScene().renderer().add(this);
     }
 
     private void updateRenderer(Texture texture) {

@@ -3,6 +3,7 @@ package secondEngine.components;
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -37,11 +38,9 @@ public class MouseTracker extends Component {
         this.gameObject.transform.copy(lastTransform);
         MouseListener
                 .registerMouseScrollCallback((double xOffset, double yOffset) -> onScrollCallback(xOffset, yOffset));
-        this.textRenderer = this.gameObject.getComponent(TextRenderer.class);
-        if (this.textRenderer == null) {
-            this.textRenderer = new TextRenderer();
-            this.gameObject.addComponent(this.textRenderer);
-        }
+        Optional<TextRenderer> text = this.gameObject.getComponent(TextRenderer.class);
+        this.textRenderer = this.gameObject.getComponent(TextRenderer.class)
+                .orElseGet(() -> this.gameObject.addComponent(new TextRenderer()));
         TextBox textBox = new TextBox(200, 20);
         this.text = new Text();
         textBox.addText(this.text);
@@ -66,9 +65,8 @@ public class MouseTracker extends Component {
         }
 
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_1)) {
-            InteractiveStateMachine stateMachine = this.gameObject.getComponent(InteractiveStateMachine.class);
-            String func = "Temp";
-            stateMachine.interact(func);
+            String func = "ExchangeWith";
+            this.gameObject.getComponent(InteractiveStateMachine.class).ifPresent(sm -> sm.interact(func));
         }
         this.text.setText(
                 "(" + this.gameObject.transform.position.x + ", " + this.gameObject.transform.position.y + ")");

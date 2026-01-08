@@ -12,7 +12,7 @@ import secondEngine.util.PrefabFactory.PrefabManagerBase;
 public class OverlayManager implements PrefabManagerBase {
     public interface OverlayPrefabs extends PrefabIds {
         enum InventoryLayout implements GroundPrefabs {
-            DEAFULT_1(1), DEFAULT_27(27), DEFAULT_9(9);
+            DEAFULT_1(1), DEFAULT_27(27), DEFAULT_9(9), TEST_36(36);
 
             private int nSlots;
 

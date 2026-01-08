@@ -46,7 +46,10 @@ public class OverlayObject {
             Special special = OverlayPrefabs.Special.class.cast(overlayType);
             overlayObj = generateSpecial(overlayObj, special);
         }
-        overlayObj.transform.scale = overlayObj.getComponent(Overlay.class).getScale();
+        Optional<Overlay> overlay = overlayObj.getComponent(Overlay.class);
+        if (overlay.isPresent()) {
+            overlayObj.transform.scale = overlay.get().getScale();
+        }
         if (!overlayType.isOfType(OverlayPrefabs.Special.class)) {
             Window.getScene().worldGrid().addObject(overlayObj);
         }
@@ -70,7 +73,7 @@ public class OverlayObject {
 
         Inventory inventory = inventoryObject.addComponent(new Inventory()).init(layout.getNumSlots(), 64);
         Inventory tempInventory = new Inventory().init(2, 64);
-        InventorySlot slot1 = new InventorySlot(tempInventory, GroundPrefabs.Spring.DIRT_1, 1, 64);
+        InventorySlot slot1 = new InventorySlot(tempInventory, GroundPrefabs.Spring.DIRT_1, 5, 64);
         inventory.transferFrom(slot1, 1);
         return inventoryObject;
     }
@@ -102,10 +105,14 @@ public class OverlayObject {
                 true);
 
         // a white grid to test
-        CompositeSpriteRenderer spriteRenderer = gridObject.getComponent(CompositeSpriteRenderer.class);
-        if (spriteRenderer == null) {
+        Optional<CompositeSpriteRenderer> optionalSpriteRenderer = gridObject
+                .getComponent(CompositeSpriteRenderer.class);
+        CompositeSpriteRenderer spriteRenderer;
+        if (optionalSpriteRenderer.isEmpty()) {
             spriteRenderer = new CompositeSpriteRenderer().init();
             gridObject.addComponent(spriteRenderer);
+        } else {
+            spriteRenderer = optionalSpriteRenderer.get();
         }
         // a white grid to test
         // spriteRenderer.setColor(new Vector4f(1.0f, 1.0f, 1.0f, 0.5f));
